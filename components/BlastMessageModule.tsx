@@ -442,6 +442,12 @@ export default function BlastMessageModule() {
   const [statusFilter, setStatusFilter] = useState<string>("Semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   // Active Blast Item for Edit/View/Log/Target Modal
   const [activeBlast, setActiveBlast] = useState<BlastItem>(INITIAL_BLASTS[0]);
@@ -612,7 +618,7 @@ export default function BlastMessageModule() {
   };
 
   return (
-    <div className="space-y-6 font-sans select-none">
+    <div className="space-y-6 font-sans">
 
       {/* =========================================================================
           VIEW 1: DAFTAR BLAST MESSAGE & DRAFT LIST (SCREENSHOT 09.33.10 s/d 09.33.30)
@@ -971,9 +977,10 @@ export default function BlastMessageModule() {
 
                             {item.status === "Gagal Terkirim" && (
                               <button
+                                type="button"
                                 onClick={() => {
                                   setOpenMenuId(null);
-                                  alert("Mengirim ulang blast message ke target yang gagal...");
+                                  showToast("Mengirim ulang blast message ke target yang gagal...");
                                 }}
                                 className="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 text-[#016DB2] transition"
                               >
@@ -1279,7 +1286,7 @@ export default function BlastMessageModule() {
                     {currentView !== "view" && (
                       <button
                         type="button"
-                        onClick={() => alert("Upload file gambar banner...")}
+                        onClick={() => showToast("File gambar banner berhasil dipilih.")}
                         className="px-4 py-2.5 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl font-bold shadow-2xs"
                       >
                         Upload
@@ -1303,7 +1310,7 @@ export default function BlastMessageModule() {
                     {currentView !== "view" && (
                       <button
                         type="button"
-                        onClick={() => alert("Upload file lampiran PDF...")}
+                        onClick={() => showToast("File lampiran PDF berhasil dipilih.")}
                         className="px-4 py-2.5 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl font-bold shadow-2xs"
                       >
                         Upload
@@ -1853,7 +1860,7 @@ export default function BlastMessageModule() {
               <button
                 type="button"
                 onClick={() => {
-                  alert("Melakukan resend pesan ke target gagal...");
+                  showToast("Melakukan resend pesan ke target gagal...");
                   setShowTargetModal(false);
                 }}
                 className="px-6 py-2.5 bg-[#016DB2] hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-600/20 transition"
@@ -1932,6 +1939,14 @@ export default function BlastMessageModule() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Toast Notification Container */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 animate-bounce text-xs font-semibold">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
         </div>
       )}
 

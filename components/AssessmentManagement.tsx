@@ -360,6 +360,16 @@ export default function AssessmentManagement() {
   const [singleResponseOnly, setSingleResponseOnly] = useState(true);
   const [anonymousResponse, setAnonymousResponse] = useState(false);
 
+  // Safe Toast Notification (replaces window.alert for sandboxed iframes / v0)
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 2800);
+  };
+
   // Confirmation & Success Modals
   const [showConfirmPublish, setShowConfirmPublish] = useState(false);
   const [showSuccessPublish, setShowSuccessPublish] = useState(false);
@@ -478,7 +488,7 @@ export default function AssessmentManagement() {
 
   const handleDeleteQuestion = (id: string) => {
     if (questions.length <= 1) {
-      alert("Survey minimal harus memiliki 1 butir pertanyaan.");
+      showToast("Survey minimal harus memiliki 1 butir pertanyaan.");
       return;
     }
     const filtered = questions.filter(q => q.id !== id).map((q, idx) => ({ ...q, number: idx + 1 }));
@@ -529,7 +539,7 @@ export default function AssessmentManagement() {
     setQuestions(questions.map(q => {
       if (q.id === questionId) {
         if (q.options.length <= 2) {
-          alert("Pilihan ganda / tunggal minimal memiliki 2 pilihan jawaban.");
+          showToast("Pilihan ganda / tunggal minimal memiliki 2 pilihan jawaban.");
           return q;
         }
         return {
@@ -620,7 +630,7 @@ export default function AssessmentManagement() {
   };
 
   return (
-    <div className="space-y-6 font-sans select-none">
+    <div className="space-y-6 font-sans">
 
       {/* =========================================================================
           VIEW 1: SURVEY MANAGEMENT MAIN LIST
@@ -877,8 +887,14 @@ export default function AssessmentManagement() {
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert("Link survey berhasil disalin!");
+                  try {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      navigator.clipboard.writeText(window.location.href);
+                    }
+                  } catch (e) {
+                    // ignore clipboard error in sandboxed iframe
+                  }
+                  showToast("Link survey berhasil disalin!");
                 }}
                 className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition"
               >
@@ -888,7 +904,7 @@ export default function AssessmentManagement() {
 
               <button
                 type="button"
-                onClick={() => alert("Mengunduh laporan survey format Excel & PDF...")}
+                onClick={() => showToast("Mengunduh laporan survey format Excel & PDF...")}
                 className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition"
               >
                 <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -1515,7 +1531,7 @@ export default function AssessmentManagement() {
                     </div>
                     <button 
                       type="button" 
-                      onClick={() => alert("Pilih gambar banner baru...")}
+                      onClick={() => showToast("Pilih gambar banner baru...")}
                       className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
                     >
                       Ganti Gambar
@@ -1804,7 +1820,7 @@ export default function AssessmentManagement() {
                     ))}
                     <button 
                       type="button"
-                      onClick={() => alert("Pilih role tambahan...")}
+                      onClick={() => showToast("Pilih role tambahan...")}
                       className="px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-[#016DB2] rounded-lg text-xs font-bold"
                     >
                       + Tambah Role
@@ -2063,6 +2079,14 @@ export default function AssessmentManagement() {
             <h3 className="font-black text-base text-slate-900">Sukses Menyimpan ke Draft</h3>
             <p className="text-xs text-slate-400">Anda dapat melanjutkan penyusunan survey kapan saja.</p>
           </div>
+        </div>
+      )}
+
+      {/* Global Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2.5 animate-in slide-in-from-bottom-5 border border-slate-700">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
         </div>
       )}
 

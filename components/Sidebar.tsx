@@ -32,7 +32,7 @@ export default function Sidebar({
   currentRole 
 }: SidebarProps) {
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 min-h-screen flex flex-col justify-between shrink-0 select-none">
+    <aside className="w-64 bg-white border-r border-slate-200 min-h-screen flex flex-col justify-between shrink-0">
       
       {/* Top Section */}
       <div>

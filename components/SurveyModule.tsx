@@ -28,6 +28,14 @@ export default function SurveyModule({
   onAddSurvey
 }: SurveyModuleProps) {
   const [activeTab, setActiveTab] = useState<"gallery" | "builder">("gallery");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [expandedAnalytics, setExpandedAnalytics] = useState<Record<string, boolean>>({});
 
@@ -200,7 +208,8 @@ export default function SurveyModule({
                         <Send className="w-3.5 h-3.5" /> Uji Isi Kuesioner (Simulasi User)
                       </button>
                       <button 
-                        onClick={() => alert(`Mengunduh hasil respon ${s.id}.csv...`)}
+                        type="button"
+                        onClick={() => showToast(`Mengunduh hasil respon ${s.id}.csv...`)}
                         className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition"
                       >
                         <FileSpreadsheet className="w-3.5 h-3.5" /> Ekspor CSV
@@ -368,6 +377,14 @@ export default function SurveyModule({
             </button>
           </div>
         </form>
+      )}
+
+      {/* Toast Notification Container */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 animate-bounce text-xs font-semibold">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
       )}
 
     </div>

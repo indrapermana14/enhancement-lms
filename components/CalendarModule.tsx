@@ -23,6 +23,12 @@ export default function CalendarModule({ events, onAddEvent }: CalendarModulePro
   const [selectedCat, setSelectedCat] = useState<string>("Semua Kategori");
   const [syncDone, setSyncDone] = useState<boolean>(false);
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   // New Event Form
   const [newTitle, setNewTitle] = useState("Workshop TOS Nusantara Digital Twin Batch 2");
@@ -246,7 +252,8 @@ export default function CalendarModule({ events, onAddEvent }: CalendarModulePro
                 </div>
 
                 <button 
-                  onClick={() => alert(`Mengunduh file kalender Outlook ${ev.id}.ics...`)}
+                  type="button"
+                  onClick={() => showToast(`Mengunduh file kalender Outlook ${ev.id}.ics...`)}
                   className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition"
                 >
                   <Download className="w-3.5 h-3.5" /> Unduh .ICS
@@ -257,6 +264,14 @@ export default function CalendarModule({ events, onAddEvent }: CalendarModulePro
           );
         })}
       </div>
+
+      {/* Toast Notification Container */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 animate-bounce text-xs font-semibold">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
 
     </div>
   );

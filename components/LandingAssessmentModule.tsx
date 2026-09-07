@@ -165,7 +165,7 @@ export default function LandingAssessmentModule() {
   };
 
   return (
-    <div className="space-y-6 font-sans select-none">
+    <div className="space-y-6 font-sans">
 
       {/* =========================================================================
           STAGE 1: LANDING PAGE WITH SURVEY POPUP (SCREENSHOT 16.55.36)
