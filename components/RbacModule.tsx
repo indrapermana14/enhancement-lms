@@ -20,6 +20,12 @@ interface RbacModuleProps {
 
 export default function RbacModule({ auditLogs, onAddAuditLog }: RbacModuleProps) {
   const [activeTab, setActiveTab] = useState<"matrix" | "vendor" | "pmli" | "audit">("matrix");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
   
   // Vendor Test State
   const [vendorOrg, setVendorOrg] = useState("PT Integrasi Logistik Cipta Solusi (ILCS)");
@@ -289,7 +295,8 @@ export default function RbacModule({ auditLogs, onAddAuditLog }: RbacModuleProps
 
           <div className="flex justify-end pt-2">
             <button 
-              onClick={() => alert("✅ Konfigurasi otoritas khusus PMLI telah diperbarui.")}
+              type="button"
+              onClick={() => showToast("Konfigurasi otoritas khusus PMLI telah berhasil diperbarui.")}
               className="px-5 py-2.5 bg-pelindo-700 hover:bg-pelindo-800 text-white font-bold rounded-xl transition"
             >
               Simpan Konfigurasi Otoritas
@@ -336,6 +343,14 @@ export default function RbacModule({ auditLogs, onAddAuditLog }: RbacModuleProps
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Toast Notification Container */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700 animate-bounce text-xs font-semibold">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <span>{toastMessage}</span>
         </div>
       )}
 

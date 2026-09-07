@@ -117,7 +117,7 @@ export default function CertificateModal({ certificate, onClose }: CertificateMo
               Tutup
             </button>
             <button 
-              onClick={() => alert(`Mengunduh berkas sertifikat resmi ${certificate.no_sertifikat}.pdf...`)}
+              onClick={onClose}
               className="flex items-center gap-2 px-5 py-2.5 bg-pelindo-700 hover:bg-pelindo-800 text-white text-xs font-bold rounded-xl shadow-lg shadow-pelindo-700/20 transition"
             >
               <Download className="w-4 h-4" /> Download PDF Resmi
