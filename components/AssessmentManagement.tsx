@@ -1,33 +1,33 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Search, 
-  Plus, 
-  MoreVertical, 
-  CheckCircle2, 
-  Clock, 
-  Calendar, 
-  ChevronDown, 
-  X, 
-  Upload, 
-  ArrowLeft, 
-  Trash2, 
-  Copy, 
-  Image as ImageIcon, 
-  Bold, 
-  Italic, 
-  Underline, 
-  List, 
-  ListOrdered, 
-  Link as LinkIcon, 
-  Eraser, 
-  Check, 
-  AlertCircle, 
-  Eye, 
-  Download, 
-  Send, 
-  Users, 
+import {
+  Search,
+  Plus,
+  MoreVertical,
+  CheckCircle2,
+  Clock,
+  Calendar,
+  ChevronDown,
+  X,
+  Upload,
+  ArrowLeft,
+  Trash2,
+  Copy,
+  Image as ImageIcon,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  ListOrdered,
+  Link as LinkIcon,
+  Eraser,
+  Check,
+  AlertCircle,
+  Eye,
+  Download,
+  Send,
+  Users,
   GripVertical,
   ExternalLink,
   Edit3,
@@ -317,7 +317,7 @@ export default function AssessmentManagement() {
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
   const [editingSurveyId, setEditingSurveyId] = useState<string | null>(null);
   const [editingSurveyStatus, setEditingSurveyStatus] = useState<string>("Draft");
-  
+
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [selectedSurvey, setSelectedSurvey] = useState<SurveyItem>(INITIAL_SURVEYS[0]);
   const [selectedRespondent, setSelectedRespondent] = useState<RespondentRow>(MOCK_RESPONDENTS[0]);
@@ -423,7 +423,7 @@ export default function AssessmentManagement() {
   // Filtered Respondents
   const filteredRespondents = MOCK_RESPONDENTS.filter(r => {
     const matchStatus = respondentStatusFilter === "Semua" || r.status === respondentStatusFilter;
-    const matchSearch = !respondentSearch || 
+    const matchSearch = !respondentSearch ||
       r.name.toLowerCase().includes(respondentSearch.toLowerCase()) ||
       r.nipp.includes(respondentSearch);
     return matchStatus && matchSearch;
@@ -759,15 +759,14 @@ export default function AssessmentManagement() {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className={`px-3 py-0.5 rounded-md text-[11px] font-bold border ${
-                      item.status === "Aktif" 
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                        : item.status === "Selesai" 
-                        ? "bg-slate-100 text-slate-700 border-slate-200" 
-                        : item.status === "Draft" 
-                        ? "bg-amber-50 text-amber-700 border border-amber-300" 
-                        : "bg-purple-50 text-purple-700 border-purple-200"
-                    }`}>
+                    <span className={`px-3 py-0.5 rounded-md text-[11px] font-bold border ${item.status === "Aktif"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : item.status === "Selesai"
+                          ? "bg-slate-100 text-slate-700 border-slate-200"
+                          : item.status === "Draft"
+                            ? "bg-amber-50 text-amber-700 border border-amber-300"
+                            : "bg-purple-50 text-purple-700 border-purple-200"
+                      }`}>
                       {item.status}
                     </span>
 
@@ -793,7 +792,7 @@ export default function AssessmentManagement() {
                               <span>Lihat Hasil</span>
                             </button>
                           )}
-                          
+
                           {/* Edit Survey (for non-archived surveys) */}
                           {item.status !== "Diarsipkan" && (
                             <button
@@ -829,7 +828,7 @@ export default function AssessmentManagement() {
                                 <ArchiveRestore className="w-3.5 h-3.5 text-slate-500" />
                                 <span>Pulihkan Survey</span>
                               </button>
-                              
+
                               <button
                                 type="button"
                                 onClick={() => {
@@ -900,13 +899,13 @@ export default function AssessmentManagement() {
                       <div className="relative w-8 h-8 flex items-center justify-center">
                         <svg className="w-8 h-8 transform -rotate-90">
                           <circle cx="16" cy="16" r="13" stroke="#E2E8F0" strokeWidth="3" fill="none" />
-                          <circle 
-                            cx="16" cy="16" r="13" 
-                            stroke="#016DB2" 
-                            strokeWidth="3" 
-                            fill="none" 
-                            strokeDasharray="81.68" 
-                            strokeDashoffset={81.68 - (81.68 * item.respondRate) / 100} 
+                          <circle
+                            cx="16" cy="16" r="13"
+                            stroke="#016DB2"
+                            strokeWidth="3"
+                            fill="none"
+                            strokeDasharray="81.68"
+                            strokeDashoffset={81.68 - (81.68 * item.respondRate) / 100}
                             strokeLinecap="round"
                           />
                         </svg>
@@ -941,7 +940,7 @@ export default function AssessmentManagement() {
          ========================================================================= */}
       {currentView === "result" && (
         <div className="space-y-6">
-          
+
           {/* Breadcrumb & Back Button */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -969,15 +968,14 @@ export default function AssessmentManagement() {
                 <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
                   {selectedSurvey.title}
                 </h1>
-                <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
-                  selectedSurvey.status === "Aktif" 
+                <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${selectedSurvey.status === "Aktif"
                     ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                     : selectedSurvey.status === "Selesai"
-                    ? "bg-slate-100 text-slate-700 border border-slate-200"
-                    : selectedSurvey.status === "Diarsipkan"
-                    ? "bg-purple-50 text-purple-700 border border-purple-200"
-                    : "bg-amber-50 text-amber-700 border border-amber-300"
-                }`}>
+                      ? "bg-slate-100 text-slate-700 border border-slate-200"
+                      : selectedSurvey.status === "Diarsipkan"
+                        ? "bg-purple-50 text-purple-700 border border-purple-200"
+                        : "bg-amber-50 text-amber-700 border border-amber-300"
+                  }`}>
                   {selectedSurvey.status}
                 </span>
               </div>
@@ -1096,7 +1094,7 @@ export default function AssessmentManagement() {
           {/* Sub-Tab 1: Analisis */}
           {resultTab === "analisis" && (
             <div className="space-y-6">
-              
+
               {/* Question 1: Donut Chart */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5 text-xs">
                 <div className="flex items-start justify-between gap-4">
@@ -1340,7 +1338,7 @@ export default function AssessmentManagement() {
          ========================================================================= */}
       {currentView === "respondent_detail" && (
         <div className="space-y-6">
-          
+
           <div className="space-y-1">
             <div className="text-xs text-slate-400 font-medium flex items-center gap-2">
               <button onClick={() => setCurrentView("list")} className="hover:text-[#016DB2]">Survey Management</button>
@@ -1461,7 +1459,7 @@ export default function AssessmentManagement() {
          ========================================================================= */}
       {currentView === "form" && (
         <div className="space-y-6">
-          
+
           {/* Header with Dynamic Labels & Status per Mode */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
@@ -1476,7 +1474,7 @@ export default function AssessmentManagement() {
                 {formMode === "create" ? "Buat Survey" : "Edit Survey"}
               </h1>
               <p className="text-xs text-slate-500">
-                {formMode === "create" 
+                {formMode === "create"
                   ? "Buat formulir survey baru untuk mengumpulkan feedback dan evaluasi dari insan Pelindo."
                   : `Memperbarui data dan daftar pertanyaan untuk formulir ${selectedSurvey?.id || ""}.`}
               </p>
@@ -1484,15 +1482,14 @@ export default function AssessmentManagement() {
 
             {/* Dynamic Status Badge */}
             <div>
-              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border shadow-xs ${
-                formMode === "create"
+              <span className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border shadow-xs ${formMode === "create"
                   ? "border-amber-300 text-amber-700 bg-amber-50"
                   : editingSurveyStatus === "Aktif"
-                  ? "border-emerald-300 text-emerald-700 bg-emerald-50"
-                  : editingSurveyStatus === "Draft"
-                  ? "border-amber-300 text-amber-700 bg-amber-50"
-                  : "border-slate-300 text-slate-700 bg-slate-50"
-              }`}>
+                    ? "border-emerald-300 text-emerald-700 bg-emerald-50"
+                    : editingSurveyStatus === "Draft"
+                      ? "border-amber-300 text-amber-700 bg-amber-50"
+                      : "border-slate-300 text-slate-700 bg-slate-50"
+                }`}>
                 Status: {formMode === "create" ? "Draft" : editingSurveyStatus}
               </span>
             </div>
@@ -1501,65 +1498,61 @@ export default function AssessmentManagement() {
           {/* Stepper Steps Navigation */}
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
             <div className="flex items-center justify-between max-w-3xl mx-auto text-xs">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setCurrentStep(1)}
                 className="flex items-center gap-2.5 group cursor-pointer focus:outline-none"
               >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${
-                  currentStep === 1 ? "bg-[#016DB2] text-white shadow-xs" : currentStep > 1 ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
-                }`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${currentStep === 1 ? "bg-[#016DB2] text-white shadow-xs" : currentStep > 1 ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
+                  }`}>
                   {currentStep > 1 ? <Check className="w-4 h-4 stroke-[3]" /> : "1"}
                 </div>
                 <span className={`font-bold transition ${currentStep === 1 ? "text-[#016DB2]" : "text-slate-600 group-hover:text-slate-900"}`}>
                   Informasi Survey
                 </span>
               </button>
-              
+
               <div className="w-12 h-0.5 bg-slate-200 hidden sm:block"></div>
 
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setCurrentStep(2)}
                 className="flex items-center gap-2.5 group cursor-pointer focus:outline-none"
               >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${
-                  currentStep === 2 ? "bg-[#016DB2] text-white shadow-xs" : currentStep > 2 ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
-                }`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${currentStep === 2 ? "bg-[#016DB2] text-white shadow-xs" : currentStep > 2 ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
+                  }`}>
                   {currentStep > 2 ? <Check className="w-4 h-4 stroke-[3]" /> : "2"}
                 </div>
                 <span className={`font-bold transition ${currentStep === 2 ? "text-[#016DB2]" : "text-slate-600 group-hover:text-slate-900"}`}>
                   Daftar Pertanyaan
                 </span>
               </button>
-              
+
               <div className="w-12 h-0.5 bg-slate-200 hidden sm:block"></div>
 
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setCurrentStep(3)}
                 className="flex items-center gap-2.5 group cursor-pointer focus:outline-none"
               >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${
-                  currentStep === 3 ? "bg-[#016DB2] text-white shadow-xs" : currentStep > 3 ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
-                }`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${currentStep === 3 ? "bg-[#016DB2] text-white shadow-xs" : currentStep > 3 ? "bg-emerald-500 text-white" : "bg-slate-100 text-slate-400"
+                  }`}>
                   {currentStep > 3 ? <Check className="w-4 h-4 stroke-[3]" /> : "3"}
                 </div>
                 <span className={`font-bold transition ${currentStep === 3 ? "text-[#016DB2]" : "text-slate-600 group-hover:text-slate-900"}`}>
                   Target Responden
                 </span>
               </button>
-              
+
               <div className="w-12 h-0.5 bg-slate-200 hidden sm:block"></div>
 
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setCurrentStep(4)}
                 className="flex items-center gap-2.5 group cursor-pointer focus:outline-none"
               >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${
-                  currentStep === 4 ? "bg-[#016DB2] text-white shadow-xs" : "bg-slate-100 text-slate-400"
-                }`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs transition ${currentStep === 4 ? "bg-[#016DB2] text-white shadow-xs" : "bg-slate-100 text-slate-400"
+                  }`}>
                   4
                 </div>
                 <span className={`font-bold transition ${currentStep === 4 ? "text-[#016DB2]" : "text-slate-600 group-hover:text-slate-900"}`}>
@@ -1603,9 +1596,9 @@ export default function AssessmentManagement() {
                       Kategori Topik Survey<span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <select 
-                        value={kategoriSurvey} 
-                        onChange={(e) => setKategoriSurvey(e.target.value)} 
+                      <select
+                        value={kategoriSurvey}
+                        onChange={(e) => setKategoriSurvey(e.target.value)}
                         className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 font-semibold text-slate-800 focus:outline-none focus:border-[#016DB2]"
                       >
                         <option>Penilaian KPI &amp; Kinerja</option>
@@ -1636,12 +1629,12 @@ export default function AssessmentManagement() {
                   <label className="block font-bold text-slate-700 mb-1">
                     Deskripsi Survey<span className="text-red-500">*</span>
                   </label>
-                  <textarea 
-                    rows={3} 
+                  <textarea
+                    rows={3}
                     placeholder="Jelaskan tujuan kuesioner dan instruksi pengisian kepada responden..."
-                    value={deskripsiSurvey} 
-                    onChange={(e) => setDeskripsiSurvey(e.target.value)} 
-                    className="w-full p-2.5 bg-white border border-slate-200 rounded-xl leading-relaxed resize-none text-xs text-slate-800 focus:outline-none focus:border-[#016DB2]" 
+                    value={deskripsiSurvey}
+                    onChange={(e) => setDeskripsiSurvey(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-slate-200 rounded-xl leading-relaxed resize-none text-xs text-slate-800 focus:outline-none focus:border-[#016DB2]"
                   />
                   <div className="flex justify-between text-[11px] text-slate-400 mt-0.5">
                     <span>*Maksimal 300 karakter</span>
@@ -1661,8 +1654,8 @@ export default function AssessmentManagement() {
                         <div className="text-[10px] text-slate-400">Ukuran 1200 x 400px (Max 2MB)</div>
                       </div>
                     </div>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => showToast("Pilih gambar banner baru...")}
                       className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
                     >
@@ -1679,7 +1672,7 @@ export default function AssessmentManagement() {
              =================================================================== */}
           {currentStep === 2 && (
             <div className="space-y-6">
-              
+
               {/* Top Action Bar */}
               <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div>
@@ -1705,11 +1698,10 @@ export default function AssessmentManagement() {
                   const isEditing = editingQuestionId === q.id;
 
                   return (
-                    <div 
+                    <div
                       key={q.id}
-                      className={`bg-white rounded-2xl border transition shadow-xs overflow-hidden ${
-                        isEditing ? "border-[#016DB2] ring-2 ring-blue-500/10" : "border-slate-200 hover:border-slate-300"
-                      }`}
+                      className={`bg-white rounded-2xl border transition shadow-xs overflow-hidden ${isEditing ? "border-[#016DB2] ring-2 ring-blue-500/10" : "border-slate-200 hover:border-slate-300"
+                        }`}
                     >
                       {/* Question Card Header */}
                       <div className="p-4 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between gap-3">
@@ -1739,9 +1731,8 @@ export default function AssessmentManagement() {
                           <button
                             type="button"
                             onClick={() => setEditingQuestionId(isEditing ? null : q.id)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
-                              isEditing ? "bg-[#016DB2] text-white" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-                            }`}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${isEditing ? "bg-[#016DB2] text-white" : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              }`}
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                             <span>{isEditing ? "Tutup Editor" : "Edit Soal & Jawaban"}</span>
@@ -1770,7 +1761,7 @@ export default function AssessmentManagement() {
                       {/* Question Editor Form (Expandable) */}
                       {isEditing && (
                         <div className="p-6 space-y-5 text-xs bg-white">
-                          
+
                           {/* Row 1: Teks Pertanyaan & Tipe Soal */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="md:col-span-2">
@@ -1950,7 +1941,7 @@ export default function AssessmentManagement() {
                         {r}
                       </span>
                     ))}
-                    <button 
+                    <button
                       type="button"
                       onClick={() => showToast("Pilih role tambahan...")}
                       className="px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-[#016DB2] rounded-lg text-xs font-bold"
@@ -2002,20 +1993,20 @@ export default function AssessmentManagement() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Tanggal Mulai Pengisian<span className="text-red-500">*</span></label>
-                    <input 
-                      type="date" 
-                      value={tglMulai} 
-                      onChange={(e) => setTglMulai(e.target.value)} 
-                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]" 
+                    <input
+                      type="date"
+                      value={tglMulai}
+                      onChange={(e) => setTglMulai(e.target.value)}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]"
                     />
                   </div>
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">Tanggal Batas Akhir (Deadline)<span className="text-red-500">*</span></label>
-                    <input 
-                      type="date" 
-                      value={tglSelesai} 
-                      onChange={(e) => setTglSelesai(e.target.value)} 
-                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]" 
+                    <input
+                      type="date"
+                      value={tglSelesai}
+                      onChange={(e) => setTglSelesai(e.target.value)}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]"
                     />
                   </div>
                 </div>
@@ -2027,11 +2018,11 @@ export default function AssessmentManagement() {
                       <div className="text-[11px] text-slate-400">Kirim notifikasi kepada responden yang belum menyelesaikan survey</div>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={reminderActive} 
-                        onChange={(e) => setReminderActive(e.target.checked)} 
-                        className="sr-only peer" 
+                      <input
+                        type="checkbox"
+                        checked={reminderActive}
+                        onChange={(e) => setReminderActive(e.target.checked)}
+                        className="sr-only peer"
                       />
                       <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#016DB2]"></div>
                     </label>
@@ -2041,8 +2032,8 @@ export default function AssessmentManagement() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-600 mb-1">Frekuensi Pengingat</label>
-                        <select 
-                          value={reminderFreq} 
+                        <select
+                          value={reminderFreq}
                           onChange={(e) => setReminderFreq(e.target.value)}
                           className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-medium"
                         >
@@ -2054,11 +2045,11 @@ export default function AssessmentManagement() {
                       </div>
                       <div>
                         <label className="block text-[11px] font-semibold text-slate-600 mb-1">Mulai Kirim Pengingat Sejak</label>
-                        <input 
-                          type="date" 
-                          value={reminderStartDate} 
+                        <input
+                          type="date"
+                          value={reminderStartDate}
                           onChange={(e) => setReminderStartDate(e.target.value)}
-                          className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-medium" 
+                          className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-medium"
                         />
                       </div>
                     </div>
@@ -2067,21 +2058,21 @@ export default function AssessmentManagement() {
 
                 <div className="space-y-2 pt-2">
                   <label className="flex items-center gap-2.5 cursor-pointer font-medium text-slate-700">
-                    <input 
-                      type="checkbox" 
-                      checked={singleResponseOnly} 
+                    <input
+                      type="checkbox"
+                      checked={singleResponseOnly}
                       onChange={(e) => setSingleResponseOnly(e.target.checked)}
-                      className="rounded accent-[#016DB2]" 
+                      className="rounded accent-[#016DB2]"
                     />
                     <span>Batasi 1 Kali Pengisian per Responden (Single Response Only)</span>
                   </label>
 
                   <label className="flex items-center gap-2.5 cursor-pointer font-medium text-slate-700">
-                    <input 
-                      type="checkbox" 
-                      checked={anonymousResponse} 
+                    <input
+                      type="checkbox"
+                      checked={anonymousResponse}
                       onChange={(e) => setAnonymousResponse(e.target.checked)}
-                      className="rounded accent-[#016DB2]" 
+                      className="rounded accent-[#016DB2]"
                     />
                     <span>Kuesioner Anonim (Identitas NIPP dan Nama disamarkan dalam laporan)</span>
                   </label>
@@ -2149,7 +2140,7 @@ export default function AssessmentManagement() {
               <button onClick={() => setShowConfirmPublish(false)}><X className="w-4 h-4" /></button>
             </div>
             <p className="text-slate-600 leading-relaxed">
-              {formMode === "create" 
+              {formMode === "create"
                 ? "Apakah Anda yakin untuk mempublikasikan survey ini ke seluruh target responden?"
                 : "Apakah Anda yakin ingin menyimpan seluruh perubahan pada survey dan butir pertanyaan ini?"}
             </p>
@@ -2229,29 +2220,29 @@ export default function AssessmentManagement() {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            
+
             <p className="text-slate-600 leading-relaxed">
               {surveyToDelete.status === "Diarsipkan"
                 ? "Apakah Anda yakin ingin menghapus data assessment ini dari arsip? Status survey akan otomatis dikembalikan ke status 'Selesai'."
                 : "Apakah Anda yakin ingin menghapus draft assessment ini secara permanen? Data yang telah dihapus tidak dapat dipulihkan kembali."}
             </p>
-            
+
             <div className="p-3 bg-red-50/60 border border-red-100 rounded-xl space-y-1">
               <div className="font-bold text-slate-900 line-clamp-1">{surveyToDelete.title}</div>
               <div className="text-[11px] text-slate-500">Status Saat Ini: <span className="font-semibold text-red-600">{surveyToDelete.status}</span> &bull; {surveyToDelete.periodText}</div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button 
+              <button
                 type="button"
-                onClick={() => setSurveyToDelete(null)} 
+                onClick={() => setSurveyToDelete(null)}
                 className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-semibold"
               >
                 Batal
               </button>
-              <button 
+              <button
                 type="button"
-                onClick={() => handleDeleteSurvey(surveyToDelete.id, surveyToDelete.status)} 
+                onClick={() => handleDeleteSurvey(surveyToDelete.id, surveyToDelete.status)}
                 className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition shadow-sm shadow-red-600/20"
               >
                 {surveyToDelete.status === "Diarsipkan" ? "Ya, Hapus dari Arsip" : "Ya, Hapus Permanen"}
