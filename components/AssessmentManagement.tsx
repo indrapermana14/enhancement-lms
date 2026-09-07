@@ -43,8 +43,207 @@ import {
   ChevronRight,
   ChevronUp,
   Archive,
-  ArchiveRestore
+  ArchiveRestore,
+  BarChart3,
+  PieChart,
+  TrendingUp,
+  Activity,
+  Award,
+  FileSpreadsheet,
+  MapPin,
+  Table
 } from "lucide-react";
+
+export interface SurveyAnalyticsData {
+  averageRating: number;
+  ratingLabel: string;
+  npsScore: number;
+  completionAvgMinutes: string;
+  satisfactionData: { label: string; count: number; pct: number; color: string }[];
+  aspectData: { label: string; scorePct: number; countText: string; color: string }[];
+  demographicsData: { entity: string; count: number; pct: number; color: string }[];
+  keyInsight: string;
+  topSuggestions: { user: string; role: string; text: string }[];
+}
+
+export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
+  const sid = survey.id;
+  if (sid === "SRV-01" || survey.title.toLowerCase().includes("kpi")) {
+    return {
+      averageRating: 4.6,
+      ratingLabel: "Sangat Baik",
+      npsScore: 58,
+      completionAvgMinutes: "06:24",
+      satisfactionData: [
+        { label: "Sangat Baik", count: 25, pct: 26, color: "#059669" },
+        { label: "Baik", count: 48, pct: 48, color: "#10B981" },
+        { label: "Cukup", count: 17, pct: 18, color: "#016DB2" },
+        { label: "Kurang Baik", count: 6, pct: 6, color: "#F59E0B" },
+        { label: "Tidak Baik", count: 2, pct: 2, color: "#EF4444" }
+      ],
+      aspectData: [
+        { label: "Memahami Indikator KPI", scorePct: 42, countText: "42% (70 Orang)", color: "#016DB2" },
+        { label: "Input Data / Angka Target", scorePct: 28, countText: "28% (43 Orang)", color: "#0284C7" },
+        { label: "Sistem & Kecepatan Portal", scorePct: 18, countText: "18% (30 Orang)", color: "#38BDF8" },
+        { label: "Alur Validasi & Approval", scorePct: 12, countText: "12% (19 Orang)", color: "#93C5FD" }
+      ],
+      demographicsData: [
+        { entity: "Subholding SPTP (Terminal)", count: 36, pct: 38, color: "#016DB2" },
+        { entity: "Subholding SPJM (Jasa Maritim)", count: 23, pct: 24, color: "#0284C7" },
+        { entity: "Subholding SPSL (Logistik)", count: 19, pct: 20, color: "#10B981" },
+        { entity: "PT PMLI (Corpu)", count: 18, pct: 18, color: "#F59E0B" }
+      ],
+      keyInsight: "74% responden memberikan respon positif, namun 42% menyarankan penyediaan video tutorial dan modul pedoman pengisian indikator KPI.",
+      topSuggestions: [
+        { user: "Hendra Indra F.", role: "Senior Assistant Officer", text: "Akan lebih baik jika tersedia buku panduan atau video tutorial langkah-langkah pengisian KPI sebelum mulai pengisian." },
+        { user: "Yogi M. Irshad", role: "VP Operasi SPTP", text: "Tambahkan fitur autosave agar data tidak hilang saat koneksi jaringan terputus tiba-tiba." }
+      ]
+    };
+  } else if (sid === "SRV-02" || survey.title.toLowerCase().includes("onboarding")) {
+    return {
+      averageRating: 4.8,
+      ratingLabel: "Sangat Memuaskan",
+      npsScore: 74,
+      completionAvgMinutes: "05:12",
+      satisfactionData: [
+        { label: "Sangat Memuaskan", count: 84, pct: 55, color: "#059669" },
+        { label: "Memuaskan", count: 58, pct: 38, color: "#10B981" },
+        { label: "Cukup", count: 8, pct: 5, color: "#016DB2" },
+        { label: "Kurang Memuaskan", count: 2, pct: 2, color: "#F59E0B" }
+      ],
+      aspectData: [
+        { label: "Materi Pengenalan Core AKHLAK", scorePct: 94, countText: "94% (143 Responden)", color: "#059669" },
+        { label: "Kualitas Pendampingan Mentor", scorePct: 91, countText: "91% (138 Responden)", color: "#10B981" },
+        { label: "Pengenalan Budaya Kerja Lapangan", scorePct: 88, countText: "88% (134 Responden)", color: "#016DB2" },
+        { label: "Kemudahan Akses Modul LMS", scorePct: 85, countText: "85% (129 Responden)", color: "#0284C7" }
+      ],
+      demographicsData: [
+        { entity: "Regional 2 (Tanjung Priok)", count: 61, pct: 40, color: "#016DB2" },
+        { entity: "Regional 1 (Belawan)", count: 38, pct: 25, color: "#0284C7" },
+        { entity: "Regional 3 (Tanjung Perak)", count: 30, pct: 20, color: "#10B981" },
+        { entity: "Regional 4 (Makassar)", count: 23, pct: 15, color: "#F59E0B" }
+      ],
+      keyInsight: "93% pegawai baru merasa sangat siap bertugas; disarankan menambah sesi networking langsung dengan jajaran General Manager.",
+      topSuggestions: [
+        { user: "Raditya Satyatama", role: "General Manager SPJM", text: "Program mentoring berjalan sangat efektif, disarankan ada checklist orientasi 90 hari pertama." }
+      ]
+    };
+  } else if (sid === "SRV-03" || survey.title.toLowerCase().includes("akhlak")) {
+    return {
+      averageRating: 4.7,
+      ratingLabel: "Sangat Tinggi",
+      npsScore: 68,
+      completionAvgMinutes: "07:45",
+      satisfactionData: [
+        { label: "Sangat Tinggi", count: 42, pct: 52, color: "#059669" },
+        { label: "Tinggi", count: 28, pct: 35, color: "#10B981" },
+        { label: "Sedang", count: 8, pct: 10, color: "#016DB2" },
+        { label: "Rendah", count: 2, pct: 3, color: "#EF4444" }
+      ],
+      aspectData: [
+        { label: "Amanah (Integritas & Tanggung Jawab)", scorePct: 92, countText: "92% Indeks", color: "#059669" },
+        { label: "Kolaboratif (Kerjasama Lintas Unit)", scorePct: 91, countText: "91% Indeks", color: "#10B981" },
+        { label: "Harmonis (Saling Peduli & Menghargai)", scorePct: 90, countText: "90% Indeks", color: "#016DB2" },
+        { label: "Kompeten (Belajar & Kembangkan Diri)", scorePct: 89, countText: "89% Indeks", color: "#0284C7" },
+        { label: "Loyal (Komitmen Berdedikasi)", scorePct: 87, countText: "87% Indeks", color: "#38BDF8" },
+        { label: "Adaptif (Inovasi & Antusias Perubahan)", scorePct: 85, countText: "85% Indeks", color: "#F59E0B" }
+      ],
+      demographicsData: [
+        { entity: "Kantor Pusat Pelindo HO", count: 28, pct: 35, color: "#016DB2" },
+        { entity: "Subholding SPTP", count: 24, pct: 30, color: "#0284C7" },
+        { entity: "Subholding SPJM", count: 16, pct: 20, color: "#10B981" },
+        { entity: "Subholding SPSL", count: 12, pct: 15, color: "#F59E0B" }
+      ],
+      keyInsight: "Nilai Amanah dan Kolaboratif menjadi fondasi terkuat insan Pelindo, sementara implementasi nilai Adaptif dapat dipercepat melalui program digital champions.",
+      topSuggestions: [
+        { user: "Amanda Sujiwo", role: "Direktur Logistik SPSL", text: "Perbanyak sesi role play dan studi kasus nyata penegakan nilai AKHLAK di operasional lapangan." }
+      ]
+    };
+  } else if (sid === "SRV-05" || survey.title.toLowerCase().includes("safety") || survey.title.toLowerCase().includes("k3")) {
+    return {
+      averageRating: 4.9,
+      ratingLabel: "Sangat Patuh",
+      npsScore: 82,
+      completionAvgMinutes: "04:30",
+      satisfactionData: [
+        { label: "Kepatuhan Sangat Tinggi", count: 95, pct: 68, color: "#059669" },
+        { label: "Kepatuhan Tinggi", count: 35, pct: 25, color: "#10B981" },
+        { label: "Kepatuhan Cukup", count: 10, pct: 7, color: "#016DB2" }
+      ],
+      aspectData: [
+        { label: "Kepatuhan Pemakaian APD Lengkap", scorePct: 98, countText: "98% (137 Pekerja)", color: "#059669" },
+        { label: "Toolbox Meeting K3 Harian", scorePct: 95, countText: "95% (133 Pekerja)", color: "#10B981" },
+        { label: "Pelaporan Insiden & Near-Miss", scorePct: 92, countText: "92% (129 Pekerja)", color: "#016DB2" },
+        { label: "Kesiapsiagaan Tanggap Darurat", scorePct: 90, countText: "90% (126 Pekerja)", color: "#0284C7" }
+      ],
+      demographicsData: [
+        { entity: "Terminal Petikemas SPTP", count: 70, pct: 50, color: "#016DB2" },
+        { entity: "Terminal Curah & Multipurpose", count: 35, pct: 25, color: "#0284C7" },
+        { entity: "Pelayanan Kapal SPJM", count: 35, pct: 25, color: "#10B981" }
+      ],
+      keyInsight: "Budaya K3 mencapai level Proactive Maturity; seluruh terminal mencatat Zero Fatal Accident dengan kepatuhan APD 98%.",
+      topSuggestions: [
+        { user: "Aan Sukwinandi", role: "Officer I Fasilitas", text: "Aplikasi pelaporan near-miss via mobile perlu dipermudah dengan fitur upload foto cepat." }
+      ]
+    };
+  } else if (sid === "SRV-06" || survey.title.toLowerCase().includes("pmli") || survey.title.toLowerCase().includes("pelatihan")) {
+    return {
+      averageRating: 4.5,
+      ratingLabel: "Sangat Baik",
+      npsScore: 54,
+      completionAvgMinutes: "05:50",
+      satisfactionData: [
+        { label: "Sangat Baik", count: 65, pct: 50, color: "#059669" },
+        { label: "Baik", count: 45, pct: 35, color: "#10B981" },
+        { label: "Cukup", count: 15, pct: 11, color: "#016DB2" },
+        { label: "Kurang", count: 5, pct: 4, color: "#F59E0B" }
+      ],
+      aspectData: [
+        { label: "Kompetensi Instruktur Pelindo", scorePct: 92, countText: "92% Indeks", color: "#059669" },
+        { label: "Relevansi Silabus & Modul", scorePct: 88, countText: "88% Indeks", color: "#10B981" },
+        { label: "Fasilitas Lab Simulasi & Kelas", scorePct: 86, countText: "86% Indeks", color: "#016DB2" },
+        { label: "Kenyamanan Fasilitas & Konsumsi", scorePct: 84, countText: "84% Indeks", color: "#0284C7" }
+      ],
+      demographicsData: [
+        { entity: "Divisi SDM Subholding", count: 58, pct: 45, color: "#016DB2" },
+        { entity: "Corporate University PMLI", count: 45, pct: 35, color: "#0284C7" },
+        { entity: "Regional Port Units", count: 27, pct: 20, color: "#10B981" }
+      ],
+      keyInsight: "Instruktur dan materi kelas mendapatkan skor kepuasan tinggi; disarankan peningkatan bandwidth Wi-Fi di laboratorium simulasi PMLI.",
+      topSuggestions: [
+        { user: "Kahfiarsyad Julyan", role: "Training Specialist", text: "Penyediaan rekaman sesi dan modul digital interaktif sangat membantu pasca pelatihan." }
+      ]
+    };
+  } else {
+    const rate = survey.respondRate || 50;
+    const count = survey.respondCount || 0;
+    return {
+      averageRating: +(4.0 + (rate / 100)).toFixed(1),
+      ratingLabel: rate > 75 ? "Sangat Baik" : rate > 40 ? "Baik" : "Cukup",
+      npsScore: rate,
+      completionAvgMinutes: "05:00",
+      satisfactionData: [
+        { label: "Sangat Baik", count: Math.max(1, Math.round(count * 0.4)), pct: 40, color: "#059669" },
+        { label: "Baik", count: Math.max(1, Math.round(count * 0.45)), pct: 45, color: "#10B981" },
+        { label: "Cukup", count: Math.max(0, Math.round(count * 0.15)), pct: 15, color: "#016DB2" }
+      ],
+      aspectData: [
+        { label: "Kesesuaian Materi & Instrumen", scorePct: 88, countText: "88% Respon Positif", color: "#059669" },
+        { label: "Kejelasan Instruksi Pengisian", scorePct: 85, countText: "85% Respon Positif", color: "#10B981" },
+        { label: "Aksesibilitas Sistem Portal", scorePct: 82, countText: "82% Respon Positif", color: "#016DB2" }
+      ],
+      demographicsData: [
+        { entity: "PT Pelabuhan Indonesia (HO)", count: Math.max(1, Math.round(count * 0.5)), pct: 50, color: "#016DB2" },
+        { entity: "Subholding SPTP & SPJM", count: Math.max(1, Math.round(count * 0.3)), pct: 30, color: "#0284C7" },
+        { entity: "Entitas Lainnya", count: Math.max(0, Math.round(count * 0.2)), pct: 20, color: "#10B981" }
+      ],
+      keyInsight: `Respon terkumpul ${survey.respondCount} dari target ${survey.targetCount}. Analitik dan grafik ringkasan telah dihitung secara spesifik untuk survei ini.`,
+      topSuggestions: [
+        { user: "Peserta Terdaftar", role: "Pegawai Pelindo", text: "Proses pengisian berjalan lancar dan relevan dengan kegiatan operasional harian." }
+      ]
+    };
+  }
+};
 
 export interface SurveyItem {
   id: string;
@@ -69,6 +268,7 @@ export interface QuestionItem {
   type: "Pilihan Tunggal" | "Pilihan Ganda" | "Isian Panjang" | "Isian Pendek" | "Skala Rating";
   required: boolean;
   options: string[];
+  chartType?: "Pie Chart" | "Bar Chart" | "Map Chart" | "Table";
 }
 
 export interface RespondentRow {
@@ -97,7 +297,8 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     questionText: "Bagaimana pengalaman Anda secara keseluruhan dalam pengisian KPI?",
     type: "Pilihan Tunggal",
     required: true,
-    options: ["Sangat Baik", "Baik", "Cukup", "Kurang Baik", "Tidak Baik"]
+    options: ["Sangat Baik", "Baik", "Cukup", "Kurang Baik", "Tidak Baik"],
+    chartType: "Pie Chart"
   },
   {
     id: "q2",
@@ -105,7 +306,8 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     questionText: "Apa yang menurut Anda paling sulit dalam proses pengisian KPI?",
     type: "Pilihan Ganda",
     required: true,
-    options: ["Memahami Indikator KPI", "Input data / angka", "Sistem / Teknologi yang digunakan", "Alur pengisian yang panjang", "Lainnya"]
+    options: ["Memahami Indikator KPI", "Input data / angka", "Sistem / Teknologi yang digunakan", "Alur pengisian yang panjang", "Lainnya"],
+    chartType: "Bar Chart"
   },
   {
     id: "q3",
@@ -113,7 +315,8 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     questionText: "Apa Saran Anda untuk meningkatkan proses pengisian KPI?",
     type: "Isian Panjang",
     required: true,
-    options: []
+    options: [],
+    chartType: "Table"
   },
   {
     id: "q4",
@@ -121,7 +324,8 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     questionText: "Apa kendala utama yang anda alami saat mengisi KPI?",
     type: "Isian Pendek",
     required: true,
-    options: []
+    options: [],
+    chartType: "Table"
   }
 ];
 
@@ -327,6 +531,7 @@ export default function AssessmentManagement() {
   const [activeTab, setActiveTab] = useState<"Semua" | "Aktif" | "Selesai" | "Draft" | "Diarsipkan">("Semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [cardAnalyticsSurvey, setCardAnalyticsSurvey] = useState<SurveyItem | null>(null);
 
   // Result View Sub-Tabs: "analisis" | "hasil_responden"
   const [resultTab, setResultTab] = useState<"analisis" | "hasil_responden">("analisis");
@@ -446,7 +651,8 @@ export default function AssessmentManagement() {
         questionText: "Bagaimana tingkat kepuasan Anda terhadap program pelatihan ini?",
         type: "Pilihan Tunggal",
         required: true,
-        options: ["Sangat Puas", "Puas", "Cukup", "Kurang Puas", "Tidak Puas"]
+        options: ["Sangat Puas", "Puas", "Cukup", "Kurang Puas", "Tidak Puas"],
+        chartType: "Pie Chart"
       },
       {
         id: `q-${Date.now()}-2`,
@@ -454,7 +660,8 @@ export default function AssessmentManagement() {
         questionText: "Fasilitas apa saja yang menurut Anda perlu ditingkatkan?",
         type: "Pilihan Ganda",
         required: true,
-        options: ["Materi Modul Pembelajaran", "Kecepatan Akses Portal LMS", "Kualitas Audio & Video", "Kesesuaian Jadwal", "Lainnya"]
+        options: ["Materi Modul Pembelajaran", "Kecepatan Akses Portal LMS", "Kualitas Audio & Video", "Kesesuaian Jadwal", "Lainnya"],
+        chartType: "Bar Chart"
       },
       {
         id: `q-${Date.now()}-3`,
@@ -462,7 +669,8 @@ export default function AssessmentManagement() {
         questionText: "Tuliskan saran perbaikan untuk penyelenggaraan sesi berikutnya:",
         type: "Isian Panjang",
         required: false,
-        options: []
+        options: [],
+        chartType: "Table"
       }
     ]);
     setEditingQuestionId(`q-${Date.now()}-1`);
@@ -513,7 +721,8 @@ export default function AssessmentManagement() {
       questionText: "",
       type: "Pilihan Tunggal",
       required: true,
-      options: ["Pilihan 1", "Pilihan 2", "Pilihan 3"]
+      options: ["Pilihan 1", "Pilihan 2", "Pilihan 3"],
+      chartType: "Pie Chart"
     };
     setQuestions([...questions, newQ]);
     setEditingQuestionId(newId);
@@ -863,18 +1072,47 @@ export default function AssessmentManagement() {
                   </div>
 
                   <div>
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      {item.category && (
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-sky-50 text-[#016DB2] border border-sky-100">
+                          {item.category}
+                        </span>
+                      )}
+                    </div>
                     <h3 className="font-bold text-sm text-slate-900 leading-snug line-clamp-1">
                       {item.title}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                       {item.description}
                     </p>
-                    <div className="text-[11px] text-slate-400 mt-1">
-                      Periode Pengisian: {item.periodText}
+                    <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5">
+                      <Calendar className="w-3 h-3 text-slate-400" />
+                      <span>Periode: {item.periodText}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-2">
+                  {/* Quick Card-Level Analytics Summary */}
+                  {item.status !== "Draft" && (() => {
+                    const cardAna = getSurveyAnalytics(item);
+                    return (
+                      <div className="bg-gradient-to-r from-sky-50/70 to-blue-50/50 p-2.5 rounded-xl border border-sky-100 flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500 shrink-0" />
+                          <span>{cardAna.averageRating} / 5.0</span>
+                          <span className="text-[10px] font-medium text-slate-500">({cardAna.ratingLabel})</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] font-semibold">
+                          <span className="bg-white px-2 py-0.5 rounded-md border border-sky-200 text-[#016DB2] shadow-2xs">
+                            NPS +{cardAna.npsScore}
+                          </span>
+                          <span className="text-slate-500 font-medium">~{cardAna.completionAvgMinutes} mnt</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* 3 Metric Pills */}
+                  <div className="flex items-center justify-between pt-1">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-lg bg-sky-50 text-[#016DB2] flex items-center justify-center">
                         <Send className="w-3.5 h-3.5" />
@@ -915,6 +1153,33 @@ export default function AssessmentManagement() {
                         <div className="text-[10px] text-slate-400">Respond Rate</div>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Per-Card Dedicated Action Row: Analitik & Grafik + Data Responden */}
+                  <div className="pt-2 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCardAnalyticsSurvey(item);
+                      }}
+                      className="flex-1 py-2 px-3 bg-sky-50 hover:bg-[#016DB2] text-[#016DB2] hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border border-sky-200 hover:border-[#016DB2] shadow-2xs group"
+                    >
+                      <BarChart3 className="w-3.5 h-3.5 text-[#016DB2] group-hover:text-white transition" />
+                      <span>Analitik &amp; Grafik</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewResult(item);
+                      }}
+                      className="py-2 px-3 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border border-slate-200 shadow-2xs"
+                    >
+                      <Users className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Responden</span>
+                    </button>
                   </div>
                 </div>
 
@@ -1071,7 +1336,7 @@ export default function AssessmentManagement() {
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
               <div className="text-xs text-slate-500 font-medium">Rata-Rata Waktu Penyelesaian</div>
-              <div className="text-3xl font-black text-slate-900">06:24 <span className="text-xs font-normal text-slate-400">Menit per Responden</span></div>
+              <div className="text-3xl font-black text-slate-900">{getSurveyAnalytics(selectedSurvey).completionAvgMinutes} <span className="text-xs font-normal text-slate-400">Menit per Responden</span></div>
             </div>
           </div>
 
@@ -1092,154 +1357,134 @@ export default function AssessmentManagement() {
           </div>
 
           {/* Sub-Tab 1: Analisis */}
-          {resultTab === "analisis" && (
-            <div className="space-y-6">
+          {resultTab === "analisis" && (() => {
+            const activeAna = getSurveyAnalytics(selectedSurvey);
+            return (
+              <div className="space-y-6">
 
-              {/* Question 1: Donut Chart */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5 text-xs">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
-                      Q1
-                    </span>
-                    <div>
-                      <h3 className="font-bold text-sm text-slate-900">
-                        Bagaimana pengalaman Anda secara keseluruhan dalam pengisian KPI?
-                      </h3>
-                      <div className="text-[11px] text-slate-400 mt-0.5">Pilihan Tunggal</div>
+                {/* Question 1: Donut Chart */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5 text-xs">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
+                        Q1
+                      </span>
+                      <div>
+                        <h3 className="font-bold text-sm text-slate-900">
+                          {selectedSurvey.questions && selectedSurvey.questions[0] 
+                            ? selectedSurvey.questions[0].questionText 
+                            : `Bagaimana pengalaman Anda secara keseluruhan dalam ${selectedSurvey.title}?`}
+                        </h3>
+                        <div className="text-[11px] text-slate-400 mt-0.5">Pilihan Tunggal &bull; Indeks: {activeAna.averageRating}/5.0 ({activeAna.ratingLabel})</div>
+                      </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setModalQuestion({
+                        number: 1,
+                        title: selectedSurvey.questions?.[0]?.questionText || selectedSurvey.title,
+                        type: "Pilihan Tunggal"
+                      })}
+                      className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
+                    >
+                      Lihat Detail
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setModalQuestion({
-                      number: 1,
-                      title: "Bagaimana pengalaman Anda secara keseluruhan dalam pengisian KPI?",
-                      type: "Pilihan Tunggal"
-                    })}
-                    className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
-                  >
-                    Lihat Detail
-                  </button>
-                </div>
+                  <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 flex flex-col md:flex-row items-center justify-center gap-10">
+                    <div className="relative w-44 h-44 flex items-center justify-center shrink-0">
+                      <svg className="w-44 h-44 transform -rotate-90">
+                        <circle cx="88" cy="88" r="64" stroke="#E2E8F0" strokeWidth="18" fill="none" />
+                        {(() => {
+                          let cumulative = 0;
+                          const circumference = 402;
+                          return activeAna.satisfactionData.map((item, idx) => {
+                            const offset = circumference - (circumference * (cumulative + item.pct)) / 100;
+                            cumulative += item.pct;
+                            return (
+                              <circle
+                                key={idx}
+                                cx="88"
+                                cy="88"
+                                r="64"
+                                stroke={item.color}
+                                strokeWidth="18"
+                                fill="none"
+                                strokeDasharray={circumference}
+                                strokeDashoffset={offset}
+                                strokeLinecap="round"
+                              />
+                            );
+                          });
+                        })()}
+                      </svg>
 
-                <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 flex flex-col md:flex-row items-center justify-center gap-10">
-                  <div className="relative w-44 h-44 flex items-center justify-center">
-                    <svg className="w-44 h-44 transform -rotate-90">
-                      <circle cx="88" cy="88" r="64" stroke="#E2E8F0" strokeWidth="18" fill="none" />
-                      <circle cx="88" cy="88" r="64" stroke="#059669" strokeWidth="18" fill="none" strokeDasharray="402" strokeDashoffset="297" />
-                      <circle cx="88" cy="88" r="64" stroke="#10B981" strokeWidth="18" fill="none" strokeDasharray="402" strokeDashoffset="209" />
-                      <circle cx="88" cy="88" r="64" stroke="#016DB2" strokeWidth="18" fill="none" strokeDasharray="402" strokeDashoffset="330" />
-                      <circle cx="88" cy="88" r="64" stroke="#F59E0B" strokeWidth="18" fill="none" strokeDasharray="402" strokeDashoffset="378" />
-                      <circle cx="88" cy="88" r="64" stroke="#EF4444" strokeWidth="18" fill="none" strokeDasharray="402" strokeDashoffset="394" />
-                    </svg>
-
-                    <div className="absolute text-center">
-                      <div className="text-2xl font-black text-slate-900">96</div>
-                      <div className="text-[10px] text-slate-400 font-semibold">Responden</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2.5 text-xs font-semibold text-slate-700 min-w-56">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#059669]"></span>
-                        <span>Sangat Baik</span>
+                      <div className="absolute text-center">
+                        <div className="text-2xl font-black text-slate-900">{selectedSurvey.respondCount}</div>
+                        <div className="text-[10px] text-slate-400 font-semibold">Responden</div>
                       </div>
-                      <span className="font-bold text-slate-900">25 <span className="text-slate-400 font-normal">(26%)</span></span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
-                        <span>Baik</span>
-                      </div>
-                      <span className="font-bold text-slate-900">48 <span className="text-slate-400 font-normal">(48%)</span></span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#016DB2]"></span>
-                        <span>Cukup</span>
-                      </div>
-                      <span className="font-bold text-slate-900">17 <span className="text-slate-400 font-normal">(18%)</span></span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span>
-                        <span>Kurang Baik</span>
-                      </div>
-                      <span className="font-bold text-slate-900">6 <span className="text-slate-400 font-normal">(6%)</span></span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span>
-                        <span>Tidak Baik</span>
-                      </div>
-                      <span className="font-bold text-slate-900">2 <span className="text-slate-400 font-normal">(2%)</span></span>
+                    <div className="space-y-2.5 text-xs font-semibold text-slate-700 min-w-56">
+                      {activeAna.satisfactionData.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
+                            <span>{item.label}</span>
+                          </div>
+                          <span className="font-bold text-slate-900">{item.count} <span className="text-slate-400 font-normal">({item.pct}%)</span></span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Question 2: Bar Chart */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4 text-xs">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-2.5">
-                    <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
-                      Q2
-                    </span>
-                    <div>
-                      <h3 className="font-bold text-sm text-slate-900">
-                        Apa yang menurut Anda paling sulit dalam proses pengisian KPI?
-                      </h3>
-                      <div className="text-[11px] text-slate-400 mt-0.5">Pilihan Ganda</div>
+                {/* Question 2: Bar Chart */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4 text-xs">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
+                        Q2
+                      </span>
+                      <div>
+                        <h3 className="font-bold text-sm text-slate-900">
+                          {selectedSurvey.questions && selectedSurvey.questions[1] 
+                            ? selectedSurvey.questions[1].questionText 
+                            : "Aspek & Parameter Evaluasi Utama"}
+                        </h3>
+                        <div className="text-[11px] text-slate-400 mt-0.5">Analisis Distribusi Indikator</div>
+                      </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setModalQuestion({
+                        number: 2,
+                        title: selectedSurvey.questions?.[1]?.questionText || "Parameter Evaluasi",
+                        type: "Pilihan Ganda"
+                      })}
+                      className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
+                    >
+                      Lihat Detail
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setModalQuestion({
-                      number: 2,
-                      title: "Apa yang menurut Anda paling sulit dalam proses pengisian KPI?",
-                      type: "Pilihan Ganda"
-                    })}
-                    className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
-                  >
-                    Lihat Detail
-                  </button>
-                </div>
-
-                <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 space-y-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="w-56 font-semibold text-slate-700 truncate">Memahami Indikator KPI</span>
-                    <div className="flex-1 h-3.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#016DB2] rounded-full" style={{ width: "42%" }}></div>
-                    </div>
-                    <span className="w-36 text-right font-bold text-slate-800">42% <span className="font-normal text-slate-400">(70 Orang)</span></span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="w-56 font-semibold text-slate-700 truncate">Input data/angka</span>
-                    <div className="flex-1 h-3.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#016DB2] rounded-full" style={{ width: "28%" }}></div>
-                    </div>
-                    <span className="w-36 text-right font-bold text-slate-800">28% <span className="font-normal text-slate-400">(43 Orang)</span></span>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="w-56 font-semibold text-slate-700 truncate">Sistem/Teknologi yang digunakan</span>
-                    <div className="flex-1 h-3.5 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-[#016DB2] rounded-full" style={{ width: "18%" }}></div>
-                    </div>
-                    <span className="w-36 text-right font-bold text-slate-800">18% <span className="font-normal text-slate-400">(30 Orang)</span></span>
+                  <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 space-y-4">
+                    {activeAna.aspectData.map((asp, idx) => (
+                      <div key={idx} className="flex items-center justify-between gap-4">
+                        <span className="w-56 font-semibold text-slate-700 truncate">{asp.label}</span>
+                        <div className="flex-1 h-3.5 bg-slate-200 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${asp.scorePct}%`, backgroundColor: asp.color }}></div>
+                        </div>
+                        <span className="w-36 text-right font-bold text-slate-800">{asp.countText}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Sub-Tab 2: Hasil Responden */}
           {resultTab === "hasil_responden" && (
@@ -1713,10 +1958,21 @@ export default function AssessmentManagement() {
                             <span className="font-bold text-slate-800 text-xs line-clamp-1">
                               {q.questionText || `(Pertanyaan Baru #${idx + 1})`}
                             </span>
-                            <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                            <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5 flex-wrap">
                               <span className="font-semibold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">
                                 {q.type}
                               </span>
+                              {(q.type === "Pilihan Tunggal" || q.type === "Pilihan Ganda" || q.type === "Skala Rating") ? (
+                                <span className="font-semibold text-[#016DB2] bg-sky-50 px-2 py-0.5 rounded border border-sky-200 flex items-center gap-1">
+                                  {q.chartType === "Bar Chart" ? <BarChart3 className="w-2.5 h-2.5" /> : q.chartType === "Map Chart" ? <MapPin className="w-2.5 h-2.5" /> : q.chartType === "Table" ? <Table className="w-2.5 h-2.5" /> : <PieChart className="w-2.5 h-2.5" />}
+                                  <span>Grafik: {q.chartType || "Pie Chart"}</span>
+                                </span>
+                              ) : (
+                                <span className="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1">
+                                  <Table className="w-2.5 h-2.5" />
+                                  <span>Format: Table</span>
+                                </span>
+                              )}
                               {q.required ? (
                                 <span className="text-red-500 font-bold">*Wajib diisi</span>
                               ) : (
@@ -1790,7 +2046,9 @@ export default function AssessmentManagement() {
                                     if ((nextType === "Pilihan Tunggal" || nextType === "Pilihan Ganda") && q.options.length === 0) {
                                       nextOpts = ["Pilihan 1", "Pilihan 2", "Pilihan 3"];
                                     }
-                                    handleUpdateQuestion(q.id, { type: nextType, options: nextOpts });
+                                    const isChoiceOrRating = nextType === "Pilihan Tunggal" || nextType === "Pilihan Ganda" || nextType === "Skala Rating";
+                                    const defaultChart = isChoiceOrRating ? (q.chartType && q.chartType !== "Table" ? q.chartType : nextType === "Pilihan Ganda" ? "Bar Chart" : "Pie Chart") : "Table";
+                                    handleUpdateQuestion(q.id, { type: nextType, options: nextOpts, chartType: defaultChart });
                                   }}
                                   className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 font-semibold text-slate-800 focus:outline-none focus:border-[#016DB2]"
                                 >
@@ -1817,6 +2075,77 @@ export default function AssessmentManagement() {
                               <span>Wajib Diisi (Mandatory Question)</span>
                             </label>
                           </div>
+
+                          {/* Row: Pilihan Format Tampilan Hasil Evaluasi (Hanya untuk Radio, Checkbox, Skala Rating) */}
+                          {(() => {
+                            const supportsCharts = q.type === "Pilihan Tunggal" || q.type === "Pilihan Ganda" || q.type === "Skala Rating";
+
+                            if (supportsCharts) {
+                              return (
+                                <div className="space-y-2.5 pt-3 border-t border-slate-100">
+                                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                    <label className="block font-bold text-slate-700 text-xs">
+                                      Tampilan Hasil Evaluasi (Visualisasi Grafik / Output Analitik) <span className="text-red-500">*</span>
+                                    </label>
+                                    <span className="text-[10px] text-slate-400 font-medium">
+                                      Pilih bentuk visualisasi data yang akan digenerate saat responden mengisi
+                                    </span>
+                                  </div>
+
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                    {[
+                                      { type: "Pie Chart", label: "Pie Chart", desc: "Grafik Donut / Proporsi", icon: PieChart },
+                                      { type: "Bar Chart", label: "Bar Chart", desc: "Grafik Batang Komparasi", icon: BarChart3 },
+                                      { type: "Map Chart", label: "Map Chart", desc: "Grafik Peta Sebaran Wilayah", icon: MapPin },
+                                      { type: "Table", label: "Table", desc: "Tabel Rekapitulasi Data", icon: Table }
+                                    ].map((cOpt) => {
+                                      const IconComp = cOpt.icon;
+                                      const isSelected = (q.chartType || "Pie Chart") === cOpt.type;
+                                      return (
+                                        <button
+                                          key={cOpt.type}
+                                          type="button"
+                                          onClick={() => handleUpdateQuestion(q.id, { chartType: cOpt.type as any })}
+                                          className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition ${
+                                            isSelected
+                                              ? "border-[#016DB2] bg-sky-50/70 text-[#016DB2] ring-2 ring-blue-500/15 shadow-xs"
+                                              : "border-slate-200 hover:bg-slate-50 text-slate-700 bg-white"
+                                          }`}
+                                        >
+                                          <div className="flex items-center justify-between">
+                                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isSelected ? "bg-[#016DB2] text-white" : "bg-slate-100 text-slate-500"}`}>
+                                              <IconComp className="w-3.5 h-3.5" />
+                                            </div>
+                                            {isSelected && (
+                                              <span className="w-2 h-2 rounded-full bg-[#016DB2]"></span>
+                                            )}
+                                          </div>
+                                          <div>
+                                            <div className="font-bold text-xs">{cOpt.label}</div>
+                                            <div className="text-[10px] text-slate-400 font-normal leading-tight mt-0.5">{cOpt.desc}</div>
+                                          </div>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs pt-3 mt-2">
+                                  <div className="flex items-center gap-2 text-slate-600">
+                                    <Table className="w-4 h-4 text-slate-400" />
+                                    <span>
+                                      Tampilan Hasil Evaluasi: <b>Format Tabel &amp; Transkrip Teks Responden</b>
+                                    </span>
+                                  </div>
+                                  <span className="text-[10px] bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-500 font-semibold">
+                                    Default Otomatis (Tipe {q.type})
+                                  </span>
+                                </div>
+                              );
+                            }
+                          })()}
 
                           {/* Row 3: Opsi Jawaban (Khusus Pilihan Tunggal & Ganda) */}
                           {(q.type === "Pilihan Tunggal" || q.type === "Pilihan Ganda") && (
@@ -2251,6 +2580,316 @@ export default function AssessmentManagement() {
           </div>
         </div>
       )}
+
+      {/* =========================================================================
+          MODAL: ANALITIK & GRAFIK RINGKASAN HASIL PER CARD SURVEI (POV ADMIN / CORPU)
+         ========================================================================= */}
+      {cardAnalyticsSurvey && (() => {
+        const ana = getSurveyAnalytics(cardAnalyticsSurvey);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/65 backdrop-blur-xs p-4 animate-in fade-in">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-7 py-5 border-b border-slate-100 bg-white">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-sky-100 text-[#016DB2] border border-sky-200 flex items-center gap-1">
+                      <BarChart3 className="w-3 h-3 text-[#016DB2]" />
+                      <span>Analitik &amp; Grafik Survei (Per-Card)</span>
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                      cardAnalyticsSurvey.status === "Aktif"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        : cardAnalyticsSurvey.status === "Selesai"
+                          ? "bg-slate-100 text-slate-700 border border-slate-200"
+                          : cardAnalyticsSurvey.status === "Diarsipkan"
+                            ? "bg-purple-50 text-purple-700 border border-purple-200"
+                            : "bg-amber-50 text-amber-700 border border-amber-300"
+                    }`}>
+                      {cardAnalyticsSurvey.status}
+                    </span>
+                    {cardAnalyticsSurvey.category && (
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                        {cardAnalyticsSurvey.category}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-black text-base md:text-lg text-slate-900 leading-snug">
+                    {cardAnalyticsSurvey.title}
+                  </h3>
+                  <div className="text-[11px] text-slate-400 flex items-center gap-2 flex-wrap">
+                    <span>ID: {cardAnalyticsSurvey.id}</span>
+                    <span>&bull;</span>
+                    <span>Pembuat: {cardAnalyticsSurvey.creatorName}</span>
+                    <span>&bull;</span>
+                    <span>Periode: {cardAnalyticsSurvey.periodText}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setCardAnalyticsSurvey(null)}
+                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 md:p-7 space-y-6 overflow-y-auto text-xs">
+                
+                {/* 4 Summary Metric Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div className="text-[10px] uppercase font-bold text-slate-400">Total Responden</div>
+                    <div className="text-2xl font-black text-slate-900">
+                      {cardAnalyticsSurvey.respondCount}{" "}
+                      <span className="text-xs font-normal text-slate-400">/ {cardAnalyticsSurvey.targetCount}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-medium">
+                      {cardAnalyticsSurvey.targetCount - cardAnalyticsSurvey.respondCount} Belum Mengisi
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div className="text-[10px] uppercase font-bold text-slate-400">Tingkat Respon</div>
+                    <div className="text-2xl font-black text-[#016DB2]">
+                      {cardAnalyticsSurvey.respondRate}%
+                    </div>
+                    <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>{cardAnalyticsSurvey.respondRate >= 80 ? "Sangat Optimal" : "Sedang Berjalan"}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div className="text-[10px] uppercase font-bold text-slate-400">Skor Kepuasan / Indeks</div>
+                    <div className="text-2xl font-black text-emerald-600 flex items-center gap-1.5">
+                      <Star className="w-5 h-5 fill-amber-400 text-amber-500" />
+                      <span>{ana.averageRating} <span className="text-xs font-normal text-slate-400">/ 5.0</span></span>
+                    </div>
+                    <div className="text-[10px] text-emerald-600 font-bold">
+                      Kategori {ana.ratingLabel}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                    <div className="text-[10px] uppercase font-bold text-slate-400">Durasi Rata-Rata &amp; NPS</div>
+                    <div className="text-2xl font-black text-slate-900">
+                      {ana.completionAvgMinutes} <span className="text-xs font-normal text-slate-400">Mnt</span>
+                    </div>
+                    <div className="text-[10px] text-[#016DB2] font-semibold">
+                      Net Promoter Score: +{ana.npsScore}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2 Interactive Visual Charts in Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  
+                  {/* Chart 1: Donut Chart Distribusi Respon (lg:col-span-6) */}
+                  <div className="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div>
+                        <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                          <PieChart className="w-4 h-4 text-[#016DB2]" />
+                          <span>Grafik Distribusi Jawaban &amp; Kepuasan</span>
+                        </h4>
+                        <p className="text-[10px] text-slate-400">Sebaran respon berdasarkan tingkat kepuasan responden</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-6 py-2">
+                      <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+                        <svg className="w-36 h-36 transform -rotate-90">
+                          <circle cx="72" cy="72" r="52" stroke="#F1F5F9" strokeWidth="16" fill="none" />
+                          {(() => {
+                            let cumulativePct = 0;
+                            const circumference = 326.7;
+                            return ana.satisfactionData.map((s, idx) => {
+                              const offset = circumference - (circumference * (cumulativePct + s.pct)) / 100;
+                              cumulativePct += s.pct;
+                              return (
+                                <circle
+                                  key={idx}
+                                  cx="72"
+                                  cy="72"
+                                  r="52"
+                                  stroke={s.color}
+                                  strokeWidth="16"
+                                  fill="none"
+                                  strokeDasharray={circumference}
+                                  strokeDashoffset={offset}
+                                  strokeLinecap="round"
+                                />
+                              );
+                            });
+                          })()}
+                        </svg>
+                        <div className="absolute text-center">
+                          <div className="text-xl font-black text-slate-900">{cardAnalyticsSurvey.respondCount}</div>
+                          <div className="text-[9px] text-slate-400 font-semibold uppercase">Responden</div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 text-xs font-semibold text-slate-700 flex-1 w-full">
+                        {ana.satisfactionData.map((s, idx) => (
+                          <div key={idx} className="flex items-center justify-between gap-2 text-[11px]">
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }}></span>
+                              <span className="truncate">{s.label}</span>
+                            </div>
+                            <span className="font-bold text-slate-900 shrink-0">
+                              {s.count} <span className="text-slate-400 font-normal">({s.pct}%)</span>
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Chart 2: Bar Chart Aspek / Indikator Evaluasi (lg:col-span-6) */}
+                  <div className="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                      <div>
+                        <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                          <BarChart3 className="w-4 h-4 text-[#016DB2]" />
+                          <span>Grafik Aspek / Parameter Evaluasi Utama</span>
+                        </h4>
+                        <p className="text-[10px] text-slate-400">Tingkat efektivitas per indikator pada survei ini</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 py-1">
+                      {ana.aspectData.map((asp, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="font-semibold text-slate-700 truncate">{asp.label}</span>
+                            <span className="font-bold text-slate-900 shrink-0">{asp.countText}</span>
+                          </div>
+                          <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${asp.scorePct}%`, backgroundColor: asp.color }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Chart 3: Demografi Entitas Responden Pelindo */}
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div>
+                      <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                        <Users className="w-4 h-4 text-[#016DB2]" />
+                        <span>Sebaran Responden Berdasarkan Entitas &amp; Subholding Pelindo</span>
+                      </h4>
+                      <p className="text-[10px] text-slate-400">Distribusi partisipasi karyawan di masing-masing lingkungan kerja</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {ana.demographicsData.map((demo, idx) => (
+                      <div key={idx} className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-slate-800 truncate">{demo.entity}</span>
+                          <span className="text-xs font-black text-[#016DB2]">{demo.pct}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${demo.pct}%`, backgroundColor: demo.color }}
+                          ></div>
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-medium">
+                          {demo.count} Pegawai Terdaftar
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Key Insights & AI/Corpu Recommendation */}
+                <div className="bg-gradient-to-r from-amber-50/90 to-sky-50/80 p-5 rounded-2xl border border-amber-200/80 space-y-2">
+                  <div className="flex items-center gap-2 text-amber-800 font-bold text-xs">
+                    <Sparkles className="w-4 h-4 text-amber-600" />
+                    <span>Ringkasan Kesimpulan &amp; Rekomendasi Corpu</span>
+                  </div>
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                    {ana.keyInsight}
+                  </p>
+                </div>
+
+                {/* Top Qualitative Feedback Quotes */}
+                {ana.topSuggestions.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-slate-500" />
+                      <span>Saran &amp; Catatan Masukan dari Responden Terpilih</span>
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {ana.topSuggestions.map((sug, idx) => (
+                        <div key={idx} className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200 space-y-1.5">
+                          <div className="font-bold text-slate-900 text-[11px] flex items-center justify-between">
+                            <span>{sug.user}</span>
+                            <span className="text-[10px] text-slate-400 font-normal">{sug.role}</span>
+                          </div>
+                          <p className="text-xs text-slate-600 italic leading-relaxed">
+                            &quot;{sug.text}&quot;
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-7 py-4 border-t border-slate-100 bg-slate-50/60">
+                <button
+                  type="button"
+                  onClick={() => showToast(`Mengunduh berkas laporan analitik & grafik untuk "${cardAnalyticsSurvey.title}"...`)}
+                  className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Download Laporan (Excel &amp; PDF)</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCardAnalyticsSurvey(null)}
+                    className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
+                  >
+                    Tutup
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const target = cardAnalyticsSurvey;
+                      setCardAnalyticsSurvey(null);
+                      handleViewResult(target);
+                    }}
+                    className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm shadow-blue-600/20 flex items-center gap-1.5"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Buka Halaman Analisis Penuh</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Global Toast Notification */}
       {toastMessage && (
