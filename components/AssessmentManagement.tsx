@@ -41,7 +41,9 @@ import {
   CircleDot,
   Star,
   ChevronRight,
-  ChevronUp
+  ChevronUp,
+  Archive,
+  ArchiveRestore
 } from "lucide-react";
 
 export interface SurveyItem {
@@ -375,6 +377,41 @@ export default function AssessmentManagement() {
   const [showSuccessPublish, setShowSuccessPublish] = useState(false);
   const [showConfirmDraft, setShowConfirmDraft] = useState(false);
   const [showSuccessDraft, setShowSuccessDraft] = useState(false);
+  const [surveyToDelete, setSurveyToDelete] = useState<SurveyItem | null>(null);
+  const [surveyToArchive, setSurveyToArchive] = useState<SurveyItem | null>(null);
+
+  // Handlers for Archive and Delete
+  const handleArchiveSurvey = (surveyId: string) => {
+    setSurveys(prev => prev.map(s => s.id === surveyId ? { ...s, status: "Diarsipkan" } : s));
+    setOpenMenuId(null);
+    setSurveyToArchive(null);
+    showToast("Status assessment berhasil diubah menjadi 'Diarsipkan'.");
+  };
+
+  const handleRestoreSurvey = (surveyId: string) => {
+    setSurveys(prev => prev.map(s => s.id === surveyId ? { ...s, status: "Selesai" } : s));
+    setOpenMenuId(null);
+    showToast("Assessment berhasil dikembalikan dari arsip ke status 'Selesai'.");
+  };
+
+  const handleDeleteSurvey = (surveyId: string, currentStatus?: string) => {
+    const target = surveys.find(s => s.id === surveyId);
+    const status = currentStatus || target?.status;
+
+    if (status === "Diarsipkan") {
+      // Jika status Diarsipkan, menghapus data arsip mengembalikan statusnya ke "Selesai"
+      setSurveys(prev => prev.map(s => s.id === surveyId ? { ...s, status: "Selesai" } : s));
+      setSurveyToDelete(null);
+      setOpenMenuId(null);
+      showToast("Data arsip dihapus. Status assessment kembali menjadi 'Selesai'.");
+    } else {
+      // Jika Draft atau lainnya, hapus dari list
+      setSurveys(prev => prev.filter(s => s.id !== surveyId));
+      setSurveyToDelete(null);
+      setOpenMenuId(null);
+      showToast("Data draft assessment berhasil dihapus.");
+    }
+  };
 
   // Filtered Surveys
   const filteredSurveys = surveys.filter(s => {
@@ -736,6 +773,7 @@ export default function AssessmentManagement() {
 
                     <div className="relative">
                       <button
+                        type="button"
                         onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
                         className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
                       >
@@ -743,22 +781,83 @@ export default function AssessmentManagement() {
                       </button>
 
                       {openMenuId === item.id && (
-                        <div className="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-30 text-xs font-semibold animate-in fade-in">
-                          <button
-                            onClick={() => handleViewResult(item)}
-                            className="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 text-slate-700 transition flex items-center gap-2"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>Lihat Hasil</span>
-                          </button>
+                        <div className="absolute right-0 mt-1 w-44 bg-white border border-slate-200 rounded-xl shadow-xl py-1.5 z-30 text-xs font-semibold animate-in fade-in">
+                          {/* Lihat Hasil (for all except Draft) */}
+                          {item.status !== "Draft" && (
+                            <button
+                              type="button"
+                              onClick={() => handleViewResult(item)}
+                              className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 transition flex items-center gap-2"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-slate-400" />
+                              <span>Lihat Hasil</span>
+                            </button>
+                          )}
                           
-                          <button
-                            onClick={() => handleOpenEditSurvey(item)}
-                            className="w-full text-left px-3.5 py-1.5 hover:bg-blue-50 text-[#016DB2] transition flex items-center gap-2"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                            <span>Edit Survey</span>
-                          </button>
+                          {/* Edit Survey (for non-archived surveys) */}
+                          {item.status !== "Diarsipkan" && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditSurvey(item)}
+                              className="w-full text-left px-3.5 py-2 hover:bg-blue-50 text-[#016DB2] transition flex items-center gap-2"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Edit Survey</span>
+                            </button>
+                          )}
+
+                          {/* Jika status Selesai -> Munculkan action "Diarsipkan" */}
+                          {item.status === "Selesai" && (
+                            <button
+                              type="button"
+                              onClick={() => handleArchiveSurvey(item.id)}
+                              className="w-full text-left px-3.5 py-2 hover:bg-purple-50 text-purple-700 transition flex items-center gap-2 border-t border-slate-100"
+                            >
+                              <Archive className="w-3.5 h-3.5 text-purple-600" />
+                              <span>Diarsipkan</span>
+                            </button>
+                          )}
+
+                          {/* Jika status Diarsipkan -> Munculkan action "Pulihkan" & "Hapus" */}
+                          {item.status === "Diarsipkan" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleRestoreSurvey(item.id)}
+                                className="w-full text-left px-3.5 py-2 hover:bg-slate-50 text-slate-700 transition flex items-center gap-2"
+                              >
+                                <ArchiveRestore className="w-3.5 h-3.5 text-slate-500" />
+                                <span>Pulihkan Survey</span>
+                              </button>
+                              
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenMenuId(null);
+                                  setSurveyToDelete(item);
+                                }}
+                                className="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-600 transition flex items-center gap-2 border-t border-slate-100"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                                <span>Hapus</span>
+                              </button>
+                            </>
+                          )}
+
+                          {/* Jika status Draft -> Munculkan action "Hapus Draft" */}
+                          {item.status === "Draft" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpenMenuId(null);
+                                setSurveyToDelete(item);
+                              }}
+                              className="w-full text-left px-3.5 py-2 hover:bg-red-50 text-red-600 transition flex items-center gap-2 border-t border-slate-100"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                              <span>Hapus Draft</span>
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -873,7 +972,11 @@ export default function AssessmentManagement() {
                 <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
                   selectedSurvey.status === "Aktif" 
                     ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : "bg-slate-100 text-slate-700 border border-slate-200"
+                    : selectedSurvey.status === "Selesai"
+                    ? "bg-slate-100 text-slate-700 border border-slate-200"
+                    : selectedSurvey.status === "Diarsipkan"
+                    ? "bg-purple-50 text-purple-700 border border-purple-200"
+                    : "bg-amber-50 text-amber-700 border border-amber-300"
                 }`}>
                   {selectedSurvey.status}
                 </span>
@@ -911,14 +1014,43 @@ export default function AssessmentManagement() {
                 <span>Download Report</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => handleOpenEditSurvey(selectedSurvey)}
-                className="px-4 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-600/20 transition"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Edit Survey</span>
-              </button>
+              {/* Action Diarsipkan jika status Selesai */}
+              {selectedSurvey.status === "Selesai" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleArchiveSurvey(selectedSurvey.id);
+                    setSelectedSurvey(prev => ({ ...prev, status: "Diarsipkan" }));
+                  }}
+                  className="px-4 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition"
+                >
+                  <Archive className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Diarsipkan</span>
+                </button>
+              )}
+
+              {/* Action Hapus jika status Diarsipkan */}
+              {selectedSurvey.status === "Diarsipkan" && (
+                <button
+                  type="button"
+                  onClick={() => setSurveyToDelete(selectedSurvey)}
+                  className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500" />
+                  <span>Hapus Arsip</span>
+                </button>
+              )}
+
+              {selectedSurvey.status !== "Diarsipkan" && (
+                <button
+                  type="button"
+                  onClick={() => handleOpenEditSurvey(selectedSurvey)}
+                  className="px-4 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm shadow-blue-600/20 transition"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Edit Survey</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -2078,6 +2210,53 @@ export default function AssessmentManagement() {
             </div>
             <h3 className="font-black text-base text-slate-900">Sukses Menyimpan ke Draft</h3>
             <p className="text-xs text-slate-400">Anda dapat melanjutkan penyusunan survey kapan saja.</p>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: KONFIRMASI HAPUS DATA ARSIP / DRAFT */}
+      {surveyToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/65 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-6 text-xs space-y-4 border border-slate-200">
+            <div className="flex items-center justify-between border-b pb-2">
+              <div className="flex items-center gap-2 text-red-600">
+                <Trash2 className="w-4 h-4" />
+                <h3 className="font-extrabold text-sm text-slate-900">
+                  {surveyToDelete.status === "Diarsipkan" ? "Hapus Data Arsip Survey" : "Hapus Draft Survey"}
+                </h3>
+              </div>
+              <button onClick={() => setSurveyToDelete(null)} className="text-slate-400 hover:text-slate-700">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <p className="text-slate-600 leading-relaxed">
+              {surveyToDelete.status === "Diarsipkan"
+                ? "Apakah Anda yakin ingin menghapus data assessment ini dari arsip? Status survey akan otomatis dikembalikan ke status 'Selesai'."
+                : "Apakah Anda yakin ingin menghapus draft assessment ini secara permanen? Data yang telah dihapus tidak dapat dipulihkan kembali."}
+            </p>
+            
+            <div className="p-3 bg-red-50/60 border border-red-100 rounded-xl space-y-1">
+              <div className="font-bold text-slate-900 line-clamp-1">{surveyToDelete.title}</div>
+              <div className="text-[11px] text-slate-500">Status Saat Ini: <span className="font-semibold text-red-600">{surveyToDelete.status}</span> &bull; {surveyToDelete.periodText}</div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button 
+                type="button"
+                onClick={() => setSurveyToDelete(null)} 
+                className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 font-semibold"
+              >
+                Batal
+              </button>
+              <button 
+                type="button"
+                onClick={() => handleDeleteSurvey(surveyToDelete.id, surveyToDelete.status)} 
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition shadow-sm shadow-red-600/20"
+              >
+                {surveyToDelete.status === "Diarsipkan" ? "Ya, Hapus dari Arsip" : "Ya, Hapus Permanen"}
+              </button>
+            </div>
           </div>
         </div>
       )}
