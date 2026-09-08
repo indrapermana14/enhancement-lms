@@ -59,8 +59,11 @@ export interface SurveyAnalyticsData {
   ratingLabel: string;
   npsScore: number;
   completionAvgMinutes: string;
-  satisfactionData: { label: string; count: number; pct: number; color: string }[];
-  aspectData: { label: string; scorePct: number; countText: string; color: string }[];
+  averageScorePoints: number;
+  maxScorePoints: number;
+  scoreGrade: string;
+  satisfactionData: { label: string; count: number; pct: number; color: string; point?: number }[];
+  aspectData: { label: string; scorePct: number; countText: string; color: string; pointWeight?: number }[];
   demographicsData: { entity: string; count: number; pct: number; color: string }[];
   keyInsight: string;
   topSuggestions: { user: string; role: string; text: string }[];
@@ -74,18 +77,21 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
       ratingLabel: "Sangat Baik",
       npsScore: 58,
       completionAvgMinutes: "06:24",
+      averageScorePoints: 88.5,
+      maxScorePoints: 100,
+      scoreGrade: "Sangat Baik (A)",
       satisfactionData: [
-        { label: "Sangat Baik", count: 25, pct: 26, color: "#059669" },
-        { label: "Baik", count: 48, pct: 48, color: "#10B981" },
-        { label: "Cukup", count: 17, pct: 18, color: "#016DB2" },
-        { label: "Kurang Baik", count: 6, pct: 6, color: "#F59E0B" },
-        { label: "Tidak Baik", count: 2, pct: 2, color: "#EF4444" }
+        { label: "Sangat Baik", count: 25, pct: 26, color: "#059669", point: 25 },
+        { label: "Baik", count: 48, pct: 48, color: "#10B981", point: 20 },
+        { label: "Cukup", count: 17, pct: 18, color: "#016DB2", point: 15 },
+        { label: "Kurang Baik", count: 6, pct: 6, color: "#F59E0B", point: 10 },
+        { label: "Tidak Baik", count: 2, pct: 2, color: "#EF4444", point: 5 }
       ],
       aspectData: [
-        { label: "Memahami Indikator KPI", scorePct: 42, countText: "42% (70 Orang)", color: "#016DB2" },
-        { label: "Input Data / Angka Target", scorePct: 28, countText: "28% (43 Orang)", color: "#0284C7" },
-        { label: "Sistem & Kecepatan Portal", scorePct: 18, countText: "18% (30 Orang)", color: "#38BDF8" },
-        { label: "Alur Validasi & Approval", scorePct: 12, countText: "12% (19 Orang)", color: "#93C5FD" }
+        { label: "Memahami Indikator KPI", scorePct: 42, countText: "42% (70 Orang)", color: "#016DB2", pointWeight: 25 },
+        { label: "Input Data / Angka Target", scorePct: 28, countText: "28% (43 Orang)", color: "#0284C7", pointWeight: 25 },
+        { label: "Sistem & Kecepatan Portal", scorePct: 18, countText: "18% (30 Orang)", color: "#38BDF8", pointWeight: 25 },
+        { label: "Alur Validasi & Approval", scorePct: 12, countText: "12% (19 Orang)", color: "#93C5FD", pointWeight: 25 }
       ],
       demographicsData: [
         { entity: "Subholding SPTP (Terminal)", count: 36, pct: 38, color: "#016DB2" },
@@ -93,7 +99,7 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
         { entity: "Subholding SPSL (Logistik)", count: 19, pct: 20, color: "#10B981" },
         { entity: "PT PMLI (Corpu)", count: 18, pct: 18, color: "#F59E0B" }
       ],
-      keyInsight: "74% responden memberikan respon positif, namun 42% menyarankan penyediaan video tutorial dan modul pedoman pengisian indikator KPI.",
+      keyInsight: "74% responden memberikan respon positif dengan rata-rata total skor 88.5/100 Poin. 42% menyarankan penyediaan video tutorial pengisian indikator KPI.",
       topSuggestions: [
         { user: "Hendra Indra F.", role: "Senior Assistant Officer", text: "Akan lebih baik jika tersedia buku panduan atau video tutorial langkah-langkah pengisian KPI sebelum mulai pengisian." },
         { user: "Yogi M. Irshad", role: "VP Operasi SPTP", text: "Tambahkan fitur autosave agar data tidak hilang saat koneksi jaringan terputus tiba-tiba." }
@@ -105,17 +111,20 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
       ratingLabel: "Sangat Memuaskan",
       npsScore: 74,
       completionAvgMinutes: "05:12",
+      averageScorePoints: 94.0,
+      maxScorePoints: 100,
+      scoreGrade: "Sangat Memuaskan (A+)",
       satisfactionData: [
-        { label: "Sangat Memuaskan", count: 84, pct: 55, color: "#059669" },
-        { label: "Memuaskan", count: 58, pct: 38, color: "#10B981" },
-        { label: "Cukup", count: 8, pct: 5, color: "#016DB2" },
-        { label: "Kurang Memuaskan", count: 2, pct: 2, color: "#F59E0B" }
+        { label: "Sangat Memuaskan", count: 84, pct: 55, color: "#059669", point: 25 },
+        { label: "Memuaskan", count: 58, pct: 38, color: "#10B981", point: 20 },
+        { label: "Cukup", count: 8, pct: 5, color: "#016DB2", point: 15 },
+        { label: "Kurang Memuaskan", count: 2, pct: 2, color: "#F59E0B", point: 10 }
       ],
       aspectData: [
-        { label: "Materi Pengenalan Core AKHLAK", scorePct: 94, countText: "94% (143 Responden)", color: "#059669" },
-        { label: "Kualitas Pendampingan Mentor", scorePct: 91, countText: "91% (138 Responden)", color: "#10B981" },
-        { label: "Pengenalan Budaya Kerja Lapangan", scorePct: 88, countText: "88% (134 Responden)", color: "#016DB2" },
-        { label: "Kemudahan Akses Modul LMS", scorePct: 85, countText: "85% (129 Responden)", color: "#0284C7" }
+        { label: "Materi Pengenalan Core AKHLAK", scorePct: 94, countText: "94% (143 Responden)", color: "#059669", pointWeight: 25 },
+        { label: "Kualitas Pendampingan Mentor", scorePct: 91, countText: "91% (138 Responden)", color: "#10B981", pointWeight: 25 },
+        { label: "Pengenalan Budaya Kerja Lapangan", scorePct: 88, countText: "88% (134 Responden)", color: "#016DB2", pointWeight: 25 },
+        { label: "Kemudahan Akses Modul LMS", scorePct: 85, countText: "85% (129 Responden)", color: "#0284C7", pointWeight: 25 }
       ],
       demographicsData: [
         { entity: "Regional 2 (Tanjung Priok)", count: 61, pct: 40, color: "#016DB2" },
@@ -123,7 +132,7 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
         { entity: "Regional 3 (Tanjung Perak)", count: 30, pct: 20, color: "#10B981" },
         { entity: "Regional 4 (Makassar)", count: 23, pct: 15, color: "#F59E0B" }
       ],
-      keyInsight: "93% pegawai baru merasa sangat siap bertugas; disarankan menambah sesi networking langsung dengan jajaran General Manager.",
+      keyInsight: "93% pegawai baru memperoleh nilai asesmen prima (rata-rata 94.0 Poin); disarankan menambah sesi networking langsung dengan jajaran General Manager.",
       topSuggestions: [
         { user: "Raditya Satyatama", role: "General Manager SPJM", text: "Program mentoring berjalan sangat efektif, disarankan ada checklist orientasi 90 hari pertama." }
       ]
@@ -134,19 +143,22 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
       ratingLabel: "Sangat Tinggi",
       npsScore: 68,
       completionAvgMinutes: "07:45",
+      averageScorePoints: 91.2,
+      maxScorePoints: 100,
+      scoreGrade: "Sangat Tinggi (A)",
       satisfactionData: [
-        { label: "Sangat Tinggi", count: 42, pct: 52, color: "#059669" },
-        { label: "Tinggi", count: 28, pct: 35, color: "#10B981" },
-        { label: "Sedang", count: 8, pct: 10, color: "#016DB2" },
-        { label: "Rendah", count: 2, pct: 3, color: "#EF4444" }
+        { label: "Sangat Tinggi", count: 42, pct: 52, color: "#059669", point: 25 },
+        { label: "Tinggi", count: 28, pct: 35, color: "#10B981", point: 20 },
+        { label: "Sedang", count: 8, pct: 10, color: "#016DB2", point: 15 },
+        { label: "Rendah", count: 2, pct: 3, color: "#EF4444", point: 10 }
       ],
       aspectData: [
-        { label: "Amanah (Integritas & Tanggung Jawab)", scorePct: 92, countText: "92% Indeks", color: "#059669" },
-        { label: "Kolaboratif (Kerjasama Lintas Unit)", scorePct: 91, countText: "91% Indeks", color: "#10B981" },
-        { label: "Harmonis (Saling Peduli & Menghargai)", scorePct: 90, countText: "90% Indeks", color: "#016DB2" },
-        { label: "Kompeten (Belajar & Kembangkan Diri)", scorePct: 89, countText: "89% Indeks", color: "#0284C7" },
-        { label: "Loyal (Komitmen Berdedikasi)", scorePct: 87, countText: "87% Indeks", color: "#38BDF8" },
-        { label: "Adaptif (Inovasi & Antusias Perubahan)", scorePct: 85, countText: "85% Indeks", color: "#F59E0B" }
+        { label: "Amanah (Integritas & Tanggung Jawab)", scorePct: 92, countText: "92% Indeks", color: "#059669", pointWeight: 20 },
+        { label: "Kolaboratif (Kerjasama Lintas Unit)", scorePct: 91, countText: "91% Indeks", color: "#10B981", pointWeight: 20 },
+        { label: "Harmonis (Saling Peduli & Menghargai)", scorePct: 90, countText: "90% Indeks", color: "#016DB2", pointWeight: 15 },
+        { label: "Kompeten (Belajar & Kembangkan Diri)", scorePct: 89, countText: "89% Indeks", color: "#0284C7", pointWeight: 15 },
+        { label: "Loyal (Komitmen Berdedikasi)", scorePct: 87, countText: "87% Indeks", color: "#38BDF8", pointWeight: 15 },
+        { label: "Adaptif (Inovasi & Antusias Perubahan)", scorePct: 85, countText: "85% Indeks", color: "#F59E0B", pointWeight: 15 }
       ],
       demographicsData: [
         { entity: "Kantor Pusat Pelindo HO", count: 28, pct: 35, color: "#016DB2" },
@@ -154,7 +166,7 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
         { entity: "Subholding SPJM", count: 16, pct: 20, color: "#10B981" },
         { entity: "Subholding SPSL", count: 12, pct: 15, color: "#F59E0B" }
       ],
-      keyInsight: "Nilai Amanah dan Kolaboratif menjadi fondasi terkuat insan Pelindo, sementara implementasi nilai Adaptif dapat dipercepat melalui program digital champions.",
+      keyInsight: "Nilai Amanah dan Kolaboratif menjadi peraih poin tertinggi (92 poin); implementasi nilai Adaptif dapat ditingkatkan melalui lokakarya digitalisasi.",
       topSuggestions: [
         { user: "Amanda Sujiwo", role: "Direktur Logistik SPSL", text: "Perbanyak sesi role play dan studi kasus nyata penegakan nilai AKHLAK di operasional lapangan." }
       ]
@@ -165,23 +177,26 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
       ratingLabel: "Sangat Patuh",
       npsScore: 82,
       completionAvgMinutes: "04:30",
+      averageScorePoints: 96.5,
+      maxScorePoints: 100,
+      scoreGrade: "Sangat Patuh (A+)",
       satisfactionData: [
-        { label: "Kepatuhan Sangat Tinggi", count: 95, pct: 68, color: "#059669" },
-        { label: "Kepatuhan Tinggi", count: 35, pct: 25, color: "#10B981" },
-        { label: "Kepatuhan Cukup", count: 10, pct: 7, color: "#016DB2" }
+        { label: "Kepatuhan Sangat Tinggi", count: 95, pct: 68, color: "#059669", point: 25 },
+        { label: "Kepatuhan Tinggi", count: 35, pct: 25, color: "#10B981", point: 20 },
+        { label: "Kepatuhan Cukup", count: 10, pct: 7, color: "#016DB2", point: 15 }
       ],
       aspectData: [
-        { label: "Kepatuhan Pemakaian APD Lengkap", scorePct: 98, countText: "98% (137 Pekerja)", color: "#059669" },
-        { label: "Toolbox Meeting K3 Harian", scorePct: 95, countText: "95% (133 Pekerja)", color: "#10B981" },
-        { label: "Pelaporan Insiden & Near-Miss", scorePct: 92, countText: "92% (129 Pekerja)", color: "#016DB2" },
-        { label: "Kesiapsiagaan Tanggap Darurat", scorePct: 90, countText: "90% (126 Pekerja)", color: "#0284C7" }
+        { label: "Kepatuhan Pemakaian APD Lengkap", scorePct: 98, countText: "98% (137 Pekerja)", color: "#059669", pointWeight: 25 },
+        { label: "Toolbox Meeting K3 Harian", scorePct: 95, countText: "95% (133 Pekerja)", color: "#10B981", pointWeight: 25 },
+        { label: "Pelaporan Insiden & Near-Miss", scorePct: 92, countText: "92% (129 Pekerja)", color: "#016DB2", pointWeight: 25 },
+        { label: "Kesiapsiagaan Tanggap Darurat", scorePct: 90, countText: "90% (126 Pekerja)", color: "#0284C7", pointWeight: 25 }
       ],
       demographicsData: [
         { entity: "Terminal Petikemas SPTP", count: 70, pct: 50, color: "#016DB2" },
         { entity: "Terminal Curah & Multipurpose", count: 35, pct: 25, color: "#0284C7" },
         { entity: "Pelayanan Kapal SPJM", count: 35, pct: 25, color: "#10B981" }
       ],
-      keyInsight: "Budaya K3 mencapai level Proactive Maturity; seluruh terminal mencatat Zero Fatal Accident dengan kepatuhan APD 98%.",
+      keyInsight: "Tingkat pemahaman K3 mencapai skor 96.5 Poin; seluruh terminal mencatat kepatuhan pemakaian APD di atas 98%.",
       topSuggestions: [
         { user: "Aan Sukwinandi", role: "Officer I Fasilitas", text: "Aplikasi pelaporan near-miss via mobile perlu dipermudah dengan fitur upload foto cepat." }
       ]
@@ -192,24 +207,27 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
       ratingLabel: "Sangat Baik",
       npsScore: 54,
       completionAvgMinutes: "05:50",
+      averageScorePoints: 87.8,
+      maxScorePoints: 100,
+      scoreGrade: "Sangat Baik (A)",
       satisfactionData: [
-        { label: "Sangat Baik", count: 65, pct: 50, color: "#059669" },
-        { label: "Baik", count: 45, pct: 35, color: "#10B981" },
-        { label: "Cukup", count: 15, pct: 11, color: "#016DB2" },
-        { label: "Kurang", count: 5, pct: 4, color: "#F59E0B" }
+        { label: "Sangat Baik", count: 65, pct: 50, color: "#059669", point: 25 },
+        { label: "Baik", count: 45, pct: 35, color: "#10B981", point: 20 },
+        { label: "Cukup", count: 15, pct: 11, color: "#016DB2", point: 15 },
+        { label: "Kurang", count: 5, pct: 4, color: "#F59E0B", point: 10 }
       ],
       aspectData: [
-        { label: "Kompetensi Instruktur Pelindo", scorePct: 92, countText: "92% Indeks", color: "#059669" },
-        { label: "Relevansi Silabus & Modul", scorePct: 88, countText: "88% Indeks", color: "#10B981" },
-        { label: "Fasilitas Lab Simulasi & Kelas", scorePct: 86, countText: "86% Indeks", color: "#016DB2" },
-        { label: "Kenyamanan Fasilitas & Konsumsi", scorePct: 84, countText: "84% Indeks", color: "#0284C7" }
+        { label: "Kompetensi Instruktur Pelindo", scorePct: 92, countText: "92% Indeks", color: "#059669", pointWeight: 25 },
+        { label: "Relevansi Silabus & Modul", scorePct: 88, countText: "88% Indeks", color: "#10B981", pointWeight: 25 },
+        { label: "Fasilitas Lab Simulasi & Kelas", scorePct: 86, countText: "86% Indeks", color: "#016DB2", pointWeight: 25 },
+        { label: "Kenyamanan Fasilitas & Konsumsi", scorePct: 84, countText: "84% Indeks", color: "#0284C7", pointWeight: 25 }
       ],
       demographicsData: [
         { entity: "Divisi SDM Subholding", count: 58, pct: 45, color: "#016DB2" },
         { entity: "Corporate University PMLI", count: 45, pct: 35, color: "#0284C7" },
         { entity: "Regional Port Units", count: 27, pct: 20, color: "#10B981" }
       ],
-      keyInsight: "Instruktur dan materi kelas mendapatkan skor kepuasan tinggi; disarankan peningkatan bandwidth Wi-Fi di laboratorium simulasi PMLI.",
+      keyInsight: "Instruktur dan materi kelas mendapatkan akumulasi 87.8 poin; disarankan peningkatan bandwidth Wi-Fi di laboratorium simulasi PMLI.",
       topSuggestions: [
         { user: "Kahfiarsyad Julyan", role: "Training Specialist", text: "Penyediaan rekaman sesi dan modul digital interaktif sangat membantu pasca pelatihan." }
       ]
@@ -217,29 +235,33 @@ export const getSurveyAnalytics = (survey: SurveyItem): SurveyAnalyticsData => {
   } else {
     const rate = survey.respondRate || 50;
     const count = survey.respondCount || 0;
+    const avgScore = +(75 + (rate * 0.2)).toFixed(1);
     return {
       averageRating: +(4.0 + (rate / 100)).toFixed(1),
       ratingLabel: rate > 75 ? "Sangat Baik" : rate > 40 ? "Baik" : "Cukup",
       npsScore: rate,
       completionAvgMinutes: "05:00",
+      averageScorePoints: avgScore,
+      maxScorePoints: 100,
+      scoreGrade: avgScore >= 85 ? "Sangat Baik (A)" : avgScore >= 70 ? "Baik (B)" : "Cukup (C)",
       satisfactionData: [
-        { label: "Sangat Baik", count: Math.max(1, Math.round(count * 0.4)), pct: 40, color: "#059669" },
-        { label: "Baik", count: Math.max(1, Math.round(count * 0.45)), pct: 45, color: "#10B981" },
-        { label: "Cukup", count: Math.max(0, Math.round(count * 0.15)), pct: 15, color: "#016DB2" }
+        { label: "Sangat Baik", count: Math.max(1, Math.round(count * 0.4)), pct: 40, color: "#059669", point: 25 },
+        { label: "Baik", count: Math.max(1, Math.round(count * 0.45)), pct: 45, color: "#10B981", point: 20 },
+        { label: "Cukup", count: Math.max(0, Math.round(count * 0.15)), pct: 15, color: "#016DB2", point: 15 }
       ],
       aspectData: [
-        { label: "Kesesuaian Materi & Instrumen", scorePct: 88, countText: "88% Respon Positif", color: "#059669" },
-        { label: "Kejelasan Instruksi Pengisian", scorePct: 85, countText: "85% Respon Positif", color: "#10B981" },
-        { label: "Aksesibilitas Sistem Portal", scorePct: 82, countText: "82% Respon Positif", color: "#016DB2" }
+        { label: "Kesesuaian Materi & Instrumen", scorePct: 88, countText: "88% Respon Positif", color: "#059669", pointWeight: 35 },
+        { label: "Kejelasan Instruksi Pengisian", scorePct: 85, countText: "85% Respon Positif", color: "#10B981", pointWeight: 35 },
+        { label: "Aksesibilitas Sistem Portal", scorePct: 82, countText: "82% Respon Positif", color: "#016DB2", pointWeight: 30 }
       ],
       demographicsData: [
         { entity: "PT Pelabuhan Indonesia (HO)", count: Math.max(1, Math.round(count * 0.5)), pct: 50, color: "#016DB2" },
         { entity: "Subholding SPTP & SPJM", count: Math.max(1, Math.round(count * 0.3)), pct: 30, color: "#0284C7" },
         { entity: "Entitas Lainnya", count: Math.max(0, Math.round(count * 0.2)), pct: 20, color: "#10B981" }
       ],
-      keyInsight: `Respon terkumpul ${survey.respondCount} dari target ${survey.targetCount}. Analitik dan grafik ringkasan telah dihitung secara spesifik untuk survei ini.`,
+      keyInsight: `Respon terkumpul ${survey.respondCount} dari target ${survey.targetCount}. Rata-rata skor asesmen terhitung ${avgScore}/100 Poin.`,
       topSuggestions: [
-        { user: "Peserta Terdaftar", role: "Pegawai Pelindo", text: "Proses pengisian berjalan lancar dan relevan dengan kegiatan operasional harian." }
+        { user: "Peserta Terdaftar", role: "Pegawai Pelindo", text: "Proses pengisian berjalan lancar dan poin indikator terakumulasi secara akurat." }
       ]
     };
   }
@@ -268,6 +290,7 @@ export interface QuestionItem {
   type: "Pilihan Tunggal" | "Pilihan Ganda" | "Isian Panjang" | "Isian Pendek" | "Skala Rating";
   required: boolean;
   options: string[];
+  optionPoints?: number[];
   chartType?: "Pie Chart" | "Bar Chart" | "Map Chart" | "Table";
 }
 
@@ -282,9 +305,14 @@ export interface RespondentRow {
   duration: string;
   status: "Selesai" | "Belum Mengisi";
   avatar: string;
+  totalScore?: number;
+  maxScore?: number;
+  scoreGrade?: string;
   answers: {
     q1: string;
+    q1Point?: number;
     q2: string[];
+    q2Point?: number;
     q3: string;
     q4: string;
   };
@@ -298,6 +326,7 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     type: "Pilihan Tunggal",
     required: true,
     options: ["Sangat Baik", "Baik", "Cukup", "Kurang Baik", "Tidak Baik"],
+    optionPoints: [25, 20, 15, 10, 5],
     chartType: "Pie Chart"
   },
   {
@@ -307,6 +336,7 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     type: "Pilihan Ganda",
     required: true,
     options: ["Memahami Indikator KPI", "Input data / angka", "Sistem / Teknologi yang digunakan", "Alur pengisian yang panjang", "Lainnya"],
+    optionPoints: [20, 20, 20, 20, 20],
     chartType: "Bar Chart"
   },
   {
@@ -434,9 +464,14 @@ const MOCK_RESPONDENTS: RespondentRow[] = [
     duration: "00:12:48",
     status: "Selesai",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+    totalScore: 95,
+    maxScore: 100,
+    scoreGrade: "Sangat Baik (A)",
     answers: {
-      q1: "Sangat Mudah",
-      q2: ["Memahami indikator KPI", "Input Data / Angka"],
+      q1: "Sangat Baik",
+      q1Point: 25,
+      q2: ["Memahami Indikator KPI", "Input data / angka"],
+      q2Point: 40,
       q3: "Akan lebih baik jika tersedia buku panduan atau video tutorial yang menjelaskan langkah-langkah pengisian KPI secara lengkap dan mudah dipahami sebelum pengguna mulai melakukan pengisian. Panduan tersebut dapat membantu pengguna memahami setiap tahapan, indikator, serta informasi yang perlu diisi dengan benar.",
       q4: "Sulit memahami indikator KPI yang digunakan"
     }
@@ -452,9 +487,14 @@ const MOCK_RESPONDENTS: RespondentRow[] = [
     duration: "-",
     status: "Belum Mengisi",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop&q=80",
+    totalScore: 0,
+    maxScore: 100,
+    scoreGrade: "-",
     answers: {
       q1: "Baik",
-      q2: ["Memahami indikator KPI"],
+      q1Point: 20,
+      q2: ["Memahami Indikator KPI"],
+      q2Point: 20,
       q3: "Sistem sering terlambat ketika banyak diinput, Mohon dapat diperbaiki agar proses pengisian lebih nyaman tidak memakan waktu yang lama",
       q4: "Input data cukup membingungkan"
     }
@@ -470,9 +510,14 @@ const MOCK_RESPONDENTS: RespondentRow[] = [
     duration: "00:08:15",
     status: "Selesai",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
+    totalScore: 75,
+    maxScore: 100,
+    scoreGrade: "Baik (B)",
     answers: {
       q1: "Cukup",
-      q2: ["Memahami indikator KPI", "Input data / angka", "Sistem/teknologi yang digunakan"],
+      q1Point: 15,
+      q2: ["Memahami Indikator KPI", "Input data / angka", "Sistem / Teknologi yang digunakan"],
+      q2Point: 60,
       q3: "Tambahkan fitur autosave agar data tidak hilang saat koneksi terputus atau halaman tertutup tidak sengaja.",
       q4: "Sistem Terkadang lambat saat menyimpan data"
     }
@@ -488,9 +533,14 @@ const MOCK_RESPONDENTS: RespondentRow[] = [
     duration: "00:15:30",
     status: "Selesai",
     avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&auto=format&fit=crop&q=80",
+    totalScore: 60,
+    maxScore: 100,
+    scoreGrade: "Cukup (C)",
     answers: {
       q1: "Kurang Baik",
-      q2: ["Memahami indikator KPI", "Input data / angka"],
+      q1Point: 10,
+      q2: ["Memahami Indikator KPI", "Input data / angka"],
+      q2Point: 40,
       q3: "Sebaiknya ada contoh pengisian pada setiap indikator KPI, sehingga lebih mudah dipahami oleh semua karyawan",
       q4: "Beberapa Indikator belum Terlalu jelas"
     }
@@ -506,9 +556,14 @@ const MOCK_RESPONDENTS: RespondentRow[] = [
     duration: "00:10:02",
     status: "Selesai",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&auto=format&fit=crop&q=80",
+    totalScore: 85,
+    maxScore: 100,
+    scoreGrade: "Sangat Baik (A)",
     answers: {
-      q1: "Tidak Baik",
-      q2: ["Memahami indikator KPI", "Input data / angka"],
+      q1: "Sangat Baik",
+      q1Point: 25,
+      q2: ["Memahami Indikator KPI", "Input data / angka"],
+      q2Point: 40,
       q3: "Alur pengisian sudah cukup baik, tetapi navigasinya masih bisa dibuat lebih sederhana",
       q4: "Tidak Memiliki Kendala"
     }
@@ -761,9 +816,11 @@ export default function AssessmentManagement() {
   const handleAddOption = (questionId: string) => {
     setQuestions(questions.map(q => {
       if (q.id === questionId) {
+        const nextPoints = q.optionPoints ? [...q.optionPoints, 10] : [...q.options.map(() => 10), 10];
         return {
           ...q,
-          options: [...q.options, `Pilihan ${q.options.length + 1}`]
+          options: [...q.options, `Pilihan ${q.options.length + 1}`],
+          optionPoints: nextPoints
         };
       }
       return q;
@@ -781,6 +838,17 @@ export default function AssessmentManagement() {
     }));
   };
 
+  const handleUpdateOptionPoint = (questionId: string, optIndex: number, pointVal: number) => {
+    setQuestions(questions.map(q => {
+      if (q.id === questionId) {
+        const nextPoints = q.optionPoints ? [...q.optionPoints] : q.options.map((_, i) => (i === 0 ? 25 : i === 1 ? 20 : i === 2 ? 15 : i === 3 ? 10 : 5));
+        nextPoints[optIndex] = pointVal;
+        return { ...q, optionPoints: nextPoints };
+      }
+      return q;
+    }));
+  };
+
   const handleDeleteOption = (questionId: string, optIndex: number) => {
     setQuestions(questions.map(q => {
       if (q.id === questionId) {
@@ -790,7 +858,8 @@ export default function AssessmentManagement() {
         }
         return {
           ...q,
-          options: q.options.filter((_, i) => i !== optIndex)
+          options: q.options.filter((_, i) => i !== optIndex),
+          optionPoints: q.optionPoints ? q.optionPoints.filter((_, i) => i !== optIndex) : undefined
         };
       }
       return q;
@@ -1362,6 +1431,28 @@ export default function AssessmentManagement() {
             return (
               <div className="space-y-6">
 
+                {/* Banner Rata-Rata Skor Akumulasi Survei */}
+                <div className="bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 border border-sky-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-2xl bg-[#016DB2] text-white flex items-center justify-center font-black shadow-md shadow-blue-500/20 shrink-0">
+                      <Award className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] text-slate-500 font-semibold">Rata-Rata Skor Poin Asesmen</div>
+                      <div className="text-2xl font-black text-slate-900 flex items-center gap-2">
+                        <span>{activeAna.averageScorePoints}</span>
+                        <span className="text-xs font-normal text-slate-400">/ {activeAna.maxScorePoints} Poin</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 self-start sm:self-auto">
+                    <span className="px-3.5 py-1.5 bg-white border border-sky-200 text-[#016DB2] font-black text-xs rounded-xl shadow-2xs">
+                      Predikat Rata-Rata: {activeAna.scoreGrade}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Question 1: Donut Chart */}
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5 text-xs">
                   <div className="flex items-start justify-between gap-4">
@@ -1426,12 +1517,17 @@ export default function AssessmentManagement() {
                       </div>
                     </div>
 
-                    <div className="space-y-2.5 text-xs font-semibold text-slate-700 min-w-56">
+                    <div className="space-y-2.5 text-xs font-semibold text-slate-700 min-w-64">
                       {activeAna.satisfactionData.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-2">
                             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
                             <span>{item.label}</span>
+                            {item.point !== undefined && (
+                              <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100 shrink-0">
+                                +{item.point} Poin
+                              </span>
+                            )}
                           </div>
                           <span className="font-bold text-slate-900">{item.count} <span className="text-slate-400 font-normal">({item.pct}%)</span></span>
                         </div>
@@ -1473,7 +1569,14 @@ export default function AssessmentManagement() {
                   <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 space-y-4">
                     {activeAna.aspectData.map((asp, idx) => (
                       <div key={idx} className="flex items-center justify-between gap-4">
-                        <span className="w-56 font-semibold text-slate-700 truncate">{asp.label}</span>
+                        <div className="w-64 flex items-center gap-2">
+                          <span className="font-semibold text-slate-700 truncate">{asp.label}</span>
+                          {asp.pointWeight !== undefined && (
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
+                              Bobot: {asp.pointWeight} pt
+                            </span>
+                          )}
+                        </div>
                         <div className="flex-1 h-3.5 bg-slate-200 rounded-full overflow-hidden">
                           <div className="h-full rounded-full transition-all duration-500" style={{ width: `${asp.scorePct}%`, backgroundColor: asp.color }}></div>
                         </div>
@@ -1522,6 +1625,7 @@ export default function AssessmentManagement() {
                       <th className="pb-3 pl-2">USER</th>
                       <th className="pb-3">ENTITAS</th>
                       <th className="pb-3">TANGGAL PENGISIAN</th>
+                      <th className="pb-3 text-center">SKOR (POIN)</th>
                       <th className="pb-3">STATUS</th>
                       <th className="pb-3 pr-2 text-right">AKSI</th>
                     </tr>
@@ -1550,6 +1654,22 @@ export default function AssessmentManagement() {
 
                         <td className="py-3.5 text-slate-500 text-[11px]">
                           {res.submittedAt}
+                        </td>
+
+                        {/* Kolom Skor Poin */}
+                        <td className="py-3.5 text-center">
+                          {res.status === "Selesai" ? (
+                            <div className="inline-flex flex-col items-center">
+                              <span className="font-black text-xs text-[#016DB2]">
+                                {res.totalScore ?? 95} <span className="text-[10px] text-slate-400 font-normal">/ {res.maxScore ?? 100}</span>
+                              </span>
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-50 text-[#016DB2] border border-sky-200 mt-0.5">
+                                {res.scoreGrade ?? "Grade A"}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-300 text-xs font-mono">-</span>
+                          )}
                         </td>
 
                         <td className="py-3.5">
@@ -1647,9 +1767,31 @@ export default function AssessmentManagement() {
             </div>
           </div>
 
+          <div className="bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 border border-sky-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-[#016DB2] text-white flex items-center justify-center font-black shadow-md shadow-blue-500/20 shrink-0">
+                <Award className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-[11px] text-slate-500 font-semibold">Total Akumulasi Skor Asesmen Responden</div>
+                <div className="text-2xl font-black text-slate-900 flex items-center gap-2">
+                  <span>{selectedRespondent.totalScore ?? 95}</span>
+                  <span className="text-xs font-normal text-slate-400">/ {selectedRespondent.maxScore ?? 100} Poin</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 self-start sm:self-auto">
+              <span className="px-3.5 py-1.5 bg-white border border-sky-200 text-[#016DB2] font-black text-xs rounded-xl shadow-2xs">
+                Predikat: {selectedRespondent.scoreGrade ?? "Sangat Baik (A)"}
+              </span>
+            </div>
+          </div>
+
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 md:p-8 space-y-6 text-xs">
-            <h3 className="font-extrabold text-sm text-slate-900 pb-2 border-b border-slate-100">
-              Jawaban Responden
+            <h3 className="font-extrabold text-sm text-slate-900 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span>Jawaban Responden &amp; Perolehan Poin</span>
+              <span className="text-[11px] font-normal text-slate-400">Kalkulasi Otomatis dari Opsi Pilihan</span>
             </h3>
 
             <div className="space-y-4">
@@ -1660,13 +1802,20 @@ export default function AssessmentManagement() {
                   </span>
                   <div>
                     <h4 className="font-bold text-xs text-slate-900">Seberapa mudah proses pengisian KPI bagi Anda?</h4>
-                    <div className="text-[10px] text-slate-400">Pilihan Tunggal</div>
+                    <div className="text-[10px] text-slate-400">Pilihan Tunggal &bull; Berbobot Poin</div>
                   </div>
                 </div>
 
-                <div className="pt-2 pl-8">
-                  <div className="text-[11px] text-slate-400 font-semibold mb-0.5">Jawaban</div>
-                  <div className="font-bold text-xs text-slate-800">{selectedRespondent.answers.q1}</div>
+                <div className="pt-2 pl-8 flex items-center justify-between gap-4">
+                  <div>
+                    <div className="text-[11px] text-slate-400 font-semibold mb-0.5">Jawaban Terpilih</div>
+                    <div className="font-bold text-xs text-slate-800">{selectedRespondent.answers.q1}</div>
+                  </div>
+                  {selectedRespondent.answers.q1Point !== undefined && (
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-black text-[11px] border border-emerald-200">
+                      +{selectedRespondent.answers.q1Point} Poin
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -1677,20 +1826,65 @@ export default function AssessmentManagement() {
                   </span>
                   <div>
                     <h4 className="font-bold text-xs text-slate-900">Apa yang menurut Anda paling sulit dalam proses pengisian KPI?</h4>
-                    <div className="text-[10px] text-slate-400">Pilihan Ganda</div>
+                    <div className="text-[10px] text-slate-400">Pilihan Ganda &bull; Berbobot Poin</div>
+                  </div>
+                </div>
+
+                <div className="pt-2 pl-8 flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="text-[11px] text-slate-400 font-semibold mb-1">Jawaban Terpilih</div>
+                    <ul className="space-y-1">
+                      {selectedRespondent.answers.q2.map((item, i) => (
+                        <li key={i} className="font-bold text-xs text-slate-800 flex items-center gap-2">
+                          <span>&bull;</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  {selectedRespondent.answers.q2Point !== undefined && (
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-black text-[11px] border border-emerald-200 shrink-0">
+                      +{selectedRespondent.answers.q2Point} Poin
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-5 bg-slate-50/60 rounded-2xl border border-slate-200 space-y-2">
+                <div className="flex items-start gap-2.5">
+                  <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
+                    Q3
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-xs text-slate-900">Apa Saran Anda untuk meningkatkan proses pengisian KPI?</h4>
+                    <div className="text-[10px] text-slate-400">Isian Panjang (Non-Scoring / Kualitatif)</div>
                   </div>
                 </div>
 
                 <div className="pt-2 pl-8">
-                  <div className="text-[11px] text-slate-400 font-semibold mb-1">Jawaban</div>
-                  <ul className="space-y-1">
-                    {selectedRespondent.answers.q2.map((item, i) => (
-                      <li key={i} className="font-bold text-xs text-slate-800 flex items-center gap-2">
-                        <span>&bull;</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="text-[11px] text-slate-400 font-semibold mb-0.5">Uraian Jawaban</div>
+                  <div className="font-medium text-xs text-slate-700 italic bg-white p-3 rounded-xl border border-slate-200 leading-relaxed">
+                    &ldquo;{selectedRespondent.answers.q3}&rdquo;
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 bg-slate-50/60 rounded-2xl border border-slate-200 space-y-2">
+                <div className="flex items-start gap-2.5">
+                  <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
+                    Q4
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-xs text-slate-900">Apa kendala utama yang anda alami saat mengisi KPI?</h4>
+                    <div className="text-[10px] text-slate-400">Isian Pendek (Non-Scoring / Kualitatif)</div>
+                  </div>
+                </div>
+
+                <div className="pt-2 pl-8">
+                  <div className="text-[11px] text-slate-400 font-semibold mb-0.5">Jawaban Ringkas</div>
+                  <div className="font-semibold text-xs text-slate-800 bg-white px-3 py-2 rounded-xl border border-slate-200">
+                    {selectedRespondent.answers.q4}
+                  </div>
                 </div>
               </div>
             </div>
@@ -2048,7 +2242,8 @@ export default function AssessmentManagement() {
                                     }
                                     const isChoiceOrRating = nextType === "Pilihan Tunggal" || nextType === "Pilihan Ganda" || nextType === "Skala Rating";
                                     const defaultChart = isChoiceOrRating ? (q.chartType && q.chartType !== "Table" ? q.chartType : nextType === "Pilihan Ganda" ? "Bar Chart" : "Pie Chart") : "Table";
-                                    handleUpdateQuestion(q.id, { type: nextType, options: nextOpts, chartType: defaultChart });
+                                    const nextOptionPoints = q.optionPoints || (nextType === "Skala Rating" ? [5, 10, 15, 20, 25] : [25, 20, 15, 10, 5]);
+                                    handleUpdateQuestion(q.id, { type: nextType, options: nextOpts, optionPoints: nextOptionPoints, chartType: defaultChart });
                                   }}
                                   className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 font-semibold text-slate-800 focus:outline-none focus:border-[#016DB2]"
                                 >
@@ -2182,10 +2377,26 @@ export default function AssessmentManagement() {
                                       className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:bg-white focus:border-[#016DB2]"
                                     />
 
+                                    {/* Inputan Poin / Bobot Nilai per Opsi Jawaban */}
+                                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-50/80 border border-sky-200 rounded-xl shrink-0">
+                                      <Award className="w-3.5 h-3.5 text-[#016DB2]" />
+                                      <span className="text-[11px] font-bold text-sky-800 whitespace-nowrap">Poin:</span>
+                                      <input
+                                        type="number"
+                                        min={0}
+                                        max={100}
+                                        value={q.optionPoints?.[optIdx] ?? (optIdx === 0 ? 25 : optIdx === 1 ? 20 : optIdx === 2 ? 15 : optIdx === 3 ? 10 : 5)}
+                                        onChange={(e) => handleUpdateOptionPoint(q.id, optIdx, Number(e.target.value) || 0)}
+                                        className="w-14 px-1.5 py-1 bg-white border border-sky-300 rounded-lg text-xs font-black text-slate-800 text-center focus:outline-none focus:border-[#016DB2]"
+                                        placeholder="0"
+                                      />
+                                      <span className="text-[10px] font-bold text-sky-600">pt</span>
+                                    </div>
+
                                     <button
                                       type="button"
                                       onClick={() => handleDeleteOption(q.id, optIdx)}
-                                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition shrink-0"
                                       title="Hapus Pilihan"
                                     >
                                       <X className="w-4 h-4" />
@@ -2216,14 +2427,36 @@ export default function AssessmentManagement() {
                           )}
 
                           {q.type === "Skala Rating" && (
-                            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                              <span className="text-[11px] text-slate-400 font-medium">Tampilan untuk responden:</span>
-                              <div className="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-lg">
-                                {[1, 2, 3, 4, 5].map(num => (
-                                  <div key={num} className="flex-1 py-1.5 rounded bg-slate-50 text-center font-bold text-slate-700 border border-slate-200">
-                                    {num} ⭐
-                                  </div>
-                                ))}
+                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                  <Award className="w-4 h-4 text-amber-500" /> Bobot Poin per Skala Rating (1 - 5 Bintang)
+                                </span>
+                                <span className="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+                                  Otomatis Terkalkulasi ke Skor Responden
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-5 gap-2">
+                                {[1, 2, 3, 4, 5].map((num) => {
+                                  const defaultPts = [5, 10, 15, 20, 25];
+                                  const curPt = q.optionPoints?.[num - 1] ?? defaultPts[num - 1];
+                                  return (
+                                    <div key={num} className="p-2.5 bg-white border border-slate-200 rounded-xl text-center space-y-1.5">
+                                      <div className="text-xs font-bold text-slate-800">{num} ⭐</div>
+                                      <div className="flex items-center justify-center gap-1">
+                                        <input
+                                          type="number"
+                                          min={0}
+                                          max={100}
+                                          value={curPt}
+                                          onChange={(e) => handleUpdateOptionPoint(q.id, num - 1, Number(e.target.value) || 0)}
+                                          className="w-12 p-1 text-center bg-slate-50 border border-slate-200 rounded-lg text-xs font-black text-[#016DB2] focus:outline-none focus:bg-white"
+                                        />
+                                        <span className="text-[10px] font-semibold text-slate-400">pt</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
@@ -2665,13 +2898,13 @@ export default function AssessmentManagement() {
                   </div>
 
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
-                    <div className="text-[10px] uppercase font-bold text-slate-400">Skor Kepuasan / Indeks</div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400">Skor Rata-Rata Asesmen</div>
                     <div className="text-2xl font-black text-emerald-600 flex items-center gap-1.5">
-                      <Star className="w-5 h-5 fill-amber-400 text-amber-500" />
-                      <span>{ana.averageRating} <span className="text-xs font-normal text-slate-400">/ 5.0</span></span>
+                      <Award className="w-5 h-5 text-[#016DB2]" />
+                      <span>{ana.averageScorePoints} <span className="text-xs font-normal text-slate-400">/ {ana.maxScorePoints} pt</span></span>
                     </div>
                     <div className="text-[10px] text-emerald-600 font-bold">
-                      Kategori {ana.ratingLabel}
+                      Predikat {ana.scoreGrade} &bull; Indeks {ana.averageRating}/5.0
                     </div>
                   </div>
 
@@ -2740,6 +2973,11 @@ export default function AssessmentManagement() {
                             <div className="flex items-center gap-1.5 truncate">
                               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }}></span>
                               <span className="truncate">{s.label}</span>
+                              {s.point !== undefined && (
+                                <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100 shrink-0">
+                                  +{s.point} Poin
+                                </span>
+                              )}
                             </div>
                             <span className="font-bold text-slate-900 shrink-0">
                               {s.count} <span className="text-slate-400 font-normal">({s.pct}%)</span>
@@ -2766,7 +3004,14 @@ export default function AssessmentManagement() {
                       {ana.aspectData.map((asp, idx) => (
                         <div key={idx} className="space-y-1">
                           <div className="flex items-center justify-between text-[11px]">
-                            <span className="font-semibold text-slate-700 truncate">{asp.label}</span>
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="font-semibold text-slate-700 truncate">{asp.label}</span>
+                              {asp.pointWeight !== undefined && (
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
+                                  Bobot: {asp.pointWeight} pt
+                                </span>
+                              )}
+                            </div>
                             <span className="font-bold text-slate-900 shrink-0">{asp.countText}</span>
                           </div>
                           <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
