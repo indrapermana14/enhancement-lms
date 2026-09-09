@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Search, 
-  RefreshCw, 
-  Plus, 
-  MoreHorizontal, 
-  ChevronDown, 
-  ArrowLeft, 
-  Calendar, 
-  X, 
-  Check, 
-  FileText, 
-  Download, 
-  Trash2, 
-  Eye, 
-  CheckCircle2, 
+import {
+  Search,
+  RefreshCw,
+  Plus,
+  MoreHorizontal,
+  ChevronDown,
+  ArrowLeft,
+  Calendar,
+  X,
+  Check,
+  FileText,
+  Download,
+  Trash2,
+  Eye,
+  CheckCircle2,
   AlertCircle,
   FileSpreadsheet,
   Edit2,
@@ -29,7 +29,10 @@ import {
   Sparkles,
   Layers,
   Filter,
-  CheckCircle
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Database
 } from "lucide-react";
 
 export interface CertItem {
@@ -63,14 +66,14 @@ export interface TemplateItem {
 }
 
 const INITIAL_CERT_CARDS: CertItem[] = [
-  { id: "1", title: "Sertifikat Kehadiran", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "attendance" },
-  { id: "2", title: "Sertifikat Keahlian", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026 - 20 Desember 2030", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "competency" },
-  { id: "3", title: "Sertifikat Keahlian", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2021 - 20 Desember 2025", status: "Kadaluarsa", source: "THANOS/PDS (Tenaga Alih Daya / Operator)", type: "competency" },
-  { id: "4", title: "Sertifikat Kehadiran", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "ISMA (ABK / Seafarer)", type: "attendance" },
-  { id: "5", title: "Sertifikat Kehadiran", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "attendance" },
-  { id: "6", title: "Sertifikat Keahlian", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026 - 20 Desember 2030", status: "Diterbitkan", source: "THANOS/PDS (Tenaga Alih Daya / Operator)", type: "competency" },
-  { id: "7", title: "Sertifikat Keahlian", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2021 - 20 Desember 2025", status: "Kadaluarsa", source: "ISMA (ABK / Seafarer)", type: "competency" },
-  { id: "8", title: "Sertifikat Kehadiran", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "attendance" }
+  { id: "1", title: "Sertifikat Kelulusan Port Digital Culture & Agility", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "LMS Portaverse (Internal)", type: "completion" },
+  { id: "2", title: "Sertifikat Keahlian Port Strategy & Modern Logistics", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026 - 20 Desember 2030", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "competency" },
+  { id: "3", title: "Sertifikat Keahlian Operator Rubber Tyred Gantry", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2021 - 20 Desember 2025", status: "Kadaluarsa", source: "THANOS/PDS (Tenaga Alih Daya / Operator)", type: "competency" },
+  { id: "4", title: "Sertifikat Kehadiran Basic Safety Training Maritime", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "ISMA (ABK / Seafarer)", type: "attendance" },
+  { id: "5", title: "Sertifikat Penyelesaian E-Learning Keamanan Siber & Data", name: "Hendra Firmawan", nipp: "11002324", date: "15 Januari 2026", status: "Diterbitkan", source: "LMS Portaverse (Internal)", type: "completion" },
+  { id: "6", title: "Sertifikat Keahlian Pelayanan Kapal & Pandu Pelabuhan", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026 - 20 Desember 2030", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "competency" },
+  { id: "7", title: "Sertifikat Keahlian Signalman & Rigger Pelabuhan", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2021 - 20 Desember 2025", status: "Kadaluarsa", source: "THANOS/PDS (Tenaga Alih Daya / Operator)", type: "competency" },
+  { id: "8", title: "Sertifikat Kehadiran Webinar Maritime Safety 4.0", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "ISMA (ABK / Seafarer)", type: "attendance" }
 ];
 
 const INITIAL_MY_CERTS: CertItem[] = [
@@ -91,6 +94,280 @@ const INITIAL_TEMPLATES: TemplateItem[] = [
   { id: "t6", title: "Sertifikat Kelulusan", desc: "Template untuk sertifikat kelulusan pelatihan.", updatedDate: "18 Mei 2026", status: "Non-Aktif", category: "Sertifikat Kelulusan", signerName: "Robert Satoso Ibrahim", signerTitle: "Manager Trainer", orientation: "Landscape", size: "A4 (210×290 mm)", margin: { top: "15 cm", right: "15 cm", left: "15 cm", bottom: "15 cm" } },
   { id: "t7", title: "Sertifikat Pelatihan", desc: "Templat untuk sertifikat telah mengikuti Pelatihan", updatedDate: "18 Mei 2026", status: "Non-Aktif", category: "Sertifikat Pelatihan", signerName: "Robert Satoso Ibrahim", signerTitle: "Manager Trainer", orientation: "Landscape", size: "A4 (210×290 mm)", margin: { top: "15 cm", right: "15 cm", left: "15 cm", bottom: "15 cm" } },
   { id: "t8", title: "Sertifikat Webinar", desc: "Template untuk sertifikat pealtihan Webinar", updatedDate: "18 Mei 2026", status: "Aktif", category: "Sertifikat Webinar", signerName: "Robert Satoso Ibrahim", signerTitle: "Manager Trainer", orientation: "Landscape", size: "A4 (210×290 mm)", margin: { top: "15 cm", right: "15 cm", left: "15 cm", bottom: "15 cm" } },
+];
+
+export const SYNCED_MOCK_CERTS: CertItem[] = [
+  // --- KANAL 1: SAP (Pegawai Organik / PKWT) ---
+  {
+    id: "sync-sap-1",
+    title: "Sertifikat Keahlian Port Strategy & Modern Logistics 2026",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    date: "05 Maret 2026 - 05 Maret 2030",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "competency",
+    issuer: "Pelindo Corporate University (SAP HCIS)"
+  },
+  {
+    id: "sync-sap-2",
+    title: "Sertifikat Kehadiran Executive Leadership & Transformation",
+    name: "Amanda Sujiwo",
+    nipp: "11003420",
+    date: "20 Februari 2026",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "attendance",
+    issuer: "PT Pelindo (Persero) HO"
+  },
+  {
+    id: "sync-sap-3",
+    title: "Sertifikat Kompetensi Maritime Finance & Commercial",
+    name: "Yogi Muhammad Irshad",
+    nipp: "11002753",
+    date: "14 Januari 2026 - 14 Januari 2029",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "competency",
+    issuer: "Subholding SPTP"
+  },
+  {
+    id: "sync-sap-4",
+    title: "Sertifikat Keahlian Pelayanan Kapal & Pandu Pelabuhan",
+    name: "Raditya Satyatama",
+    nipp: "11002911",
+    date: "10 Januari 2026 - 10 Januari 2030",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "competency",
+    issuer: "Subholding SPJM"
+  },
+  {
+    id: "sync-sap-5",
+    title: "Sertifikat Kehadiran Transformasi Digital & Cyber Security",
+    name: "Aan Sukwinandi",
+    nipp: "102800",
+    date: "28 Februari 2026",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "attendance",
+    issuer: "Direktorat SDM Pelindo"
+  },
+  {
+    id: "sync-sap-6",
+    title: "Sertifikat Kepatuhan Good Corporate Governance & AKHLAK",
+    name: "Ricky Sutejo",
+    nipp: "11002388",
+    date: "15 Desember 2025 - 15 Desember 2028",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "completion",
+    issuer: "Pelindo Corporate University"
+  },
+  {
+    id: "sync-sap-7",
+    title: "Sertifikat Manajemen Risiko Operasional BUMN Pelabuhan",
+    name: "Evelyn Halim",
+    nipp: "11002410",
+    date: "02 Desember 2021 - 02 Desember 2024",
+    status: "Kadaluarsa",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "competency",
+    issuer: "PMLI Risk Academy"
+  },
+
+  // --- KANAL 2: THANOS/PDS (Tenaga Alih Daya / Operator) ---
+  {
+    id: "sync-thanos-1",
+    title: "Sertifikat Keahlian Operator Rubber Tyred Gantry (RTG)",
+    name: "Budi Santoso",
+    nipp: "PDS-88219",
+    date: "12 Januari 2026 - 12 Januari 2029",
+    status: "Diterbitkan",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "competency",
+    issuer: "PDS Training Center"
+  },
+  {
+    id: "sync-thanos-2",
+    title: "Sertifikat K3 Operator Head Truck & Terminal Tractor",
+    name: "Ahmad Fauzi",
+    nipp: "PDS-88340",
+    date: "18 Januari 2026 - 18 Januari 2028",
+    status: "Diterbitkan",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "competency",
+    issuer: "HSE Pelindo Marine & Terminal"
+  },
+  {
+    id: "sync-thanos-3",
+    title: "Sertifikat Kesiapsiagaan Tanggap Darurat Terminal Curah",
+    name: "Dedi Kurniawan",
+    nipp: "PDS-88102",
+    date: "05 Februari 2026",
+    status: "Diterbitkan",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "attendance",
+    issuer: "THANOS Operasional Center"
+  },
+  {
+    id: "sync-thanos-4",
+    title: "Sertifikat Lisensi Operator Quay Container Crane (QCC)",
+    name: "Rahmat Hidayat",
+    nipp: "PDS-88451",
+    date: "10 November 2025 - 10 November 2028",
+    status: "Diterbitkan",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "competency",
+    issuer: "PDS Training Center & BNSP"
+  },
+  {
+    id: "sync-thanos-5",
+    title: "Sertifikat Keahlian Rigger & Signalman Pelabuhan",
+    name: "Surya Pratama",
+    nipp: "PDS-88612",
+    date: "20 Agustus 2022 - 20 Agustus 2025",
+    status: "Kadaluarsa",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "competency",
+    issuer: "LSP Pelabuhan Indonesia"
+  },
+  {
+    id: "sync-thanos-6",
+    title: "Sertifikat Pengenalan Sistem TOS Portaverse Terminal",
+    name: "Agus Setiawan",
+    nipp: "PDS-88743",
+    date: "19 Februari 2026",
+    status: "Diterbitkan",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "attendance",
+    issuer: "ILCS Digital Training"
+  },
+
+  // --- KANAL 3: ISMA (ABK / Seafarer) ---
+  {
+    id: "sync-isma-1",
+    title: "Sertifikat Kehadiran Basic Safety Training (BST) Maritime",
+    name: "Capt. Joko Widodo",
+    nipp: "ISMA-7701",
+    date: "15 Januari 2026 - 15 Januari 2031",
+    status: "Diterbitkan",
+    source: "ISMA (ABK / Seafarer)",
+    type: "competency",
+    issuer: "Maritime Training Center ISMA"
+  },
+  {
+    id: "sync-isma-2",
+    title: "Sertifikat Kompetensi Deck Officer Class III (ANT-III)",
+    name: "M. Arifin",
+    nipp: "ISMA-7744",
+    date: "22 Februari 2026 - 22 Februari 2031",
+    status: "Diterbitkan",
+    source: "ISMA (ABK / Seafarer)",
+    type: "competency",
+    issuer: "Kementerian Perhubungan Laut & ISMA"
+  },
+  {
+    id: "sync-isma-3",
+    title: "Sertifikat Ship Security Officer (SSO) ISPS Code",
+    name: "Bambang Hermanto",
+    nipp: "ISMA-7729",
+    date: "04 Maret 2026 - 04 Maret 2031",
+    status: "Diterbitkan",
+    source: "ISMA (ABK / Seafarer)",
+    type: "competency",
+    issuer: "Pelindo Marine Safety Unit"
+  },
+  {
+    id: "sync-isma-4",
+    title: "Sertifikat Keahlian Engine Room Resource Management (ERM)",
+    name: "Doni Prasetyo",
+    nipp: "ISMA-7780",
+    date: "11 Januari 2026 - 11 Januari 2031",
+    status: "Diterbitkan",
+    source: "ISMA (ABK / Seafarer)",
+    type: "competency",
+    issuer: "ISMA Maritime Academy"
+  },
+  {
+    id: "sync-isma-5",
+    title: "Sertifikat Advanced Fire Fighting (AFF) Armada Tunda",
+    name: "Hendra Gunawan",
+    nipp: "ISMA-7792",
+    date: "14 Mei 2020 - 14 Mei 2025",
+    status: "Kadaluarsa",
+    source: "ISMA (ABK / Seafarer)",
+    type: "competency",
+    issuer: "BP3IP & ISMA Fleet Operations"
+  },
+
+  // --- KANAL 4: LMS Portaverse (Internal LMS / Pelatihan Online) ---
+  {
+    id: "sync-lms-1",
+    title: "Sertifikat Kelulusan Kursus Port Digital Culture & Agility",
+    name: "Aan Sukwinandi",
+    nipp: "11002324",
+    date: "01 Maret 2026",
+    status: "Diterbitkan",
+    source: "LMS Portaverse (Internal)",
+    type: "completion",
+    issuer: "Portaverse Learning Platform"
+  },
+  {
+    id: "sync-lms-2",
+    title: "Sertifikat Penyelesaian E-Learning Keamanan Siber & Pelindungan Data",
+    name: "Dinda Rahmasari",
+    nipp: "11004122",
+    date: "25 Februari 2026",
+    status: "Diterbitkan",
+    source: "LMS Portaverse (Internal)",
+    type: "completion",
+    issuer: "Portaverse Cyber Security Center"
+  },
+  {
+    id: "sync-lms-3",
+    title: "Sertifikat Kompetensi Modul TOS Operasional Pelabuhan Modern",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    date: "10 Februari 2026 - 10 Februari 2030",
+    status: "Diterbitkan",
+    source: "LMS Portaverse (Internal)",
+    type: "competency",
+    issuer: "Pelindo Learning Management System"
+  },
+  {
+    id: "sync-lms-4",
+    title: "Sertifikat Kehadiran Webinar Solusi Logistik Maritim 2026",
+    name: "Yogi Muhammad Irshad",
+    nipp: "11002753",
+    date: "18 Januari 2026",
+    status: "Diterbitkan",
+    source: "LMS Portaverse (Internal)",
+    type: "attendance",
+    issuer: "Portaverse Event & Webinar"
+  },
+  {
+    id: "sync-lms-5",
+    title: "Sertifikat Kelulusan Microlearning Budaya AKHLAK Pelindo",
+    name: "Fajar Nugroho",
+    nipp: "11003189",
+    date: "12 Januari 2026",
+    status: "Diterbitkan",
+    source: "LMS Portaverse (Internal)",
+    type: "completion",
+    issuer: "Portaverse Microlearning Hub"
+  },
+  {
+    id: "sync-lms-6",
+    title: "Sertifikat Pelatihan Dasar K3 Lingkungan Kerja Pelabuhan (Online)",
+    name: "Siti Nurhaliza",
+    nipp: "11004890",
+    date: "05 November 2022 - 05 November 2025",
+    status: "Kadaluarsa",
+    source: "LMS Portaverse (Internal)",
+    type: "competency",
+    issuer: "Portaverse Safety Academy"
+  }
 ];
 
 export type CertificatePOV = "admin_corpu" | "user" | "subcon" | "vendor";
@@ -115,7 +392,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   useEffect(() => {
     const pov = getPOV(currentRole);
     setActivePOV(pov);
-    
+
     // Auto-adjust default active tab based on POV
     if (pov === "user") {
       setActiveTab("saya");
@@ -136,6 +413,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [sourceFilter, setSourceFilter] = useState("Semua");
+  const [userChannelFilter, setUserChannelFilter] = useState("Semua"); // For POV User: Semua | LMS | SAP | THANOS | ISMA | Eksternal
   const [userOriginFilter, setUserOriginFilter] = useState("Semua"); // For POV User: Semua | Internal | Eksternal
 
   // Certificate & Template State
@@ -154,14 +432,24 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
   // Sync Flow Modals (Admin / Vendor / Subcon)
   const [showSyncModal, setShowSyncModal] = useState(false);
+  const [syncLms, setSyncLms] = useState(true);
   const [syncSap, setSyncSap] = useState(true);
   const [syncThanos, setSyncThanos] = useState(true);
   const [syncIsma, setSyncIsma] = useState(true);
   const [showSyncConfirmModal, setShowSyncConfirmModal] = useState(false);
   const [showSyncSuccessModal, setShowSyncSuccessModal] = useState(false);
 
+  // Modal Preview Hasil Sinkronisasi Multi-Kanal (Popup Tab per Sumber & Card-Card Pagination)
+  const [showSyncResultModal, setShowSyncResultModal] = useState(false);
+  const [syncResultActiveTab, setSyncResultActiveTab] = useState<string>("Semua");
+  const [syncResultPage, setSyncResultPage] = useState(1);
+  const [syncResultSearch, setSyncResultSearch] = useState("");
+  const [syncResultStatusFilter, setSyncResultStatusFilter] = useState("Semua");
+  const syncResultItemsPerPage = 6;
+
   // POV User Sync Flow Modals
   const [showUserSyncModal, setShowUserSyncModal] = useState(false);
+  const [userSyncLms, setUserSyncLms] = useState(true);
   const [userSyncSap, setUserSyncSap] = useState(true);
   const [userSyncThanos, setUserSyncThanos] = useState(true);
   const [userSyncIsma, setUserSyncIsma] = useState(true);
@@ -173,7 +461,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   const [showAddExternalCertModal, setShowAddExternalCertModal] = useState(false);
   const [showAddExternalConfirmModal, setShowAddExternalConfirmModal] = useState(false);
   const [showAddExternalSuccessModal, setShowAddExternalSuccessModal] = useState(false);
-  
+
   // Form State: Tambah Sertifikat Eksternal
   const [extTitle, setExtTitle] = useState("");
   const [extIssuer, setExtIssuer] = useState("");
@@ -309,7 +597,33 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
     setShowSyncSuccessModal(true);
     setTimeout(() => {
       setShowSyncSuccessModal(false);
-    }, 1600);
+      setSyncResultPage(1);
+      setSyncResultActiveTab("Semua");
+      setSyncResultSearch("");
+      setSyncResultStatusFilter("Semua");
+      setShowSyncResultModal(true);
+    }, 1200);
+  };
+
+  const handleApplySyncToMainList = () => {
+    const hasLms = syncLms || userSyncLms;
+    const hasSap = syncSap || userSyncSap;
+    const hasThanos = syncThanos || userSyncThanos;
+    const hasIsma = syncIsma || userSyncIsma;
+
+    const newItems = SYNCED_MOCK_CERTS.filter(sc => {
+      const isLms = sc.source.includes("LMS") && hasLms;
+      const isSap = sc.source.includes("SAP") && hasSap;
+      const isThanos = sc.source.includes("THANOS") && hasThanos;
+      const isIsma = sc.source.includes("ISMA") && hasIsma;
+      return isLms || isSap || isThanos || isIsma;
+    });
+
+    const existingIds = new Set(certList.map(c => c.id));
+    const itemsToAdd = newItems.filter(item => !existingIds.has(item.id));
+    setCertList([...itemsToAdd, ...certList]);
+    setShowSyncResultModal(false);
+    showToast(`${itemsToAdd.length} data sertifikat baru berhasil diterapkan ke daftar utama!`);
   };
 
   // User Sync Handlers
@@ -321,7 +635,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   const handleConfirmUserSync = () => {
     setShowUserSyncConfirmModal(false);
     setShowUserSyncSuccessModal(true);
-    
+
     // Add a freshly synced cert from SAP/BNSP
     const syncedItem: CertItem = {
       id: `synced-${Date.now()}`,
@@ -339,7 +653,12 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
     setTimeout(() => {
       setShowUserSyncSuccessModal(false);
-    }, 1600);
+      setSyncResultPage(1);
+      setSyncResultActiveTab("Semua");
+      setSyncResultSearch("");
+      setSyncResultStatusFilter("Semua");
+      setShowSyncResultModal(true);
+    }, 1200);
   };
 
   // User Tambah Sertifikat Eksternal Handlers
@@ -444,8 +763,8 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   // Filtered lists
   const filteredCertList = certList.filter(c => {
     const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          c.nipp.includes(searchQuery);
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.nipp.includes(searchQuery);
     const matchesStatus = statusFilter === "Semua" || c.status === statusFilter;
     const matchesSource = sourceFilter === "Semua" || c.source.toLowerCase().includes(sourceFilter.toLowerCase());
     return matchesSearch && matchesStatus && matchesSource;
@@ -453,13 +772,16 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
   const filteredMyCertList = myCertList.filter(c => {
     const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (c.issuer && c.issuer.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                          c.nipp.includes(searchQuery);
+      (c.issuer && c.issuer.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      c.nipp.includes(searchQuery);
     const matchesStatus = statusFilter === "Semua" || c.status === statusFilter;
-    const matchesOrigin = userOriginFilter === "Semua" || 
-                          (userOriginFilter === "Eksternal" && c.isExternal) || 
-                          (userOriginFilter === "Internal" && !c.isExternal);
-    return matchesSearch && matchesStatus && matchesOrigin;
+    const matchesOrigin = userOriginFilter === "Semua" ||
+      (userOriginFilter === "Eksternal" && c.isExternal) ||
+      (userOriginFilter === "Internal" && !c.isExternal);
+    const matchesChannel = userChannelFilter === "Semua" ||
+      (userChannelFilter === "Eksternal" && (c.isExternal || c.source.toLowerCase().includes("eksternal"))) ||
+      c.source.toLowerCase().includes(userChannelFilter.toLowerCase());
+    return matchesSearch && matchesStatus && matchesOrigin && matchesChannel;
   });
 
   // Calculate stats for POV User
@@ -470,13 +792,13 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
   return (
     <div className="space-y-6 font-sans">
-      
+
       {/* =========================================================================
           VIEW 1: MAIN LIST (ROLE-AWARE VIEWS: ADMIN/CORPU, USER, SUBCON, VENDOR)
          ========================================================================= */}
       {currentView === "list" && (
         <div className="space-y-6">
-          
+
           {/* Top Header & POV Quick-Bar */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
@@ -491,23 +813,22 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">
                   {activePOV === "user" ? "Sertifikat Saya" : "Manajemen Sertifikat"}
                 </h1>
-                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${
-                  activePOV === "user" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
-                  activePOV === "subcon" ? "bg-amber-50 text-amber-800 border-amber-200" :
-                  activePOV === "vendor" ? "bg-orange-50 text-orange-800 border-orange-200" :
-                  "bg-sky-50 text-[#016DB2] border-sky-200"
-                }`}>
+                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${activePOV === "user" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                    activePOV === "subcon" ? "bg-amber-50 text-amber-800 border-amber-200" :
+                      activePOV === "vendor" ? "bg-orange-50 text-orange-800 border-orange-200" :
+                        "bg-sky-50 text-[#016DB2] border-sky-200"
+                  }`}>
                   POV: {activePOV === "admin_corpu" ? "Admin / Corpu" : activePOV.toUpperCase()}
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                {activePOV === "user" 
+                {activePOV === "user"
                   ? "Kelola riwayat sertifikat pelatihan internal LMS Portaverse dan sertifikat luar LMS yang pernah Anda ikuti."
                   : activePOV === "subcon"
-                  ? "Pantau dan kelola seluruh sertifikat peserta pelatihan khusus mitra Subcon."
-                  : activePOV === "vendor"
-                  ? "Kelola daftar penerbitan sertifikat pelatihan mitra dan template sertifikat dinamis."
-                  : "Modul terpusat untuk mengelola, menerbitkan, dan mendesain template sertifikat dalam Portaverse."}
+                    ? "Pantau dan kelola seluruh sertifikat peserta pelatihan khusus mitra Subcon."
+                    : activePOV === "vendor"
+                      ? "Kelola daftar penerbitan sertifikat pelatihan mitra dan template sertifikat dinamis."
+                      : "Modul terpusat untuk mengelola, menerbitkan, dan mendesain template sertifikat dalam Portaverse."}
               </p>
             </div>
 
@@ -518,41 +839,37 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               </span>
               <button
                 onClick={() => handlePOVChange("admin_corpu")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
-                  activePOV === "admin_corpu" 
-                    ? "bg-[#016DB2] text-white shadow-xs" 
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${activePOV === "admin_corpu"
+                    ? "bg-[#016DB2] text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 <span>Admin/Corpu</span>
               </button>
               <button
                 onClick={() => handlePOVChange("user")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
-                  activePOV === "user" 
-                    ? "bg-emerald-600 text-white shadow-xs" 
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${activePOV === "user"
+                    ? "bg-emerald-600 text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 <span>User</span>
               </button>
               <button
                 onClick={() => handlePOVChange("vendor")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
-                  activePOV === "vendor" 
-                    ? "bg-orange-600 text-white shadow-xs" 
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${activePOV === "vendor"
+                    ? "bg-orange-600 text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 <span>Vendor</span>
               </button>
               <button
                 onClick={() => handlePOVChange("subcon")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
-                  activePOV === "subcon" 
-                    ? "bg-amber-600 text-white shadow-xs" 
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${activePOV === "subcon"
+                    ? "bg-amber-600 text-white shadow-xs"
                     : "text-slate-600 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 <span>Subcon</span>
               </button>
@@ -570,17 +887,15 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
             <div className="bg-white p-1 rounded-2xl border border-slate-200 inline-flex shadow-xs w-full">
               <button
                 onClick={() => setActiveTab("semua")}
-                className={`flex-1 py-2.5 px-6 rounded-xl text-xs font-bold transition text-center ${
-                  activeTab === "semua" ? "bg-[#E0F2FE] text-[#016DB2]" : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 py-2.5 px-6 rounded-xl text-xs font-bold transition text-center ${activeTab === "semua" ? "bg-[#E0F2FE] text-[#016DB2]" : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 Semua Sertifikat
               </button>
               <button
                 onClick={() => setActiveTab("template")}
-                className={`flex-1 py-2.5 px-6 rounded-xl text-xs font-bold transition text-center ${
-                  activeTab === "template" ? "bg-[#E0F2FE] text-[#016DB2]" : "text-slate-600 hover:text-slate-900"
-                }`}
+                className={`flex-1 py-2.5 px-6 rounded-xl text-xs font-bold transition text-center ${activeTab === "template" ? "bg-[#E0F2FE] text-[#016DB2]" : "text-slate-600 hover:text-slate-900"
+                  }`}
               >
                 Template Sertifikat
               </button>
@@ -588,9 +903,8 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               {activePOV === "admin_corpu" && (
                 <button
                   onClick={() => setActiveTab("saya")}
-                  className={`flex-1 py-2.5 px-6 rounded-xl text-xs font-bold transition text-center ${
-                    activeTab === "saya" ? "bg-[#E0F2FE] text-[#016DB2]" : "text-slate-600 hover:text-slate-900"
-                  }`}
+                  className={`flex-1 py-2.5 px-6 rounded-xl text-xs font-bold transition text-center ${activeTab === "saya" ? "bg-[#E0F2FE] text-[#016DB2]" : "text-slate-600 hover:text-slate-900"
+                    }`}
                 >
                   Sertifikat Saya
                 </button>
@@ -682,6 +996,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                       className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
                     >
                       <option value="Semua">Kanal: Semua Sumber</option>
+                      <option value="LMS">LMS Portaverse (Internal)</option>
                       <option value="SAP">SAP (Organik/PKWT)</option>
                       <option value="THANOS">THANOS/PDS (Alih Daya)</option>
                       <option value="ISMA">ISMA (Pelaut/ABK)</option>
@@ -715,7 +1030,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                     <b>Fitur Tambahan MoM FGD:</b> Rekapitulasi Tahunan Kadaluwarsa Edisi Desember tersedia untuk perencanaan TNA & uji kompetensi ulang 2026.
                   </span>
                 </div>
-                <button 
+                <button
                   onClick={() => showToast("Mengunduh Rekap_Sertifikat_Expired_Desember_2025.csv...")}
                   className="px-3 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-900 font-bold flex items-center gap-1 shadow-xs transition shrink-0 self-start sm:self-auto"
                 >
@@ -760,11 +1075,10 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                       </div>
 
                       <div className="flex items-center justify-between pt-1 relative">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          item.status === "Diterbitkan" 
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${item.status === "Diterbitkan"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-red-50 text-red-700 border border-red-200"
-                        }`}>
+                          }`}>
                           {item.status}
                         </span>
 
@@ -906,11 +1220,10 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                       </div>
 
                       <div className="flex items-center justify-between pt-1 relative">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          tmpl.status === "Aktif" 
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${tmpl.status === "Aktif"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-red-50 text-red-600 border border-red-200"
-                        }`}>
+                          }`}>
                           {tmpl.status}
                         </span>
 
@@ -979,7 +1292,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
              ===================================================================== */}
           {(activePOV === "user" || (activePOV === "admin_corpu" && activeTab === "saya")) && (
             <div className="space-y-6">
-              
+
               {/* Header Title & Information */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
@@ -1058,7 +1371,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
                   {/* Status Filter */}
                   <div className="relative flex-1 sm:flex-none">
-                    <select 
+                    <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
                       className="w-full sm:w-36 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
@@ -1070,8 +1383,25 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                   </div>
 
-                  {/* Asal Sertifikat Filter (Internal / Eksternal) */}
+                  {/* Multi-Kanal Filter (LMS, SAP, THANOS, ISMA, Eksternal) */}
                   <div className="relative flex-1 sm:flex-none">
+                    <select
+                      value={userChannelFilter}
+                      onChange={(e) => setUserChannelFilter(e.target.value)}
+                      className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
+                    >
+                      <option value="Semua">Kanal: Semua Sumber</option>
+                      <option value="LMS">LMS Portaverse (Internal)</option>
+                      <option value="SAP">SAP (Organik/PKWT)</option>
+                      <option value="THANOS">THANOS/PDS (Alih Daya)</option>
+                      <option value="ISMA">ISMA (Pelaut/ABK)</option>
+                      <option value="Eksternal">Eksternal (Luar LMS)</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+
+                  {/* Asal Sertifikat Filter (Internal / Eksternal) */}
+                  {/* <div className="relative flex-1 sm:flex-none">
                     <select 
                       value={userOriginFilter}
                       onChange={(e) => setUserOriginFilter(e.target.value)}
@@ -1082,7 +1412,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                       <option value="Eksternal">Eksternal (Luar LMS)</option>
                     </select>
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
-                  </div>
+                  </div> */}
 
                   {/* MANDATORY BUTTON: ASYNC / SINKRONISASI FOR USER */}
                   <button
@@ -1140,7 +1470,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                             {item.isExternal ? "SERTIFIKAT EKSTERNAL" : "BUMN • PELINDO"}
                           </span>
                           <span className={item.isExternal ? "text-purple-600 font-extrabold" : "text-slate-400"}>
-                            {item.isExternal ? "NON-LMS" : "PORTAVERSE"}
+                            {item.isExternal ? "NON-LMS" : item.source.includes("SAP") ? "SAP HCIS" : item.source.includes("THANOS") ? "THANOS/PDS" : item.source.includes("ISMA") ? "ISMA" : "PORTAVERSE"}
                           </span>
                         </div>
                         <div>
@@ -1167,11 +1497,23 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
                     <div className="p-4 space-y-3">
                       <div>
-                        {/* External vs Internal Tag */}
-                        <div className="flex items-center gap-1.5 mb-1.5">
+                        {/* Channel / Source Tag */}
+                        <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
                           {item.isExternal ? (
                             <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
-                              <ExternalLink className="w-2.5 h-2.5" /> Luar LMS Portaverse
+                              <ExternalLink className="w-2.5 h-2.5" /> Luar LMS (Eksternal)
+                            </span>
+                          ) : item.source.includes("SAP") ? (
+                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                              SAP HCIS
+                            </span>
+                          ) : item.source.includes("THANOS") ? (
+                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                              THANOS/PDS
+                            </span>
+                          ) : item.source.includes("ISMA") ? (
+                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                              ISMA SEAFARER
                             </span>
                           ) : (
                             <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-sky-50 text-[#016DB2] border border-sky-200">
@@ -1191,11 +1533,10 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                       </div>
 
                       <div className="flex items-center justify-between pt-1 relative">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          item.status === "Diterbitkan" 
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${item.status === "Diterbitkan"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : "bg-red-50 text-red-700 border border-red-200"
-                        }`}>
+                          }`}>
                           {item.status}
                         </span>
 
@@ -1255,6 +1596,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                     onClick={() => {
                       setSearchQuery("");
                       setStatusFilter("Semua");
+                      setUserChannelFilter("Semua");
                       setUserOriginFilter("Semua");
                     }}
                     className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
@@ -1301,7 +1643,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
       {currentView === "create" && (
         <div className="space-y-6">
           <div className="flex items-center gap-3 text-xs text-slate-400">
-            <button 
+            <button
               onClick={() => setCurrentView("list")}
               className="flex items-center gap-1.5 font-bold text-slate-700 hover:text-[#016DB2] transition"
             >
@@ -1505,7 +1847,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
       {(currentView === "create_template" || currentView === "edit_template") && (
         <div className="space-y-6">
           <div className="flex items-center gap-3 text-xs text-slate-400">
-            <button 
+            <button
               onClick={() => {
                 setCurrentView("list");
                 setActiveTab("template");
@@ -1535,7 +1877,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 md:p-8 space-y-8 text-xs">
-            
+
             {/* Card 1: Informasi Template */}
             <div className="space-y-4">
               <h3 className="font-bold text-sm text-slate-900">Informasi Template</h3>
@@ -1569,7 +1911,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Kategori<span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <select 
+                    <select
                       value={tmplCategory}
                       onChange={(e) => setTmplCategory(e.target.value)}
                       className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 focus:outline-none focus:border-[#016DB2]"
@@ -1586,7 +1928,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Status Template<span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <select 
+                    <select
                       value={tmplStatus}
                       onChange={(e: any) => setTmplStatus(e.target.value)}
                       className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 focus:outline-none focus:border-[#016DB2]"
@@ -1608,7 +1950,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Orientasi<span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <select 
+                    <select
                       value={tmplOrientation}
                       onChange={(e) => setTmplOrientation(e.target.value)}
                       className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 focus:outline-none focus:border-[#016DB2]"
@@ -1623,7 +1965,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">Ukuran<span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <select 
+                    <select
                       value={tmplSize}
                       onChange={(e) => setTmplSize(e.target.value)}
                       className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 focus:outline-none focus:border-[#016DB2]"
@@ -1677,7 +2019,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
             {/* Card 3: Penandatangan */}
             <div className="space-y-4 pt-4 border-t border-slate-100">
               <h3 className="font-bold text-sm text-slate-900">Penandatangan</h3>
-              
+
               <div className="flex gap-6">
                 <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
                   <input type="radio" name="signerType" checked={tmplSignerType === "manual"} onChange={() => setTmplSignerType("manual")} className="accent-[#016DB2]" />
@@ -1861,11 +2203,11 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   <div className="flex items-center justify-between mb-1">
                     <label className="font-bold text-slate-700">Tanggal Kadaluarsa</label>
                     <label className="flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-500">
-                      <input 
-                        type="checkbox" 
-                        checked={extNoExpiry} 
-                        onChange={(e) => setExtNoExpiry(e.target.checked)} 
-                        className="rounded accent-[#016DB2]" 
+                      <input
+                        type="checkbox"
+                        checked={extNoExpiry}
+                        onChange={(e) => setExtNoExpiry(e.target.checked)}
+                        className="rounded accent-[#016DB2]"
                       />
                       <span>Seumur Hidup</span>
                     </label>
@@ -1875,9 +2217,8 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                     disabled={extNoExpiry}
                     value={extExpDate}
                     onChange={(e) => setExtExpDate(e.target.value)}
-                    className={`w-full p-2.5 border rounded-xl text-xs focus:outline-none ${
-                      extNoExpiry ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white border-slate-200 focus:border-[#016DB2]"
-                    }`}
+                    className={`w-full p-2.5 border rounded-xl text-xs focus:outline-none ${extNoExpiry ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed" : "bg-white border-slate-200 focus:border-[#016DB2]"
+                      }`}
                   />
                 </div>
               </div>
@@ -1895,8 +2236,8 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                     {extFileName ? extFileName : "Klik atau seret file sertifikat ke sini"}
                   </div>
                   <div className="text-[11px] text-slate-400">Maksimal 5MB (Format: PDF, JPG, PNG)</div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setExtFileName("sertifikat_eksternal_terverifikasi.pdf")}
                     className="px-3 py-1 bg-white border border-purple-300 text-purple-700 rounded-lg text-xs font-bold shadow-xs hover:bg-purple-50"
                   >
@@ -1918,20 +2259,20 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
             </div>
 
             <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-slate-50">
-              <button 
-                onClick={() => setShowAddExternalCertModal(false)} 
+              <button
+                onClick={() => setShowAddExternalCertModal(false)}
                 className="px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-semibold"
               >
                 Batal
               </button>
-              <button 
+              <button
                 onClick={() => {
                   if (!extTitle.trim()) {
                     showToast("Harap isi Nama Sertifikat terlebih dahulu!");
                     return;
                   }
                   setShowAddExternalConfirmModal(true);
-                }} 
+                }}
                 className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs"
               >
                 Simpan Sertifikat
@@ -1954,7 +2295,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
             <div className="p-6 text-xs text-slate-600 leading-relaxed space-y-2">
               <p>Apakah Anda yakin data sertifikat eksternal luar LMS ini sudah benar dan sesuai dokumen asli?</p>
               <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium">
-                <b>{extTitle || "Sertifikat Eksternal"}</b><br/>
+                <b>{extTitle || "Sertifikat Eksternal"}</b><br />
                 <span className="text-[11px] text-slate-500">Penerbit: {extIssuer || "BNSP / Lembaga Eksternal"}</span>
               </div>
             </div>
@@ -2004,6 +2345,13 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               </div>
               <div className="space-y-2.5">
                 <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                  <input type="checkbox" checked={userSyncLms} onChange={(e) => setUserSyncLms(e.target.checked)} className="w-4 h-4 rounded accent-[#016DB2]" />
+                  <div>
+                    <span className="font-bold text-slate-800 block">LMS Portaverse (Internal LMS)</span>
+                    <span className="text-[11px] text-slate-400">Kursus online, webinar, &amp; microlearning internal aplikasi</span>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
                   <input type="checkbox" checked={userSyncSap} onChange={(e) => setUserSyncSap(e.target.checked)} className="w-4 h-4 rounded accent-[#016DB2]" />
                   <div>
                     <span className="font-bold text-slate-800 block">SAP HCIS Pelindo</span>
@@ -2033,14 +2381,27 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 </label>
               </div>
             </div>
-            <div className="flex justify-end gap-2 px-6 py-3 border-t border-slate-100 bg-slate-50">
-              <button onClick={() => setShowUserSyncModal(false)} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-semibold">
-                Batal
+            <div className="flex items-center justify-between px-6 py-3 border-t border-slate-100 bg-slate-50">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUserSyncModal(false);
+                  setShowSyncResultModal(true);
+                }}
+                className="text-[#016DB2] hover:underline font-semibold text-xs flex items-center gap-1"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Lihat Hasil Terakhir</span>
               </button>
-              <button onClick={handleExecuteUserSync} className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5">
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Mulai Sinkronisasi</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowUserSyncModal(false)} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-semibold">
+                  Batal
+                </button>
+                <button onClick={handleExecuteUserSync} className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5">
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Mulai Sinkronisasi</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2090,7 +2451,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
       {/* MODAL: PREVIEW SERTIFIKAT */}
       {showCertPreviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 text-sm">Preview Sertifikat</h3>
@@ -2123,7 +2484,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 </div>
                 <div className="text-[10px] text-slate-500 font-mono">{previewCertData?.nipp || "11002324"}</div>
                 <div className="text-[10px] text-slate-600 mt-3 max-w-md mx-auto leading-relaxed">
-                  Atas partisipasinya sebagai peserta dalam program pelatihan / sertifikasi:<br/>
+                  Atas partisipasinya sebagai peserta dalam program pelatihan / sertifikasi:<br />
                   <b className="text-slate-800 font-bold">{previewCertData?.title || previewCertData?.course || certValueName}</b>
                 </div>
                 <div className="text-[8px] text-slate-400 mt-2">
@@ -2146,7 +2507,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               </div>
             </div>
             <div className="flex justify-end px-6 py-3 border-t border-slate-100 bg-slate-50 gap-2">
-              <button 
+              <button
                 onClick={() => {
                   showToast(`Mengunduh file sertifikat ${previewCertData?.title || "sertifikat"}.pdf...`);
                 }}
@@ -2164,7 +2525,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
       {/* MODAL: PREVIEW TEMPLATE */}
       {showTmplPreviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 text-sm">Preview Template</h3>
@@ -2222,6 +2583,10 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               <div className="text-slate-500 font-medium">Pilih kanal database yang ingin disinkronkan:</div>
               <div className="space-y-3">
                 <label className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                  <input type="checkbox" checked={syncLms} onChange={(e) => setSyncLms(e.target.checked)} className="w-4 h-4 rounded accent-[#016DB2]" />
+                  <span className="font-bold text-slate-800">LMS Portaverse <span className="font-normal text-slate-500">(Aplikasi Internal LMS / Kursus Online)</span></span>
+                </label>
+                <label className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
                   <input type="checkbox" checked={syncSap} onChange={(e) => setSyncSap(e.target.checked)} className="w-4 h-4 rounded accent-[#016DB2]" />
                   <span className="font-bold text-slate-800">SAP <span className="font-normal text-slate-500">(Pegawai Organik / PKWT)</span></span>
                 </label>
@@ -2235,13 +2600,26 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 </label>
               </div>
             </div>
-            <div className="flex justify-end gap-2 px-6 py-3 border-t border-slate-100 bg-slate-50">
-              <button onClick={() => setShowSyncModal(false)} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-semibold">
-                Tidak
+            <div className="flex items-center justify-between px-6 py-3 border-t border-slate-100 bg-slate-50">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSyncModal(false);
+                  setShowSyncResultModal(true);
+                }}
+                className="text-[#016DB2] hover:underline font-semibold text-xs flex items-center gap-1"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Lihat Hasil Terakhir</span>
               </button>
-              <button onClick={handleExecuteSync} className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs">
-                Sinkronisasi
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowSyncModal(false)} className="px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-semibold">
+                  Tidak
+                </button>
+                <button onClick={handleExecuteSync} className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs">
+                  Sinkronisasi
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2280,10 +2658,514 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               <RefreshCw className="w-8 h-8 animate-spin" />
             </div>
             <h3 className="text-base font-bold text-slate-800">Sukses Synchronize</h3>
-            <p className="text-xs text-slate-400 mt-1">Data sertifikat 3 kanal berhasil disinkronkan.</p>
+            <p className="text-xs text-slate-400 mt-1">Data sertifikat multi-kanal berhasil ditarik dan disinkronkan.</p>
           </div>
         </div>
       )}
+
+      {/* =========================================================================
+          MODAL: PREVIEW HASIL SINKRONISASI MULTI-KANAL (TAB SUMBER & CARD PAGINATION)
+         ========================================================================= */}
+      {showSyncResultModal && (() => {
+        // Channels checked
+        const hasLms = syncLms || userSyncLms;
+        const hasSap = syncSap || userSyncSap;
+        const hasThanos = syncThanos || userSyncThanos;
+        const hasIsma = syncIsma || userSyncIsma;
+
+        // Base items based on checked channels
+        const baseSyncedItems = SYNCED_MOCK_CERTS.filter((item) => {
+          if (item.source.includes("LMS") && hasLms) return true;
+          if (item.source.includes("SAP") && hasSap) return true;
+          if (item.source.includes("THANOS") && hasThanos) return true;
+          if (item.source.includes("ISMA") && hasIsma) return true;
+          return false;
+        });
+
+        // Tab Counts
+        const countTotal = baseSyncedItems.length;
+        const countLms = baseSyncedItems.filter(i => i.source.includes("LMS")).length;
+        const countSap = baseSyncedItems.filter(i => i.source.includes("SAP")).length;
+        const countThanos = baseSyncedItems.filter(i => i.source.includes("THANOS")).length;
+        const countIsma = baseSyncedItems.filter(i => i.source.includes("ISMA")).length;
+
+        // Filter by active tab
+        let tabFilteredItems = baseSyncedItems;
+        if (syncResultActiveTab === "LMS") {
+          tabFilteredItems = baseSyncedItems.filter(i => i.source.includes("LMS"));
+        } else if (syncResultActiveTab === "SAP") {
+          tabFilteredItems = baseSyncedItems.filter(i => i.source.includes("SAP"));
+        } else if (syncResultActiveTab === "THANOS") {
+          tabFilteredItems = baseSyncedItems.filter(i => i.source.includes("THANOS"));
+        } else if (syncResultActiveTab === "ISMA") {
+          tabFilteredItems = baseSyncedItems.filter(i => i.source.includes("ISMA"));
+        }
+
+        // Filter by search query & status filter
+        const finalFilteredItems = tabFilteredItems.filter(i => {
+          const matchSearch =
+            i.title.toLowerCase().includes(syncResultSearch.toLowerCase()) ||
+            i.name.toLowerCase().includes(syncResultSearch.toLowerCase()) ||
+            i.nipp.toLowerCase().includes(syncResultSearch.toLowerCase());
+          const matchStatus = syncResultStatusFilter === "Semua" || i.status === syncResultStatusFilter;
+          return matchSearch && matchStatus;
+        });
+
+        // Pagination calculation
+        const totalItems = finalFilteredItems.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / syncResultItemsPerPage));
+        const safeCurrentPage = Math.min(syncResultPage, totalPages);
+        const startIndex = (safeCurrentPage - 1) * syncResultItemsPerPage;
+        const endIndex = Math.min(startIndex + syncResultItemsPerPage, totalItems);
+        const paginatedItems = finalFilteredItems.slice(startIndex, endIndex);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/65 backdrop-blur-xs p-3 sm:p-4 md:p-6 animate-in fade-in">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95">
+
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-sky-50 border border-sky-100 text-[#016DB2] flex items-center justify-center shadow-2xs shrink-0">
+                    <Database className="w-5 h-5 text-[#016DB2]" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-extrabold text-base md:text-lg text-slate-900">
+                        Preview Hasil Sinkronisasi Multi-Kanal
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        Sinkron Sukses
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Menampilkan data sertifikat yang berhasil ditarik dari basis data terintegrasi Pelindo.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowSyncResultModal(false)}
+                  className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Status & Summary Ribbon */}
+              <div className="bg-gradient-to-r from-sky-50/90 via-blue-50/60 to-slate-50 border-b border-sky-100 px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-slate-500 font-medium">Total Ditemukan:</span>
+                  <span className="font-black text-slate-900 bg-white px-2.5 py-0.5 rounded-lg border border-sky-200 shadow-2xs">
+                    {countTotal} Sertifikat
+                  </span>
+                  <span className="text-slate-300">•</span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {hasLms && (
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-sky-100 text-[#016DB2] border border-sky-200">
+                        LMS: {countLms}
+                      </span>
+                    )}
+                    {hasSap && (
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-100 text-[#016DB2] border border-blue-200">
+                        SAP: {countSap}
+                      </span>
+                    )}
+                    {hasThanos && (
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                        THANOS: {countThanos}
+                      </span>
+                    )}
+                    {hasIsma && (
+                      <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-teal-100 text-teal-700 border border-teal-200">
+                        ISMA: {countIsma}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-400 flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Waktu: 09 September 2026, 09:18 WIB</span>
+                </div>
+              </div>
+
+              {/* TAB SUMBER DATA (BARIS TERPISAH) */}
+              <div className="px-6 pt-3 pb-0 border-b border-slate-200 bg-white">
+                <div className="flex items-center gap-2 overflow-x-auto pb-3 text-xs font-bold scrollbar-thin">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSyncResultActiveTab("Semua");
+                      setSyncResultPage(1);
+                    }}
+                    className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${syncResultActiveTab === "Semua"
+                        ? "bg-[#016DB2] text-white shadow-xs font-bold"
+                        : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold"
+                      }`}
+                  >
+                    <Layers className="w-4 h-4" />
+                    <span>Semua Kanal</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${syncResultActiveTab === "Semua" ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"
+                      }`}>
+                      {countTotal}
+                    </span>
+                  </button>
+
+                  {hasLms && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSyncResultActiveTab("LMS");
+                        setSyncResultPage(1);
+                      }}
+                      className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${syncResultActiveTab === "LMS"
+                          ? "bg-[#016DB2] text-white shadow-xs font-bold"
+                          : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold"
+                        }`}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>LMS Portaverse (Internal)</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${syncResultActiveTab === "LMS" ? "bg-white/20 text-white" : "bg-sky-100 text-[#016DB2]"
+                        }`}>
+                        {countLms}
+                      </span>
+                    </button>
+                  )}
+
+                  {hasSap && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSyncResultActiveTab("SAP");
+                        setSyncResultPage(1);
+                      }}
+                      className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${syncResultActiveTab === "SAP"
+                          ? "bg-[#016DB2] text-white shadow-xs font-bold"
+                          : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold"
+                        }`}
+                    >
+                      <Building2 className="w-4 h-4" />
+                      <span>SAP (Organik / PKWT)</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${syncResultActiveTab === "SAP" ? "bg-white/20 text-white" : "bg-blue-100 text-[#016DB2]"
+                        }`}>
+                        {countSap}
+                      </span>
+                    </button>
+                  )}
+
+                  {hasThanos && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSyncResultActiveTab("THANOS");
+                        setSyncResultPage(1);
+                      }}
+                      className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${syncResultActiveTab === "THANOS"
+                          ? "bg-purple-700 text-white shadow-xs font-bold"
+                          : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold"
+                        }`}
+                    >
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>THANOS / PDS (Tenaga Alih Daya)</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${syncResultActiveTab === "THANOS" ? "bg-white/20 text-white" : "bg-purple-100 text-purple-700"
+                        }`}>
+                        {countThanos}
+                      </span>
+                    </button>
+                  )}
+
+                  {hasIsma && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSyncResultActiveTab("ISMA");
+                        setSyncResultPage(1);
+                      }}
+                      className={`px-4 py-2 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap ${syncResultActiveTab === "ISMA"
+                          ? "bg-teal-700 text-white shadow-xs font-bold"
+                          : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 font-semibold"
+                        }`}
+                    >
+                      <Award className="w-4 h-4" />
+                      <span>ISMA (ABK / Seafarer)</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${syncResultActiveTab === "ISMA" ? "bg-white/20 text-white" : "bg-teal-100 text-teal-700"
+                        }`}>
+                        {countIsma}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* TOOLBAR FILTER & SEARCH (BARIS TERPISAH) */}
+              <div className="px-6 py-3 border-b border-slate-200 bg-slate-50/70">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  {/* Search Field */}
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="Cari berdasarkan nama pegawai, NIPP, atau judul sertifikat..."
+                      value={syncResultSearch}
+                      onChange={(e) => {
+                        setSyncResultSearch(e.target.value);
+                        setSyncResultPage(1);
+                      }}
+                      className="w-full pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-[#016DB2] shadow-2xs transition"
+                    />
+                    {syncResultSearch && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSyncResultSearch("");
+                          setSyncResultPage(1);
+                        }}
+                        className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 p-0.5"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Filter & Reset Buttons */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative">
+                      <select
+                        value={syncResultStatusFilter}
+                        onChange={(e) => {
+                          setSyncResultStatusFilter(e.target.value);
+                          setSyncResultPage(1);
+                        }}
+                        className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 appearance-none pr-8 focus:outline-none focus:border-[#016DB2] shadow-2xs cursor-pointer"
+                      >
+                        <option value="Semua">Status: Semua Status</option>
+                        <option value="Diterbitkan">Status: Diterbitkan / Aktif</option>
+                        <option value="Kadaluarsa">Status: Kadaluarsa</option>
+                      </select>
+                      <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                    </div>
+
+                    {(syncResultSearch || syncResultStatusFilter !== "Semua") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSyncResultSearch("");
+                          setSyncResultStatusFilter("Semua");
+                          setSyncResultPage(1);
+                        }}
+                        className="px-3 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition whitespace-nowrap"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Body: Card-Card Grid & Pagination */}
+              <div className="p-6 md:p-7 overflow-y-auto flex-1 space-y-6 bg-slate-50/50">
+                {paginatedItems.length === 0 ? (
+                  <div className="py-16 text-center bg-white rounded-2xl border border-slate-200 p-8 space-y-2">
+                    <AlertCircle className="w-10 h-10 text-slate-300 mx-auto" />
+                    <h4 className="font-bold text-sm text-slate-800">Tidak ada sertifikat ditemukan</h4>
+                    <p className="text-xs text-slate-400">Silakan ubah kata kunci pencarian atau ganti filter sumber kanal.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {paginatedItems.map((item) => {
+                      const isLms = item.source.includes("LMS");
+                      const isSap = item.source.includes("SAP");
+                      const isThanos = item.source.includes("THANOS");
+                      const isIsma = item.source.includes("ISMA");
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group"
+                        >
+                          {/* Mini Certificate Card Mockup */}
+                          <div
+                            onClick={() => handleOpenCertPreview(item)}
+                            className="p-3 bg-slate-50/80 border-b border-slate-100 cursor-pointer relative"
+                          >
+                            <div className="w-full h-32 bg-white border border-slate-200 rounded-xl p-2.5 flex flex-col justify-between text-center relative overflow-hidden shadow-2xs group-hover:border-[#016DB2] transition">
+                              <div className="flex items-center justify-between text-[7px] font-bold text-slate-600">
+                                <span className="text-[#016DB2]">BUMN &bull; PELINDO</span>
+                                <span className="text-slate-400">PMLI</span>
+                              </div>
+                              <div>
+                                <div className="text-[9px] font-black tracking-wider text-slate-800 uppercase">
+                                  CERTIFICATE
+                                </div>
+                                <div className="text-[6.5px] text-slate-400 font-semibold tracking-widest uppercase">
+                                  {item.type === "competency" ? "OF COMPETENCY" : item.type === "completion" ? "OF COMPLETION" : "OF ATTENDANCE"}
+                                </div>
+                              </div>
+                              <div className="my-0.5">
+                                <div className="text-[6px] text-slate-400">Diberikan kepada:</div>
+                                <div className="text-[8px] font-bold text-[#016DB2] truncate">{item.name}</div>
+                                <div className="text-[6px] text-slate-400">{item.nipp}</div>
+                              </div>
+                              <div className="flex justify-between items-end text-[6px] text-slate-400 border-t border-slate-100 pt-0.5">
+                                <span className="font-semibold text-[6.5px]">AKHLAK</span>
+                                <span className="font-serif italic font-bold text-slate-700">Robert S. Ibrahim</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Card Content Details */}
+                          <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold border ${isLms
+                                    ? "bg-sky-50 text-[#016DB2] border-sky-200"
+                                    : isSap
+                                      ? "bg-blue-50 text-blue-700 border-blue-200"
+                                      : isThanos
+                                        ? "bg-purple-50 text-purple-700 border-purple-200"
+                                        : "bg-teal-50 text-teal-700 border-teal-200"
+                                  }`}>
+                                  {isLms ? "LMS PORTAVERSE" : isSap ? "SAP HCIS" : isThanos ? "THANOS/PDS" : "ISMA SEAFARER"}
+                                </span>
+
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${item.status === "Diterbitkan"
+                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                    : "bg-rose-50 text-rose-700 border border-rose-200"
+                                  }`}>
+                                  {item.status}
+                                </span>
+                              </div>
+
+                              <h4 className="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">
+                                {item.title}
+                              </h4>
+
+                              <div className="text-[11px] text-slate-600 font-medium">
+                                {item.name} <span className="text-slate-400">•</span> <span className="font-mono text-slate-500">{item.nipp}</span>
+                              </div>
+
+                              <div className="text-[10px] text-slate-400 flex items-center gap-1 pt-0.5">
+                                <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                                <span className="truncate">{item.date}</span>
+                              </div>
+                            </div>
+
+                            {/* Card Actions */}
+                            <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenCertPreview(item)}
+                                className="flex-1 py-1.5 px-2 bg-sky-50 hover:bg-sky-100 text-[#016DB2] rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>Lihat Preview</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => showToast(`Mengunduh ${item.title} - ${item.name}.pdf...`)}
+                                className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[11px] font-semibold transition border border-slate-200"
+                                title="Unduh Sertifikat"
+                              >
+                                <Download className="w-3.5 h-3.5 text-slate-500" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Pagination Controls */}
+                {totalItems > 0 && (
+                  <div className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600 shadow-2xs">
+                    <div className="font-medium text-slate-500">
+                      Menampilkan <b className="text-slate-800">{startIndex + 1} - {endIndex}</b> dari <b className="text-slate-800">{totalItems}</b> sertifikat
+                      {syncResultActiveTab !== "Semua" && (
+                        <span className="text-slate-400"> (Kanal: {syncResultActiveTab})</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setSyncResultPage(prev => Math.max(1, prev - 1))}
+                        disabled={safeCurrentPage === 1}
+                        className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl font-bold flex items-center gap-1 transition disabled:opacity-40 disabled:cursor-not-allowed text-slate-700"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span>Sebelumnya</span>
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setSyncResultPage(pageNum)}
+                            className={`w-8 h-8 rounded-xl font-bold text-xs transition ${safeCurrentPage === pageNum
+                                ? "bg-[#016DB2] text-white shadow-xs"
+                                : "bg-white hover:bg-slate-50 border border-slate-200 text-slate-700"
+                              }`}
+                          >
+                            {pageNum}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setSyncResultPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={safeCurrentPage === totalPages}
+                        className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl font-bold flex items-center gap-1 transition disabled:opacity-40 disabled:cursor-not-allowed text-slate-700"
+                      >
+                        <span>Selanjutnya</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-slate-100 bg-white">
+                <button
+                  type="button"
+                  onClick={() => showToast("Mengunduh Rekapitulasi Hasil Sinkronisasi Multi-Kanal (18 data .xlsx)...")}
+                  className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                  <span>Unduh Rekap Sinkronisasi (.xlsx)</span>
+                </button>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => setShowSyncResultModal(false)}
+                    className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold transition"
+                  >
+                    Tutup
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleApplySyncToMainList}
+                    className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-600/20 transition flex items-center gap-1.5"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Terapkan ke Daftar Semua Sertifikat</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
 
       {/* MODAL: KONFIRMASI BUAT SERTIFIKAT */}
       {showCreateCertConfirmModal && (
@@ -2401,7 +3283,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
       {/* Global Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2.5 animate-in slide-in-from-bottom-5 border border-slate-700">
+        <div className="fixed bottom-6 right-6 z-[90] bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2.5 animate-in slide-in-from-bottom-5 border border-slate-700">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
