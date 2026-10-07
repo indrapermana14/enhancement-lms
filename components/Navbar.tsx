@@ -51,8 +51,8 @@ export const AVAILABLE_ROLES: { id: UserRole; label: string; desc: string }[] = 
 
 export const AVAILABLE_MODULES: { id: AppModule; label: string; desc: string; badge: string }[] = [
   { id: "Landing Page", label: "Landing Page", desc: "Portal Publik & Pengisian Asesmen User", badge: "Portal" },
-  { id: "LMS", label: "LMS", desc: "Management Certificate & Trainer", badge: "Learning" },
-  { id: "EM", label: "EM", desc: "Blast, Assessment & Role Management", badge: "Enterprise" },
+  { id: "LMS", label: "LMS", desc: "Management Certificate, Trainer & Survey", badge: "Learning" },
+  { id: "EM", label: "EM", desc: "Blast, Survey & Role Management", badge: "Enterprise" },
 ];
 
 export default function Navbar({ 

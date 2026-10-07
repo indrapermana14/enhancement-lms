@@ -61,7 +61,7 @@ export default function Sidebar({
         <nav className="px-3 space-y-1 text-xs">
           
           {/* ===================================================================
-              MODULE 1: LMS (Management Certificate, Management Trainer)
+              MODULE 1: LMS (Management Certificate, Management Trainer, Management Survey)
              =================================================================== */}
           {currentModule === "LMS" && (
             <>
@@ -98,13 +98,26 @@ export default function Sidebar({
                   </div>
                 </div>
               </button>
+
+              <button
+                onClick={() => onTabChange("assessment_mgmt")}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition ${currentTab === "assessment_mgmt" ? "bg-[#016DB2] text-white font-bold shadow-md shadow-blue-500/20" : "text-slate-600 hover:bg-slate-50"}`}
+              >
+                <ClipboardList className={`w-4 h-4 shrink-0 ${currentTab === "assessment_mgmt" ? "text-white" : "text-slate-500"}`} />
+                <div>
+                  <div className="font-bold">Management Survey</div>
+                  <div className={`text-[10px] ${currentTab === "assessment_mgmt" ? "text-blue-100" : "text-slate-400"}`}>
+                    Kelola kuesioner, respon &amp; analitik
+                  </div>
+                </div>
+              </button>
             </>
           )}
 
           {/* ===================================================================
               MODULE 2: EM (Enterprise Module)
               - Blast Message
-              - Assessment Management
+              - Management Survey (Assessment Management)
               - Dashboard User & Role Management
               - Role Akses Internal
               - Review Request Role
@@ -130,7 +143,7 @@ export default function Sidebar({
               >
                 <ClipboardList className={`w-4 h-4 shrink-0 ${currentTab === "assessment_mgmt" ? "text-white" : "text-slate-500"}`} />
                 <div>
-                  <div className="font-bold">Assessment Management</div>
+                  <div className="font-bold">Management Survey</div>
                   <div className={`text-[10px] ${currentTab === "assessment_mgmt" ? "text-blue-100" : "text-slate-400"}`}>
                     Kelola kuesioner &amp; assign pegawai
                   </div>

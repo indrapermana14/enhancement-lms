@@ -51,7 +51,13 @@ import {
   Award,
   FileSpreadsheet,
   MapPin,
-  Table
+  Table,
+  Building2,
+  Globe,
+  Compass,
+  Filter,
+  MessageSquare,
+  SlidersHorizontal
 } from "lucide-react";
 
 export interface SurveyAnalyticsData {
@@ -291,7 +297,7 @@ export interface QuestionItem {
   required: boolean;
   options: string[];
   optionPoints?: number[];
-  chartType?: "Pie Chart" | "Bar Chart" | "Map Chart" | "Table";
+  chartType?: "Pie Chart" | "Bar Chart" | "Likert Scale" | "Table" | "Map Chart";
 }
 
 export interface RespondentRow {
@@ -325,8 +331,8 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     questionText: "Bagaimana pengalaman Anda secara keseluruhan dalam pengisian KPI?",
     type: "Pilihan Tunggal",
     required: true,
-    options: ["Sangat Baik", "Baik", "Cukup", "Kurang Baik", "Tidak Baik"],
-    optionPoints: [25, 20, 15, 10, 5],
+    options: ["Sangat Memuaskan", "Memuaskan", "Cukup", "Kurang Memuaskan"],
+    optionPoints: [25, 20, 15, 10],
     chartType: "Pie Chart"
   },
   {
@@ -335,27 +341,83 @@ const INITIAL_QUESTIONS: QuestionItem[] = [
     questionText: "Apa yang menurut Anda paling sulit dalam proses pengisian KPI?",
     type: "Pilihan Ganda",
     required: true,
-    options: ["Memahami Indikator KPI", "Input data / angka", "Sistem / Teknologi yang digunakan", "Alur pengisian yang panjang", "Lainnya"],
-    optionPoints: [20, 20, 20, 20, 20],
+    options: ["Materi Pengenalan Core AKHLAK", "Kualitas Pendampingan Mentor", "Pengenalan Budaya Kerja Lapangan", "Kemudahan Akses Modul LMS"],
+    optionPoints: [25, 25, 25, 25],
     chartType: "Bar Chart"
   },
   {
     id: "q3",
     number: 3,
-    questionText: "Apa Saran Anda untuk meningkatkan proses pengisian KPI?",
-    type: "Isian Panjang",
+    questionText: "Seberapa tinggi tingkat efektivitas dan kemudahan pelaksanaan proses ini menurut Anda?",
+    type: "Skala Rating",
     required: true,
-    options: [],
-    chartType: "Table"
+    options: ["Sangat Efektif (80-100 Poin)", "Efektif (60-79 Poin)", "Cukup Efektif (40-59 Poin)", "Kurang Efektif (<40 Poin)"],
+    optionPoints: [100, 75, 50, 25],
+    chartType: "Likert Scale"
   },
   {
     id: "q4",
     number: 4,
-    questionText: "Apa kendala utama yang anda alami saat mengisi KPI?",
-    type: "Isian Pendek",
-    required: true,
+    questionText: "Apa saran dan masukan Anda untuk meningkatkan proses pengisian KPI berikutnya?",
+    type: "Isian Panjang",
+    required: false,
     options: [],
     chartType: "Table"
+  }
+];
+
+export const REGIONAL_PELINDO_MAP = [
+  {
+    id: "reg-1",
+    name: "Regional 1",
+    hubCity: "Pelabuhan Belawan (Medan)",
+    regionLabel: "Sumatera Bagian Utara, Riau & Kepri",
+    count: 38,
+    pct: 25,
+    avgScore: 92.4,
+    grade: "Sangat Baik (A)",
+    status: "Sangat Baik",
+    color: "#016DB2",
+    coords: { x: 145, y: 105 }
+  },
+  {
+    id: "reg-2",
+    name: "Regional 2",
+    hubCity: "Pelabuhan Tanjung Priok (Jakarta)",
+    regionLabel: "Jawa Bagian Barat, Banten & Jabodetabek",
+    count: 61,
+    pct: 40,
+    avgScore: 95.8,
+    grade: "Sangat Memuaskan (A+)",
+    status: "Optimal",
+    color: "#059669",
+    coords: { x: 260, y: 220 }
+  },
+  {
+    id: "reg-3",
+    name: "Regional 3",
+    hubCity: "Pelabuhan Tanjung Perak (Surabaya)",
+    regionLabel: "Jawa Timur, Bali, Nusra & Kalimantan Selatan",
+    count: 30,
+    pct: 20,
+    avgScore: 90.1,
+    grade: "Baik (A-)",
+    status: "Sangat Baik",
+    color: "#0284C7",
+    coords: { x: 375, y: 235 }
+  },
+  {
+    id: "reg-4",
+    name: "Regional 4",
+    hubCity: "Pelabuhan Makassar (Sulsel)",
+    regionLabel: "Sulawesi, Maluku, Maluku Utara & Papua",
+    count: 23,
+    pct: 15,
+    avgScore: 88.5,
+    grade: "Baik (B+)",
+    status: "Optimal",
+    color: "#F59E0B",
+    coords: { x: 495, y: 185 }
   }
 ];
 
@@ -594,7 +656,14 @@ export default function AssessmentManagement() {
   const [respondentStatusFilter, setRespondentStatusFilter] = useState("Semua");
 
   // Question Modal Popup (Breakdown per Respondent)
-  const [modalQuestion, setModalQuestion] = useState<{ number: number; title: string; type: string } | null>(null);
+  const [modalQuestion, setModalQuestion] = useState<{ number: number; title: string; type: string; question?: QuestionItem } | null>(null);
+  const [modalQuestionTab, setModalQuestionTab] = useState<"visual" | "responden">("visual");
+  const [modalActiveChart, setModalActiveChart] = useState<"Pie Chart" | "Bar Chart" | "Likert Scale" | "Table" | "Map Chart">("Pie Chart");
+
+  // Dynamic Chart View State per Question in Result Analytics view
+  const [questionActiveChart, setQuestionActiveChart] = useState<Record<string, "Pie Chart" | "Bar Chart" | "Likert Scale" | "Table" | "Map Chart">>({});
+  const [selectedRegionHighlight, setSelectedRegionHighlight] = useState<string | null>(null);
+  const [tableSearchText, setTableSearchText] = useState<Record<string, string>>({});
 
   // Stepper Form States
   const [judulSurvey, setJudulSurvey] = useState("Survey Pengalaman Pengisian KPI Terbaru");
@@ -707,6 +776,7 @@ export default function AssessmentManagement() {
         type: "Pilihan Tunggal",
         required: true,
         options: ["Sangat Puas", "Puas", "Cukup", "Kurang Puas", "Tidak Puas"],
+        optionPoints: [25, 20, 15, 10, 5],
         chartType: "Pie Chart"
       },
       {
@@ -716,11 +786,27 @@ export default function AssessmentManagement() {
         type: "Pilihan Ganda",
         required: true,
         options: ["Materi Modul Pembelajaran", "Kecepatan Akses Portal LMS", "Kualitas Audio & Video", "Kesesuaian Jadwal", "Lainnya"],
+        optionPoints: [20, 20, 20, 20, 20],
         chartType: "Bar Chart"
       },
       {
         id: `q-${Date.now()}-3`,
         number: 3,
+        questionText: "Seberapa tinggi tingkat efektivitas dan kemudahan pelaksanaan sesi ini?",
+        type: "Skala Rating",
+        required: true,
+        options: [
+          "Sangat Efektif (80-100 Poin)",
+          "Efektif (60-79 Poin)",
+          "Cukup Efektif (40-59 Poin)",
+          "Kurang Efektif (<40 Poin)"
+        ],
+        optionPoints: [100, 75, 50, 25],
+        chartType: "Likert Scale"
+      },
+      {
+        id: `q-${Date.now()}-4`,
+        number: 4,
         questionText: "Tuliskan saran perbaikan untuk penyelenggaraan sesi berikutnya:",
         type: "Isian Panjang",
         required: false,
@@ -1038,12 +1124,12 @@ export default function AssessmentManagement() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className={`px-3 py-0.5 rounded-md text-[11px] font-bold border ${item.status === "Aktif"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                        : item.status === "Selesai"
-                          ? "bg-slate-100 text-slate-700 border-slate-200"
-                          : item.status === "Draft"
-                            ? "bg-amber-50 text-amber-700 border border-amber-300"
-                            : "bg-purple-50 text-purple-700 border-purple-200"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : item.status === "Selesai"
+                        ? "bg-slate-100 text-slate-700 border-slate-200"
+                        : item.status === "Draft"
+                          ? "bg-amber-50 text-amber-700 border border-amber-300"
+                          : "bg-purple-50 text-purple-700 border-purple-200"
                       }`}>
                       {item.status}
                     </span>
@@ -1303,12 +1389,12 @@ export default function AssessmentManagement() {
                   {selectedSurvey.title}
                 </h1>
                 <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${selectedSurvey.status === "Aktif"
-                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                    : selectedSurvey.status === "Selesai"
-                      ? "bg-slate-100 text-slate-700 border border-slate-200"
-                      : selectedSurvey.status === "Diarsipkan"
-                        ? "bg-purple-50 text-purple-700 border border-purple-200"
-                        : "bg-amber-50 text-amber-700 border border-amber-300"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : selectedSurvey.status === "Selesai"
+                    ? "bg-slate-100 text-slate-700 border border-slate-200"
+                    : selectedSurvey.status === "Diarsipkan"
+                      ? "bg-purple-50 text-purple-700 border border-purple-200"
+                      : "bg-amber-50 text-amber-700 border border-amber-300"
                   }`}>
                   {selectedSurvey.status}
                 </span>
@@ -1453,138 +1539,564 @@ export default function AssessmentManagement() {
                   </div>
                 </div>
 
-                {/* Question 1: Donut Chart */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5 text-xs">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
-                        Q1
-                      </span>
-                      <div>
-                        <h3 className="font-bold text-sm text-slate-900">
-                          {selectedSurvey.questions && selectedSurvey.questions[0] 
-                            ? selectedSurvey.questions[0].questionText 
-                            : `Bagaimana pengalaman Anda secara keseluruhan dalam ${selectedSurvey.title}?`}
-                        </h3>
-                        <div className="text-[11px] text-slate-400 mt-0.5">Pilihan Tunggal &bull; Indeks: {activeAna.averageRating}/5.0 ({activeAna.ratingLabel})</div>
-                      </div>
-                    </div>
+                {/* Dynamic Questions Analytics Cards according to Question's Chart Type Choice */}
+                {(() => {
+                  const displayQuestions = (selectedSurvey.questions && selectedSurvey.questions.length > 0)
+                    ? selectedSurvey.questions
+                    : INITIAL_QUESTIONS;
 
-                    <button
-                      type="button"
-                      onClick={() => setModalQuestion({
-                        number: 1,
-                        title: selectedSurvey.questions?.[0]?.questionText || selectedSurvey.title,
-                        type: "Pilihan Tunggal"
-                      })}
-                      className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
-                    >
-                      Lihat Detail
-                    </button>
-                  </div>
+                  return displayQuestions.map((q, qIdx) => {
+                    // Current chart type selected for this question
+                    const rawChart = questionActiveChart[q.id] || q.chartType;
+                    const currentChartType: "Pie Chart" | "Bar Chart" | "Likert Scale" | "Table" =
+                      rawChart === "Map Chart"
+                        ? "Likert Scale"
+                        : (rawChart as ("Pie Chart" | "Bar Chart" | "Likert Scale" | "Table") | undefined) ||
+                        (q.type.includes("Isian") ? "Table" : "Pie Chart");
 
-                  <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 flex flex-col md:flex-row items-center justify-center gap-10">
-                    <div className="relative w-44 h-44 flex items-center justify-center shrink-0">
-                      <svg className="w-44 h-44 transform -rotate-90">
-                        <circle cx="88" cy="88" r="64" stroke="#E2E8F0" strokeWidth="18" fill="none" />
-                        {(() => {
-                          let cumulative = 0;
-                          const circumference = 402;
-                          return activeAna.satisfactionData.map((item, idx) => {
-                            const offset = circumference - (circumference * (cumulative + item.pct)) / 100;
-                            cumulative += item.pct;
-                            return (
-                              <circle
-                                key={idx}
-                                cx="88"
-                                cy="88"
-                                r="64"
-                                stroke={item.color}
-                                strokeWidth="18"
-                                fill="none"
-                                strokeDasharray={circumference}
-                                strokeDashoffset={offset}
-                                strokeLinecap="round"
-                              />
-                            );
-                          });
+                    // Prepare data for Pie Chart
+                    const pieColors = ["#059669", "#10B981", "#016DB2", "#0284C7", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+                    const pieItems = q.id === "q1"
+                      ? activeAna.satisfactionData
+                      : (q.options && q.options.length > 0)
+                        ? q.options.map((opt, oIdx) => {
+                          const basePct = Math.round(100 / q.options.length);
+                          const adjPct = oIdx === 0 ? basePct + 15 : oIdx === q.options.length - 1 ? Math.max(5, basePct - 15) : basePct;
+                          const cCount = Math.round((selectedSurvey.respondCount * adjPct) / 100);
+                          const pt = q.optionPoints && q.optionPoints[oIdx] !== undefined ? q.optionPoints[oIdx] : undefined;
+                          return {
+                            label: opt,
+                            count: cCount,
+                            pct: adjPct,
+                            color: pieColors[oIdx % pieColors.length],
+                            point: pt
+                          };
+                        })
+                        : activeAna.satisfactionData;
+
+                    // Prepare data for Bar Chart
+                    const barItems = q.id === "q2"
+                      ? activeAna.aspectData
+                      : (q.options && q.options.length > 0)
+                        ? q.options.map((opt, oIdx) => {
+                          const scPct = Math.max(30, 95 - oIdx * 12);
+                          const cCount = Math.round((selectedSurvey.respondCount * scPct) / 100);
+                          const pt = q.optionPoints && q.optionPoints[oIdx] !== undefined ? q.optionPoints[oIdx] : undefined;
+                          return {
+                            label: opt,
+                            scorePct: scPct,
+                            countText: `${scPct}% (${cCount} Responden)`,
+                            color: pieColors[oIdx % pieColors.length],
+                            pointWeight: pt
+                          };
+                        })
+                        : activeAna.aspectData;
+
+                    return (
+                      <div key={q.id || qIdx} className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-5 text-xs transition">
+                        {/* Question Card Header */}
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                          <div className="flex items-start gap-3">
+                            <span className="w-7 h-7 rounded-xl bg-sky-100 text-[#016DB2] font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                              Q{q.number || qIdx + 1}
+                            </span>
+                            <div>
+                              <h3 className="font-bold text-sm text-slate-900 leading-snug">
+                                {q.questionText || `Pertanyaan #${q.number || qIdx + 1}`}
+                              </h3>
+                              <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400 mt-1">
+                                <span className="font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                                  {q.type}
+                                </span>
+                                <span>&bull;</span>
+                                <span>Pilihan Visual: <strong className="text-slate-700">{currentChartType}</strong></span>
+                                <span>&bull;</span>
+                                <span>{selectedSurvey.respondCount} Responden</span>
+                                {q.required && (
+                                  <>
+                                    <span>&bull;</span>
+                                    <span className="text-red-500 font-semibold">Wajib Diisi</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 self-start lg:self-auto shrink-0">
+                            {/* Toolbar Visual Switcher: Pie, Bar, Likert, Table */}
+                            {/* <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 text-[11px] font-bold">
+                              {[
+                                { type: "Pie Chart", label: "Pie", icon: PieChart, desc: "Donut / Proporsi" },
+                                { type: "Bar Chart", label: "Bar", icon: BarChart3, desc: "Batang Komparasi" },
+                                { type: "Likert Scale", label: "Likert", icon: SlidersHorizontal, desc: "Distribusi Skala Likert" },
+                                { type: "Table", label: "Table", icon: Table, desc: "Tabel Data" }
+                              ].map((btn) => {
+                                const IconC = btn.icon;
+                                const isCurrent = currentChartType === btn.type;
+                                return (
+                                  <button
+                                    key={btn.type}
+                                    type="button"
+                                    onClick={() => setQuestionActiveChart(prev => ({ ...prev, [q.id]: btn.type as any }))}
+                                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition ${
+                                      isCurrent
+                                        ? "bg-[#016DB2] text-white shadow-xs"
+                                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                                    }`}
+                                    title={`Tampilkan sebagai ${btn.type} (${btn.desc})`}
+                                  >
+                                    <IconC className="w-3.5 h-3.5" />
+                                    <span className="hidden sm:inline">{btn.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div> */}
+
+                            {/* Button Lihat Detail Modal */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setModalQuestion({
+                                  number: q.number || qIdx + 1,
+                                  title: q.questionText || `Pertanyaan #${q.number || qIdx + 1}`,
+                                  type: q.type,
+                                  question: q
+                                });
+                                setModalActiveChart(currentChartType);
+                                setModalQuestionTab("visual");
+                              }}
+                              className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0 flex items-center gap-1.5"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-slate-400" />
+                              <span>Lihat Detail</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* ========================================================
+                            1. PIE CHART (Grafik Donut & Proporsi Responden)
+                           ======================================================== */}
+                        {currentChartType === "Pie Chart" && (
+                          <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 flex flex-col md:flex-row items-center justify-center gap-10">
+                            <div className="relative w-44 h-44 flex items-center justify-center shrink-0">
+                              <svg className="w-44 h-44 transform -rotate-90">
+                                <circle cx="88" cy="88" r="64" stroke="#E2E8F0" strokeWidth="18" fill="none" />
+                                {(() => {
+                                  let cumulative = 0;
+                                  const circumference = 402;
+                                  return pieItems.map((item, idx) => {
+                                    const offset = circumference - (circumference * (cumulative + item.pct)) / 100;
+                                    cumulative += item.pct;
+                                    return (
+                                      <circle
+                                        key={idx}
+                                        cx="88"
+                                        cy="88"
+                                        r="64"
+                                        stroke={item.color}
+                                        strokeWidth="18"
+                                        fill="none"
+                                        strokeDasharray={circumference}
+                                        strokeDashoffset={offset}
+                                        strokeLinecap="round"
+                                        className="transition-all duration-500"
+                                      />
+                                    );
+                                  });
+                                })()}
+                              </svg>
+
+                              <div className="absolute text-center">
+                                <div className="text-2xl font-black text-slate-900">{selectedSurvey.respondCount}</div>
+                                <div className="text-[10px] text-slate-400 font-semibold">Responden</div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2.5 text-xs font-semibold text-slate-700 min-w-64 flex-1">
+                              {pieItems.map((item, idx) => (
+                                <div key={idx} className="flex items-center justify-between gap-4 p-2 rounded-xl hover:bg-white transition border border-transparent hover:border-slate-200">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>
+                                    <span>{item.label}</span>
+                                    {item.point !== undefined && (
+                                      <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100 shrink-0">
+                                        +{item.point} Poin
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="font-bold text-slate-900">{item.count} <span className="text-slate-400 font-normal">({item.pct}%)</span></span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ========================================================
+                            2. BAR CHART (Grafik Batang Komparasi)
+                           ======================================================== */}
+                        {currentChartType === "Bar Chart" && (
+                          <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 space-y-4">
+                            {barItems.map((asp, idx) => (
+                              <div key={idx} className="space-y-1.5">
+                                <div className="flex items-center justify-between gap-4">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-5 h-5 rounded-md bg-white border border-slate-200 text-slate-500 font-bold text-[10px] flex items-center justify-center shrink-0">
+                                      #{idx + 1}
+                                    </span>
+                                    <span className="font-semibold text-slate-800">{asp.label}</span>
+                                    {asp.pointWeight !== undefined && (
+                                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
+                                        Bobot: {asp.pointWeight} pt
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="text-right font-bold text-slate-900 shrink-0">{asp.countText}</span>
+                                </div>
+                                <div className="w-full h-3.5 bg-slate-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all duration-500"
+                                    style={{ width: `${asp.scorePct}%`, backgroundColor: asp.color }}
+                                  ></div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* ========================================================
+                            3. LIKERT SCALE (Diverging Stacked Bar & Analisis Skala 1-5)
+                           ======================================================== */}
+                        {currentChartType === "Likert Scale" && (() => {
+                          const totalRespondents = selectedSurvey.respondCount || 142;
+                          const likertLevels = [
+                            { level: 1, code: "STS", label: "Sangat Tidak Setuju", desc: "Sangat Buruk / Tidak Puas", color: "#EF4444", bgClass: "bg-rose-500", lightBg: "bg-rose-50", textClass: "text-rose-700", borderClass: "border-rose-200", pct: 4, count: Math.round((totalRespondents * 4) / 100), weight: 1 },
+                            { level: 2, code: "TS", label: "Tidak Setuju", desc: "Kurang Sesuai Ekspektasi", color: "#F97316", bgClass: "bg-orange-500", lightBg: "bg-orange-50", textClass: "text-orange-700", borderClass: "border-orange-200", pct: 6, count: Math.round((totalRespondents * 6) / 100), weight: 2 },
+                            { level: 3, code: "N", label: "Netral", desc: "Cukup / Ragu-ragu", color: "#94A3B8", bgClass: "bg-slate-400", lightBg: "bg-slate-100", textClass: "text-slate-700", borderClass: "border-slate-200", pct: 14, count: Math.round((totalRespondents * 14) / 100), weight: 3 },
+                            { level: 4, code: "S", label: "Setuju", desc: "Baik / Memenuhi Harapan", color: "#0284C7", bgClass: "bg-sky-500", lightBg: "bg-sky-50", textClass: "text-sky-700", borderClass: "border-sky-200", pct: 44, count: Math.round((totalRespondents * 44) / 100), weight: 4 },
+                            { level: 5, code: "SS", label: "Sangat Setuju", desc: "Sangat Baik / Melebihi Harapan", color: "#059669", bgClass: "bg-emerald-600", lightBg: "bg-emerald-50", textClass: "text-emerald-700", borderClass: "border-emerald-200", pct: 32, count: Math.round((totalRespondents * 32) / 100), weight: 5 },
+                          ];
+
+                          const positivePct = 44 + 32; // 76%
+                          const neutralPct = 14;       // 14%
+                          const negativePct = 4 + 6;   // 10%
+                          const netAgreement = positivePct - negativePct; // +66%
+                          const meanScore = 3.94; // Scale 1 - 5
+
+                          return (
+                            <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 space-y-6">
+                              {/* Likert Scale Top Header */}
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-7 h-7 rounded-lg bg-sky-100 text-[#016DB2] flex items-center justify-center shrink-0">
+                                    <SlidersHorizontal className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-bold text-xs text-slate-900">Distribusi Skala Likert 5 Tingkat &amp; Analisis Sentimen</h4>
+                                    <p className="text-[10px] text-slate-400">Diverging stacked percentage bar dari Sangat Tidak Setuju (STS) hingga Sangat Setuju (SS)</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px]">
+                                  <span className="px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    Tingkat Afirmasi: Kuat ({positivePct}%)
+                                  </span>
+                                  <span className="text-slate-400">&bull;</span>
+                                  <span className="text-slate-500 font-medium">{totalRespondents} Responden</span>
+                                </div>
+                              </div>
+
+                              {/* 3 Summary KPIs for Likert */}
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                {/* Mean Score */}
+                                <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-1">
+                                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Rata-Rata Skor Likert</div>
+                                  <div className="flex items-baseline gap-1.5">
+                                    <span className="text-2xl font-black text-slate-900">{meanScore.toFixed(2)}</span>
+                                    <span className="text-xs font-bold text-slate-400">/ 5.00</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-emerald-600">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    <span>Cenderung Setuju / Positif</span>
+                                  </div>
+                                </div>
+
+                                {/* Positive Agreement Rate */}
+                                <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-1">
+                                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tingkat Persetujuan (Agreement)</div>
+                                  <div className="flex items-baseline gap-1.5">
+                                    <span className="text-2xl font-black text-[#016DB2]">{positivePct}%</span>
+                                    <span className="text-xs font-semibold text-slate-400">({Math.round((totalRespondents * positivePct) / 100)} Pegawai)</span>
+                                  </div>
+                                  <div className="text-[11px] text-slate-500 font-medium pt-1">
+                                    Gabungan respon Setuju &amp; Sangat Setuju
+                                  </div>
+                                </div>
+
+                                {/* Net Agreement Index */}
+                                <div className="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs space-y-1">
+                                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Net Agreement Index</div>
+                                  <div className="flex items-baseline gap-1.5">
+                                    <span className="text-2xl font-black text-emerald-600">+{netAgreement}%</span>
+                                    <span className="text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">Dominan</span>
+                                  </div>
+                                  <div className="text-[11px] text-slate-500 font-medium pt-1">
+                                    Selisih Positif ({positivePct}%) vs Negatif ({negativePct}%)
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Main Stacked Horizontal Likert Bar */}
+                              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-bold text-slate-700 gap-2">
+                                  <span>Visualisasi Bar Bertumpuk (Diverging Likert Stack)</span>
+                                  {/* Legend */}
+                                  <div className="flex items-center gap-2.5 flex-wrap text-[10px] font-semibold">
+                                    {likertLevels.map((lvl) => (
+                                      <span key={lvl.code} className="flex items-center gap-1">
+                                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: lvl.color }}></span>
+                                        <span className="text-slate-600">{lvl.code} ({lvl.pct}%)</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* The Stacked Bar */}
+                                <div className="h-10 w-full rounded-xl overflow-hidden flex bg-slate-100 shadow-inner">
+                                  {likertLevels.map((lvl) => (
+                                    <div
+                                      key={lvl.code}
+                                      style={{ width: `${lvl.pct}%`, backgroundColor: lvl.color }}
+                                      className="h-full flex flex-col items-center justify-center text-white font-black text-[11px] transition-all duration-300 relative group cursor-pointer hover:opacity-90"
+                                      title={`${lvl.label} (${lvl.code}): ${lvl.pct}% (${lvl.count} Responden)`}
+                                    >
+                                      {lvl.pct >= 6 && <span>{lvl.pct}%</span>}
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* 3-Spectrum Indicator Bar (Negatif - Netral - Positif) */}
+                                <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500">
+                                  <div className="flex items-center gap-1.5 text-rose-600 font-bold">
+                                    <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                                    <span>Negatif (STS + TS): {negativePct}%</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 text-slate-500 font-semibold">
+                                    <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                                    <span>Netral (N): {neutralPct}%</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 text-emerald-600 font-bold">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    <span>Positif (S + SS): {positivePct}%</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Detail Breakdown of 5 Likert Tiers */}
+                              <div className="space-y-2">
+                                <h5 className="font-bold text-xs text-slate-800">Rincian Perolehan Respon Tiap Skala Likert</h5>
+                                <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                                  {likertLevels.map((lvl) => (
+                                    <div
+                                      key={lvl.level}
+                                      className={`p-3 rounded-xl border ${lvl.borderClass} ${lvl.lightBg} space-y-1.5 transition`}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${lvl.bgClass} text-white`}>
+                                          {lvl.code}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-slate-400">Tingkat {lvl.level}</span>
+                                      </div>
+                                      <div>
+                                        <div className="font-bold text-slate-900 text-xs">{lvl.label}</div>
+                                        <div className="text-[10px] text-slate-500 mt-0.5">{lvl.desc}</div>
+                                      </div>
+                                      <div className="pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                                        <span className="font-extrabold text-slate-800">{lvl.count} Responden</span>
+                                        <span className={`font-black ${lvl.textClass}`}>{lvl.pct}%</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Key Insight Callout */}
+                              <div className="p-3 bg-sky-50/80 rounded-xl border border-sky-200/80 text-[11px] text-slate-700 flex items-start gap-2">
+                                <Sparkles className="w-3.5 h-3.5 text-[#016DB2] shrink-0 mt-0.5" />
+                                <p className="leading-relaxed">
+                                  <strong>{positivePct}% responden</strong> menyatakan persetujuan positif (Setuju &amp; Sangat Setuju), menghasilkan Indeks Skor Likert sebesar <strong>{meanScore.toFixed(2)} dari skala 5.00</strong> dengan sentimen persetujuan yang sangat solid.
+                                </p>
+                              </div>
+                            </div>
+                          );
                         })()}
-                      </svg>
 
-                      <div className="absolute text-center">
-                        <div className="text-2xl font-black text-slate-900">{selectedSurvey.respondCount}</div>
-                        <div className="text-[10px] text-slate-400 font-semibold">Responden</div>
-                      </div>
-                    </div>
+                        {/* ========================================================
+                            4. TABLE (Tabel Rekapitulasi Data & Transkrip Responden)
+                           ======================================================== */}
+                        {currentChartType === "Table" && (
+                          <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 space-y-5">
+                            {/* If Text Question (Isian Panjang / Isian Pendek) */}
+                            {q.type.includes("Isian") ? (
+                              <div className="space-y-4">
+                                {/* Top Topic Badges */}
+                                <div className="space-y-2">
+                                  <div className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5">
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                                    <span>Kluster Topik Jawaban Kualitatif Responden:</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {[
+                                      { label: "Tutorial & Video Panduan", pct: 42, count: 64, color: "bg-blue-50 text-blue-700 border-blue-200" },
+                                      { label: "Fitur Autosave Data", pct: 28, count: 43, color: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+                                      { label: "Kecepatan Akses Portal", pct: 18, count: 27, color: "bg-amber-50 text-amber-700 border-amber-200" },
+                                      { label: "Contoh Real Indikator", pct: 12, count: 18, color: "bg-purple-50 text-purple-700 border-purple-200" }
+                                    ].map((topic, tIdx) => (
+                                      <span key={tIdx} className={`px-2.5 py-1 rounded-lg text-xs font-semibold border ${topic.color} flex items-center gap-1.5`}>
+                                        <span>{topic.label}</span>
+                                        <span className="text-[10px] font-black opacity-80 font-mono">({topic.pct}%)</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
 
-                    <div className="space-y-2.5 text-xs font-semibold text-slate-700 min-w-64">
-                      {activeAna.satisfactionData.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                            <span>{item.label}</span>
-                            {item.point !== undefined && (
-                              <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100 shrink-0">
-                                +{item.point} Poin
-                              </span>
+                                {/* Search Input for Transcript */}
+                                <div className="flex items-center justify-between gap-3 pt-2">
+                                  <div className="relative flex-1">
+                                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+                                    <input
+                                      type="text"
+                                      placeholder="Cari kata kunci saran atau nama responden..."
+                                      value={tableSearchText[q.id] || ""}
+                                      onChange={(e) => setTableSearchText({ ...tableSearchText, [q.id]: e.target.value })}
+                                      className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-[#016DB2]"
+                                    />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => showToast("Mengekspor rekapitulasi tanggapan tabel ke CSV...")}
+                                    className="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs shrink-0"
+                                  >
+                                    <Download className="w-3.5 h-3.5 text-slate-500" />
+                                    <span>Unduh CSV</span>
+                                  </button>
+                                </div>
+
+                                {/* Responses Table */}
+                                <div className="overflow-x-auto bg-white rounded-xl border border-slate-200">
+                                  <table className="w-full text-left">
+                                    <thead className="text-[11px] text-slate-400 font-semibold border-b border-slate-200 bg-slate-50/70">
+                                      <tr>
+                                        <th className="py-2.5 pl-4">PEGAWAI / RESPONDEN</th>
+                                        <th className="py-2.5">WAKTU PENGISIAN</th>
+                                        <th className="py-2.5 pr-4">TANGGAPAN / SARAN LENGKAP</th>
+                                        <th className="py-2.5 text-right pr-4">KATEGORI</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 text-xs">
+                                      {MOCK_RESPONDENTS
+                                        .filter(res => {
+                                          const query = (tableSearchText[q.id] || "").toLowerCase();
+                                          if (!query) return true;
+                                          return (
+                                            res.name.toLowerCase().includes(query) ||
+                                            res.answers.q3.toLowerCase().includes(query) ||
+                                            res.answers.q4.toLowerCase().includes(query)
+                                          );
+                                        })
+                                        .map((res, rIdx) => (
+                                          <tr key={rIdx} className="hover:bg-slate-50/80 transition">
+                                            <td className="py-3 pl-4">
+                                              <div className="flex items-center gap-2.5">
+                                                <img src={res.avatar} alt={res.name} className="w-7 h-7 rounded-full object-cover border border-slate-200" />
+                                                <div>
+                                                  <div className="font-bold text-slate-900">{res.name}</div>
+                                                  <div className="text-[10px] text-slate-400 font-mono">{res.nipp} &bull; {res.role}</div>
+                                                </div>
+                                              </div>
+                                            </td>
+                                            <td className="py-3 text-[11px] text-slate-500">{res.submittedAt !== "-" ? res.submittedAt : "18 Agustus 2026 10:25"}</td>
+                                            <td className="py-3 pr-4 text-slate-700">
+                                              <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 text-xs italic leading-relaxed text-slate-700">
+                                                &quot;{q.id === "q4" ? res.answers.q4 : res.answers.q3}&quot;
+                                              </div>
+                                            </td>
+                                            <td className="py-3 pr-4 text-right">
+                                              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${rIdx % 3 === 0
+                                                ? "bg-blue-50 text-blue-700 border-blue-200"
+                                                : rIdx % 3 === 1
+                                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                                  : "bg-amber-50 text-amber-700 border-amber-200"
+                                                }`}>
+                                                {rIdx % 3 === 0 ? "Saran Konstruktif" : rIdx % 3 === 1 ? "Apresiasi Alur" : "Kendala Teknis"}
+                                              </span>
+                                            </td>
+                                          </tr>
+                                        ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            ) : (
+                              /* If Choice / Rating Question */
+                              <div className="overflow-x-auto bg-white rounded-xl border border-slate-200">
+                                <table className="w-full text-left">
+                                  <thead className="text-[11px] text-slate-400 font-semibold border-b border-slate-200 bg-slate-50/70">
+                                    <tr>
+                                      <th className="py-3 pl-4">#</th>
+                                      <th className="py-3">PILIHAN JAWABAN / INDIKATOR</th>
+                                      <th className="py-3 text-center">BOBOT POIN</th>
+                                      <th className="py-3 text-center">JUMLAH RESPON</th>
+                                      <th className="py-3 pr-4">DISTRIBUSI PERSENTASE</th>
+                                      <th className="py-3 text-right pr-4">STATUS</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody className="divide-y divide-slate-100 text-xs">
+                                    {pieItems.map((item, idx) => (
+                                      <tr key={idx} className="hover:bg-slate-50/80 transition">
+                                        <td className="py-3 pl-4 font-mono text-slate-400">{idx + 1}</td>
+                                        <td className="py-3">
+                                          <div className="flex items-center gap-2">
+                                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>
+                                            <span className="font-bold text-slate-900">{item.label}</span>
+                                          </div>
+                                        </td>
+                                        <td className="py-3 text-center">
+                                          {item.point !== undefined ? (
+                                            <span className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded-md font-bold text-[11px] border border-sky-100">
+                                              +{item.point} pt
+                                            </span>
+                                          ) : "-"}
+                                        </td>
+                                        <td className="py-3 text-center font-bold text-slate-900">{item.count} Responden</td>
+                                        <td className="py-3 pr-4">
+                                          <div className="flex items-center gap-2.5">
+                                            <div className="w-32 h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                              <div className="h-full rounded-full" style={{ width: `${item.pct}%`, backgroundColor: item.color }}></div>
+                                            </div>
+                                            <span className="font-bold text-slate-800 text-[11px]">{item.pct}%</span>
+                                          </div>
+                                        </td>
+                                        <td className="py-3 text-right pr-4">
+                                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.pct >= 40
+                                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                            : item.pct >= 20
+                                              ? "bg-sky-50 text-sky-700 border border-sky-200"
+                                              : "bg-slate-100 text-slate-600 border border-slate-200"
+                                            }`}>
+                                            {item.pct >= 40 ? "Mayoritas" : item.pct >= 20 ? "Tinggi" : "Sedang"}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
                             )}
                           </div>
-                          <span className="font-bold text-slate-900">{item.count} <span className="text-slate-400 font-normal">({item.pct}%)</span></span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Question 2: Bar Chart */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 space-y-4 text-xs">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-2.5">
-                      <span className="w-6 h-6 rounded-lg bg-sky-100 text-[#016DB2] font-black text-[11px] flex items-center justify-center shrink-0">
-                        Q2
-                      </span>
-                      <div>
-                        <h3 className="font-bold text-sm text-slate-900">
-                          {selectedSurvey.questions && selectedSurvey.questions[1] 
-                            ? selectedSurvey.questions[1].questionText 
-                            : "Aspek & Parameter Evaluasi Utama"}
-                        </h3>
-                        <div className="text-[11px] text-slate-400 mt-0.5">Analisis Distribusi Indikator</div>
+                        )}
                       </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setModalQuestion({
-                        number: 2,
-                        title: selectedSurvey.questions?.[1]?.questionText || "Parameter Evaluasi",
-                        type: "Pilihan Ganda"
-                      })}
-                      className="px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-2xs shrink-0"
-                    >
-                      Lihat Detail
-                    </button>
-                  </div>
-
-                  <div className="p-6 bg-slate-50/60 rounded-2xl border border-slate-100 space-y-4">
-                    {activeAna.aspectData.map((asp, idx) => (
-                      <div key={idx} className="flex items-center justify-between gap-4">
-                        <div className="w-64 flex items-center gap-2">
-                          <span className="font-semibold text-slate-700 truncate">{asp.label}</span>
-                          {asp.pointWeight !== undefined && (
-                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
-                              Bobot: {asp.pointWeight} pt
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex-1 h-3.5 bg-slate-200 rounded-full overflow-hidden">
-                          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${asp.scorePct}%`, backgroundColor: asp.color }}></div>
-                        </div>
-                        <span className="w-36 text-right font-bold text-slate-800">{asp.countText}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                    );
+                  });
+                })()}
               </div>
             );
           })()}
@@ -1922,12 +2434,12 @@ export default function AssessmentManagement() {
             {/* Dynamic Status Badge */}
             <div>
               <span className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider border shadow-xs ${formMode === "create"
-                  ? "border-amber-300 text-amber-700 bg-amber-50"
-                  : editingSurveyStatus === "Aktif"
-                    ? "border-emerald-300 text-emerald-700 bg-emerald-50"
-                    : editingSurveyStatus === "Draft"
-                      ? "border-amber-300 text-amber-700 bg-amber-50"
-                      : "border-slate-300 text-slate-700 bg-slate-50"
+                ? "border-amber-300 text-amber-700 bg-amber-50"
+                : editingSurveyStatus === "Aktif"
+                  ? "border-emerald-300 text-emerald-700 bg-emerald-50"
+                  : editingSurveyStatus === "Draft"
+                    ? "border-amber-300 text-amber-700 bg-amber-50"
+                    : "border-slate-300 text-slate-700 bg-slate-50"
                 }`}>
                 Status: {formMode === "create" ? "Draft" : editingSurveyStatus}
               </span>
@@ -2158,8 +2670,8 @@ export default function AssessmentManagement() {
                               </span>
                               {(q.type === "Pilihan Tunggal" || q.type === "Pilihan Ganda" || q.type === "Skala Rating") ? (
                                 <span className="font-semibold text-[#016DB2] bg-sky-50 px-2 py-0.5 rounded border border-sky-200 flex items-center gap-1">
-                                  {q.chartType === "Bar Chart" ? <BarChart3 className="w-2.5 h-2.5" /> : q.chartType === "Map Chart" ? <MapPin className="w-2.5 h-2.5" /> : q.chartType === "Table" ? <Table className="w-2.5 h-2.5" /> : <PieChart className="w-2.5 h-2.5" />}
-                                  <span>Grafik: {q.chartType || "Pie Chart"}</span>
+                                  {q.chartType === "Bar Chart" ? <BarChart3 className="w-2.5 h-2.5" /> : q.chartType === "Likert Scale" ? <SlidersHorizontal className="w-2.5 h-2.5" /> : q.chartType === "Table" ? <Table className="w-2.5 h-2.5" /> : <PieChart className="w-2.5 h-2.5" />}
+                                  <span>Grafik: {q.chartType === "Map Chart" ? "Likert Scale" : (q.chartType || "Pie Chart")}</span>
                                 </span>
                               ) : (
                                 <span className="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 flex items-center gap-1">
@@ -2291,7 +2803,7 @@ export default function AssessmentManagement() {
                                     {[
                                       { type: "Pie Chart", label: "Pie Chart", desc: "Grafik Donut / Proporsi", icon: PieChart },
                                       { type: "Bar Chart", label: "Bar Chart", desc: "Grafik Batang Komparasi", icon: BarChart3 },
-                                      { type: "Map Chart", label: "Map Chart", desc: "Grafik Peta Sebaran Wilayah", icon: MapPin },
+                                      { type: "Likert Scale", label: "Likert Scale", desc: "Diverging Skala 1 - 5 (Sentimen)", icon: SlidersHorizontal },
                                       { type: "Table", label: "Table", desc: "Tabel Rekapitulasi Data", icon: Table }
                                     ].map((cOpt) => {
                                       const IconComp = cOpt.icon;
@@ -2301,11 +2813,10 @@ export default function AssessmentManagement() {
                                           key={cOpt.type}
                                           type="button"
                                           onClick={() => handleUpdateQuestion(q.id, { chartType: cOpt.type as any })}
-                                          className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition ${
-                                            isSelected
-                                              ? "border-[#016DB2] bg-sky-50/70 text-[#016DB2] ring-2 ring-blue-500/15 shadow-xs"
-                                              : "border-slate-200 hover:bg-slate-50 text-slate-700 bg-white"
-                                          }`}
+                                          className={`p-3 rounded-xl border text-left flex flex-col justify-between gap-2 transition ${isSelected
+                                            ? "border-[#016DB2] bg-sky-50/70 text-[#016DB2] ring-2 ring-blue-500/15 shadow-xs"
+                                            : "border-slate-200 hover:bg-slate-50 text-slate-700 bg-white"
+                                            }`}
                                         >
                                           <div className="flex items-center justify-between">
                                             <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isSelected ? "bg-[#016DB2] text-white" : "bg-slate-100 text-slate-500"}`}>
@@ -2823,7 +3334,7 @@ export default function AssessmentManagement() {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/65 backdrop-blur-xs p-4 animate-in fade-in">
             <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full border border-slate-200 flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95">
-              
+
               {/* Modal Header */}
               <div className="flex items-center justify-between px-7 py-5 border-b border-slate-100 bg-white">
                 <div className="space-y-1">
@@ -2832,15 +3343,14 @@ export default function AssessmentManagement() {
                       <BarChart3 className="w-3 h-3 text-[#016DB2]" />
                       <span>Analitik &amp; Grafik Survei (Per-Card)</span>
                     </span>
-                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
-                      cardAnalyticsSurvey.status === "Aktif"
-                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                        : cardAnalyticsSurvey.status === "Selesai"
-                          ? "bg-slate-100 text-slate-700 border border-slate-200"
-                          : cardAnalyticsSurvey.status === "Diarsipkan"
-                            ? "bg-purple-50 text-purple-700 border border-purple-200"
-                            : "bg-amber-50 text-amber-700 border border-amber-300"
-                    }`}>
+                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold ${cardAnalyticsSurvey.status === "Aktif"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      : cardAnalyticsSurvey.status === "Selesai"
+                        ? "bg-slate-100 text-slate-700 border border-slate-200"
+                        : cardAnalyticsSurvey.status === "Diarsipkan"
+                          ? "bg-purple-50 text-purple-700 border border-purple-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-300"
+                      }`}>
                       {cardAnalyticsSurvey.status}
                     </span>
                     {cardAnalyticsSurvey.category && (
@@ -2872,7 +3382,7 @@ export default function AssessmentManagement() {
 
               {/* Modal Body */}
               <div className="p-6 md:p-7 space-y-6 overflow-y-auto text-xs">
-                
+
                 {/* 4 Summary Metric Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1">
@@ -2921,7 +3431,7 @@ export default function AssessmentManagement() {
 
                 {/* 2 Interactive Visual Charts in Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  
+
                   {/* Chart 1: Donut Chart Distribusi Respon (lg:col-span-6) */}
                   <div className="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -3129,6 +3639,472 @@ export default function AssessmentManagement() {
                     <span>Buka Halaman Analisis Penuh</span>
                   </button>
                 </div>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* =========================================================================
+          MODAL DETAIL PERTANYAAN (Breakdown Visual & Respon Individu Pegawai)
+         ========================================================================= */}
+      {modalQuestion && (() => {
+        const qItem = modalQuestion.question || selectedSurvey.questions?.find(q => q.number === modalQuestion.number) || INITIAL_QUESTIONS[0];
+        const activeChart: "Pie Chart" | "Bar Chart" | "Likert Scale" | "Table" =
+          (modalActiveChart === "Map Chart" ? "Likert Scale" : (modalActiveChart as any)) ||
+          (qItem?.chartType === "Map Chart" ? "Likert Scale" : (qItem?.chartType as any)) ||
+          "Pie Chart";
+        const pieColors = ["#059669", "#10B981", "#016DB2", "#0284C7", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"];
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 text-xs">
+
+              {/* Modal Header */}
+              <div className="flex items-start justify-between gap-4 px-7 py-5 border-b border-slate-100 bg-slate-50/70">
+                <div className="flex items-start gap-3">
+                  <span className="w-8 h-8 rounded-xl bg-sky-100 text-[#016DB2] font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                    Q{modalQuestion.number}
+                  </span>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 rounded-md bg-blue-100 text-[#016DB2] font-bold text-[10px]">
+                        {modalQuestion.type}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        Total Respon: {selectedSurvey.respondCount} dari {selectedSurvey.targetCount} Target
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-base text-slate-900 leading-snug">
+                      {modalQuestion.title}
+                    </h3>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setModalQuestion(null)}
+                  className="w-8 h-8 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center transition shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Sub-Header Tabs */}
+              <div className="flex items-center justify-between px-7 border-b border-slate-200 bg-white">
+                <div className="flex gap-6 font-bold text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setModalQuestionTab("visual")}
+                    className={`py-3.5 border-b-2 transition flex items-center gap-2 ${modalQuestionTab === "visual"
+                      ? "border-[#016DB2] text-[#016DB2]"
+                      : "border-transparent text-slate-500 hover:text-slate-800"
+                      }`}
+                  >
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    <span>Visualisasi Grafik</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setModalQuestionTab("responden")}
+                    className={`py-3.5 border-b-2 transition flex items-center gap-2 ${modalQuestionTab === "responden"
+                      ? "border-[#016DB2] text-[#016DB2]"
+                      : "border-transparent text-slate-500 hover:text-slate-800"
+                      }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>Rincian Respon Pegawai ({MOCK_RESPONDENTS.length})</span>
+                  </button>
+                </div>
+
+                {/* Chart Toggle Buttons when in Visual Tab */}
+                {/* {modalQuestionTab === "visual" && (
+                  <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 text-[11px] font-bold">
+                    {[
+                      { type: "Pie Chart", label: "Pie Chart", icon: PieChart },
+                      { type: "Bar Chart", label: "Bar Chart", icon: BarChart3 },
+                      { type: "Likert Scale", label: "Likert Scale", icon: SlidersHorizontal },
+                      { type: "Table", label: "Table", icon: Table }
+                    ].map((btn) => {
+                      const IconComp = btn.icon;
+                      const isSel = activeChart === btn.type;
+                      return (
+                        <button
+                          key={btn.type}
+                          type="button"
+                          onClick={() => setModalActiveChart(btn.type as any)}
+                          className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition ${isSel
+                              ? "bg-[#016DB2] text-white shadow-xs"
+                              : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
+                            }`}
+                        >
+                          <IconComp className="w-3.5 h-3.5" />
+                          <span>{btn.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )} */}
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-7 overflow-y-auto space-y-5 flex-1">
+                {modalQuestionTab === "visual" && (
+                  <div className="space-y-4">
+                    {/* Visual 1: Pie */}
+                    {activeChart === "Pie Chart" && (
+                      <div className="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center justify-center gap-10">
+                        <div className="relative w-48 h-48 flex items-center justify-center shrink-0">
+                          <svg className="w-48 h-48 transform -rotate-90">
+                            <circle cx="96" cy="96" r="70" stroke="#E2E8F0" strokeWidth="20" fill="none" />
+                            {(() => {
+                              const ana = getSurveyAnalytics(selectedSurvey);
+                              let cumulative = 0;
+                              const circumference = 440;
+                              return ana.satisfactionData.map((item, idx) => {
+                                const offset = circumference - (circumference * (cumulative + item.pct)) / 100;
+                                cumulative += item.pct;
+                                return (
+                                  <circle
+                                    key={idx}
+                                    cx="96"
+                                    cy="96"
+                                    r="70"
+                                    stroke={item.color}
+                                    strokeWidth="20"
+                                    fill="none"
+                                    strokeDasharray={circumference}
+                                    strokeDashoffset={offset}
+                                    strokeLinecap="round"
+                                  />
+                                );
+                              });
+                            })()}
+                          </svg>
+                          <div className="absolute text-center">
+                            <div className="text-3xl font-black text-slate-900">{selectedSurvey.respondCount}</div>
+                            <div className="text-[10px] text-slate-400 font-semibold uppercase">Responden</div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3 text-xs font-semibold text-slate-700 flex-1">
+                          {getSurveyAnalytics(selectedSurvey).satisfactionData.map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between gap-4 p-2 rounded-xl bg-white border border-slate-200/80">
+                              <div className="flex items-center gap-2">
+                                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></span>
+                                <span className="font-bold text-slate-800">{item.label}</span>
+                                {item.point !== undefined && (
+                                  <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-100">
+                                    +{item.point} Poin
+                                  </span>
+                                )}
+                              </div>
+                              <span className="font-black text-slate-900">{item.count} <span className="text-slate-400 font-normal">({item.pct}%)</span></span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Visual 2: Bar */}
+                    {activeChart === "Bar Chart" && (
+                      <div className="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-4">
+                        {getSurveyAnalytics(selectedSurvey).aspectData.map((asp, idx) => (
+                          <div key={idx} className="space-y-1.5 p-3 rounded-xl bg-white border border-slate-200/80">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-slate-800">{asp.label}</span>
+                                {asp.pointWeight !== undefined && (
+                                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                                    Bobot: {asp.pointWeight} pt
+                                  </span>
+                                )}
+                              </div>
+                              <span className="font-bold text-slate-900">{asp.countText}</span>
+                            </div>
+                            <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                              <div className="h-full rounded-full" style={{ width: `${asp.scorePct}%`, backgroundColor: asp.color }}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Visual 3: Likert Scale */}
+                    {activeChart === "Likert Scale" && (() => {
+                      const totalRespondents = selectedSurvey.respondCount || 142;
+                      const likertLevels = [
+                        { level: 1, code: "STS", label: "Sangat Tidak Setuju", desc: "Sangat Buruk / Tidak Puas", color: "#EF4444", bgClass: "bg-rose-500", lightBg: "bg-rose-50", textClass: "text-rose-700", borderClass: "border-rose-200", pct: 4, count: Math.round((totalRespondents * 4) / 100), weight: 1 },
+                        { level: 2, code: "TS", label: "Tidak Setuju", desc: "Kurang Sesuai Ekspektasi", color: "#F97316", bgClass: "bg-orange-500", lightBg: "bg-orange-50", textClass: "text-orange-700", borderClass: "border-orange-200", pct: 6, count: Math.round((totalRespondents * 6) / 100), weight: 2 },
+                        { level: 3, code: "N", label: "Netral", desc: "Cukup / Ragu-ragu", color: "#94A3B8", bgClass: "bg-slate-400", lightBg: "bg-slate-100", textClass: "text-slate-700", borderClass: "border-slate-200", pct: 14, count: Math.round((totalRespondents * 14) / 100), weight: 3 },
+                        { level: 4, code: "S", label: "Setuju", desc: "Baik / Memenuhi Harapan", color: "#0284C7", bgClass: "bg-sky-500", lightBg: "bg-sky-50", textClass: "text-sky-700", borderClass: "border-sky-200", pct: 44, count: Math.round((totalRespondents * 44) / 100), weight: 4 },
+                        { level: 5, code: "SS", label: "Sangat Setuju", desc: "Sangat Baik / Melebihi Harapan", color: "#059669", bgClass: "bg-emerald-600", lightBg: "bg-emerald-50", textClass: "text-emerald-700", borderClass: "border-emerald-200", pct: 32, count: Math.round((totalRespondents * 32) / 100), weight: 5 },
+                      ];
+
+                      const positivePct = 44 + 32; // 76%
+                      const neutralPct = 14;       // 14%
+                      const negativePct = 4 + 6;   // 10%
+                      const netAgreement = positivePct - negativePct; // +66%
+                      const meanScore = 3.94; // Scale 1 - 5
+
+                      return (
+                        <div className="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-6">
+                          {/* Likert Scale Top Header */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-lg bg-sky-100 text-[#016DB2] flex items-center justify-center shrink-0">
+                                <SlidersHorizontal className="w-4 h-4" />
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-xs text-slate-900">Distribusi Skala Likert 5 Tingkat &amp; Analisis Sentimen</h4>
+                                <p className="text-[10px] text-slate-400">Diverging stacked percentage bar dari Sangat Tidak Setuju (STS) hingga Sangat Setuju (SS)</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px]">
+                              <span className="px-2.5 py-0.5 rounded-full font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                Tingkat Afirmasi: Kuat ({positivePct}%)
+                              </span>
+                              <span className="text-slate-400">&bull;</span>
+                              <span className="text-slate-500 font-medium">{totalRespondents} Responden</span>
+                            </div>
+                          </div>
+
+                          {/* 3 Summary KPIs for Likert */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            {/* Mean Score */}
+                            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Rata-Rata Skor Likert</div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-2xl font-black text-slate-900">{meanScore.toFixed(2)}</span>
+                                <span className="text-xs font-bold text-slate-400">/ 5.00</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 pt-1 text-[11px] font-semibold text-emerald-600">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Cenderung Setuju / Positif</span>
+                              </div>
+                            </div>
+
+                            {/* Positive Agreement Rate */}
+                            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Tingkat Persetujuan (Agreement)</div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-2xl font-black text-[#016DB2]">{positivePct}%</span>
+                                <span className="text-xs font-semibold text-slate-400">({Math.round((totalRespondents * positivePct) / 100)} Pegawai)</span>
+                              </div>
+                              <div className="text-[11px] text-slate-500 font-medium pt-1">
+                                Gabungan respon Setuju &amp; Sangat Setuju
+                              </div>
+                            </div>
+
+                            {/* Net Agreement Index */}
+                            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-2xs space-y-1">
+                              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Net Agreement Index</div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-2xl font-black text-emerald-600">+{netAgreement}%</span>
+                                <span className="text-xs font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-100">Dominan</span>
+                              </div>
+                              <div className="text-[11px] text-slate-500 font-medium pt-1">
+                                Selisih Positif ({positivePct}%) vs Negatif ({negativePct}%)
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Main Stacked Horizontal Likert Bar */}
+                          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-bold text-slate-700 gap-2">
+                              <span>Visualisasi Bar Bertumpuk (Diverging Likert Stack)</span>
+                              {/* Legend */}
+                              <div className="flex items-center gap-2.5 flex-wrap text-[10px] font-semibold">
+                                {likertLevels.map((lvl) => (
+                                  <span key={lvl.code} className="flex items-center gap-1">
+                                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: lvl.color }}></span>
+                                    <span className="text-slate-600">{lvl.code} ({lvl.pct}%)</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* The Stacked Bar */}
+                            <div className="h-10 w-full rounded-xl overflow-hidden flex bg-slate-100 shadow-inner">
+                              {likertLevels.map((lvl) => (
+                                <div
+                                  key={lvl.code}
+                                  style={{ width: `${lvl.pct}%`, backgroundColor: lvl.color }}
+                                  className="h-full flex flex-col items-center justify-center text-white font-black text-[11px] transition-all duration-300 relative group cursor-pointer hover:opacity-90"
+                                  title={`${lvl.label} (${lvl.code}): ${lvl.pct}% (${lvl.count} Responden)`}
+                                >
+                                  {lvl.pct >= 6 && <span>{lvl.pct}%</span>}
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* 3-Spectrum Indicator Bar (Negatif - Netral - Positif) */}
+                            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-100 text-slate-500">
+                              <div className="flex items-center gap-1.5 text-rose-600 font-bold">
+                                <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <span>Negatif (STS + TS): {negativePct}%</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-slate-500 font-semibold">
+                                <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                                <span>Netral (N): {neutralPct}%</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-emerald-600 font-bold">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span>Positif (S + SS): {positivePct}%</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Detail Breakdown of 5 Likert Tiers */}
+                          <div className="space-y-2">
+                            <h5 className="font-bold text-xs text-slate-800">Rincian Perolehan Respon Tiap Skala Likert</h5>
+                            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                              {likertLevels.map((lvl) => (
+                                <div
+                                  key={lvl.level}
+                                  className={`p-3 rounded-xl border ${lvl.borderClass} ${lvl.lightBg} space-y-1.5 transition`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-black ${lvl.bgClass} text-white`}>
+                                      {lvl.code}
+                                    </span>
+                                    <span className="text-[10px] font-bold text-slate-400">Tingkat {lvl.level}</span>
+                                  </div>
+                                  <div>
+                                    <div className="font-bold text-slate-900 text-xs">{lvl.label}</div>
+                                    <div className="text-[10px] text-slate-500 mt-0.5">{lvl.desc}</div>
+                                  </div>
+                                  <div className="pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                                    <span className="font-extrabold text-slate-800">{lvl.count} Responden</span>
+                                    <span className={`font-black ${lvl.textClass}`}>{lvl.pct}%</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Key Insight Callout */}
+                          <div className="p-3 bg-sky-50/80 rounded-xl border border-sky-200/80 text-[11px] text-slate-700 flex items-start gap-2">
+                            <Sparkles className="w-3.5 h-3.5 text-[#016DB2] shrink-0 mt-0.5" />
+                            <p className="leading-relaxed">
+                              <strong>{positivePct}% responden</strong> menyatakan persetujuan positif (Setuju &amp; Sangat Setuju), menghasilkan Indeks Skor Likert sebesar <strong>{meanScore.toFixed(2)} dari skala 5.00</strong> dengan sentimen persetujuan yang sangat solid.
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Visual 4: Table */}
+                    {activeChart === "Table" && (
+                      <div className="overflow-x-auto bg-white rounded-2xl border border-slate-200">
+                        <table className="w-full text-left">
+                          <thead className="text-[11px] text-slate-400 font-semibold border-b border-slate-200 bg-slate-50/80">
+                            <tr>
+                              <th className="py-3 pl-4">#</th>
+                              <th className="py-3">PILIHAN JAWABAN / INDIKATOR</th>
+                              <th className="py-3 text-center">BOBOT</th>
+                              <th className="py-3 text-center">JUMLAH RESPON</th>
+                              <th className="py-3 pr-4">PERSENTASE</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 text-xs">
+                            {getSurveyAnalytics(selectedSurvey).satisfactionData.map((item, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50">
+                                <td className="py-3 pl-4 font-mono text-slate-400">{idx + 1}</td>
+                                <td className="py-3 font-bold text-slate-800">{item.label}</td>
+                                <td className="py-3 text-center">+{item.point || 20} pt</td>
+                                <td className="py-3 text-center font-bold">{item.count} Responden</td>
+                                <td className="py-3 pr-4 font-bold text-[#016DB2]">{item.pct}%</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Tab 2: Detail Respon per Pegawai */}
+                {modalQuestionTab === "responden" && (
+                  <div className="space-y-4">
+                    <div className="overflow-x-auto bg-white rounded-2xl border border-slate-200">
+                      <table className="w-full text-left">
+                        <thead className="text-[11px] text-slate-400 font-semibold border-b border-slate-200 bg-slate-50/80">
+                          <tr>
+                            <th className="py-3 pl-4">PEGAWAI</th>
+                            <th className="py-3">ENTITAS / UNIT</th>
+                            <th className="py-3">WAKTU PENGISIAN</th>
+                            <th className="py-3">JAWABAN DIPILIH / DIINPUT</th>
+                            <th className="py-3 text-right pr-4">SKOR POIN</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-xs">
+                          {MOCK_RESPONDENTS.map((res, rIdx) => {
+                            const answerVal = modalQuestion.number === 1
+                              ? res.answers.q1
+                              : modalQuestion.number === 2
+                                ? res.answers.q2.join(", ")
+                                : modalQuestion.number === 3
+                                  ? res.answers.q3
+                                  : res.answers.q4;
+
+                            const pointVal = modalQuestion.number === 1
+                              ? res.answers.q1Point || 25
+                              : modalQuestion.number === 2
+                                ? res.answers.q2Point || 40
+                                : 25;
+
+                            return (
+                              <tr key={rIdx} className="hover:bg-slate-50/80 transition">
+                                <td className="py-3 pl-4">
+                                  <div className="flex items-center gap-2.5">
+                                    <img src={res.avatar} alt={res.name} className="w-7 h-7 rounded-full object-cover border border-slate-200" />
+                                    <div>
+                                      <div className="font-bold text-slate-900">{res.name}</div>
+                                      <div className="text-[10px] text-slate-400 font-mono">{res.nipp} &bull; {res.role}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-3 text-[11px] text-slate-600">{res.entity}</td>
+                                <td className="py-3 text-[11px] text-slate-500">{res.submittedAt !== "-" ? res.submittedAt : "18 Agustus 2026 10:25"}</td>
+                                <td className="py-3 text-slate-800 font-semibold max-w-xs truncate">
+                                  {answerVal}
+                                </td>
+                                <td className="py-3 pr-4 text-right">
+                                  <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold text-[11px] border border-emerald-100">
+                                    +{pointVal} pt
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-between gap-3 px-7 py-4 border-t border-slate-100 bg-slate-50/70">
+                <button
+                  type="button"
+                  onClick={() => showToast(`Mengunduh rincian respon untuk "${modalQuestion.title}" ke Excel...`)}
+                  className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Download Rincian Pertanyaan (Excel &amp; CSV)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setModalQuestion(null)}
+                  className="px-5 py-2 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm shadow-blue-600/20"
+                >
+                  Tutup
+                </button>
               </div>
 
             </div>

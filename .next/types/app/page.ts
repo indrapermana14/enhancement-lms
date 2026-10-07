@@ -1,4 +1,4 @@
-// File: /vercel/share/v0-project/app/page.tsx
+// File: /Users/muhammadindrapermana/Documents/src/ilcs/prototype/Enhancement-LMS-V2-Nextjs/app/page.tsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

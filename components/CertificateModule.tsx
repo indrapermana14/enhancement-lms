@@ -32,8 +32,10 @@ import {
   CheckCircle,
   ChevronLeft,
   ChevronRight,
-  Database
+  Database,
+  RotateCcw
 } from "lucide-react";
+import CertificateTable from "./CertificateTable";
 
 export interface CertItem {
   id: string;
@@ -44,6 +46,10 @@ export interface CertItem {
   status: "Diterbitkan" | "Kadaluarsa";
   source: string;
   type: "attendance" | "competency" | "completion";
+  company?: string;
+  courseName?: string;
+  className?: string;
+  photo?: string;
   issuer?: string;
   isExternal?: boolean;
   fileUrl?: string;
@@ -66,23 +72,217 @@ export interface TemplateItem {
 }
 
 const INITIAL_CERT_CARDS: CertItem[] = [
-  { id: "1", title: "Sertifikat Kelulusan Port Digital Culture & Agility", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "LMS Portaverse (Internal)", type: "completion" },
-  { id: "2", title: "Sertifikat Keahlian Port Strategy & Modern Logistics", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026 - 20 Desember 2030", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "competency" },
-  { id: "3", title: "Sertifikat Keahlian Operator Rubber Tyred Gantry", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2021 - 20 Desember 2025", status: "Kadaluarsa", source: "THANOS/PDS (Tenaga Alih Daya / Operator)", type: "competency" },
-  { id: "4", title: "Sertifikat Kehadiran Basic Safety Training Maritime", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "ISMA (ABK / Seafarer)", type: "attendance" },
-  { id: "5", title: "Sertifikat Penyelesaian E-Learning Keamanan Siber & Data", name: "Hendra Firmawan", nipp: "11002324", date: "15 Januari 2026", status: "Diterbitkan", source: "LMS Portaverse (Internal)", type: "completion" },
-  { id: "6", title: "Sertifikat Keahlian Pelayanan Kapal & Pandu Pelabuhan", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026 - 20 Desember 2030", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "competency" },
-  { id: "7", title: "Sertifikat Keahlian Signalman & Rigger Pelabuhan", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2021 - 20 Desember 2025", status: "Kadaluarsa", source: "THANOS/PDS (Tenaga Alih Daya / Operator)", type: "competency" },
-  { id: "8", title: "Sertifikat Kehadiran Webinar Maritime Safety 4.0", name: "Hendra Firmawan", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "ISMA (ABK / Seafarer)", type: "attendance" }
+  {
+    id: "1",
+    title: "Sertifikat Kelulusan Port Digital Culture & Agility",
+    courseName: "Port Digital Culture & Agility",
+    className: "Batch 1 - Online Executive",
+    company: "PT Pelabuhan Indonesia (Persero)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026",
+    status: "Diterbitkan",
+    source: "LMS Portaverse (Internal)",
+    type: "completion"
+  },
+  {
+    id: "2",
+    title: "Sertifikat Keahlian Port Strategy & Modern Logistics",
+    courseName: "Port Strategy & Modern Logistics",
+    className: "Batch 3 - Executive Reguler",
+    company: "Subholding SPTP (Terminal Petikemas)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026 - 20 Desember 2030",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "competency"
+  },
+  {
+    id: "3",
+    title: "Sertifikat Keahlian Operator Rubber Tyred Gantry",
+    courseName: "Operator Rubber Tyred Gantry (RTG)",
+    className: "Kelas Sertifikasi Alat Berat A",
+    company: "PT Pelindo Daya Sejahtera (PDS)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2021 - 20 Desember 2025",
+    status: "Kadaluarsa",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "competency"
+  },
+  {
+    id: "4",
+    title: "Sertifikat Kehadiran Basic Safety Training Maritime",
+    courseName: "Basic Safety Training Maritime (BST)",
+    className: "Angkatan IV - Marine Safety",
+    company: "PT Pelindo Marine Service (ISMA)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026",
+    status: "Diterbitkan",
+    source: "ISMA (ABK / Seafarer)",
+    type: "attendance"
+  },
+  {
+    id: "5",
+    title: "Sertifikat Penyelesaian E-Learning Keamanan Siber & Data",
+    courseName: "E-Learning Keamanan Siber & Tata Kelola Data",
+    className: "Batch 2 - Cyber Resilience",
+    company: "PT Integrasi Logistik Cipta Solusi (ILCS)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "15 Januari 2026",
+    status: "Diterbitkan",
+    source: "LMS Portaverse (Internal)",
+    type: "completion"
+  },
+  {
+    id: "6",
+    title: "Sertifikat Keahlian Pelayanan Kapal & Pandu Pelabuhan",
+    courseName: "Pelayanan Kapal & Pandu Pelabuhan",
+    className: "Batch 1 - Pandu Maritim Reguler",
+    company: "Subholding SPJM (Jasa Maritim)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026 - 20 Desember 2030",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "competency"
+  },
+  {
+    id: "7",
+    title: "Sertifikat Keahlian Signalman & Rigger Pelabuhan",
+    courseName: "Signalman & Rigger Pelabuhan",
+    className: "Batch 5 - Operasional Terminal",
+    company: "PT Pelindo Daya Sejahtera (PDS)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2021 - 20 Desember 2025",
+    status: "Kadaluarsa",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "competency"
+  },
+  {
+    id: "8",
+    title: "Sertifikat Kehadiran Webinar Maritime Safety 4.0",
+    courseName: "Webinar Maritime Safety & Sustainability 4.0",
+    className: "Webinar Series - Des 2026",
+    company: "PT PMLI (Pendidikan Maritim)",
+    name: "Hendra Firmawan",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026",
+    status: "Diterbitkan",
+    source: "ISMA (ABK / Seafarer)",
+    type: "attendance"
+  }
 ];
 
 const INITIAL_MY_CERTS: CertItem[] = [
-  { id: "m1", title: "Sertifikat Kehadiran Workshop Port Operations", name: "Aan Sukwinandi", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "LMS Portaverse", type: "attendance", isExternal: false, issuer: "Pelindo Corporate University" },
-  { id: "m2", title: "Sertifikat Keahlian Supply Chain & Port Logistics", name: "Aan Sukwinandi", nipp: "11002324", date: "20 Desember 2026 - 20 Desember 2030", status: "Diterbitkan", source: "SAP (Pegawai Organik / PKWT)", type: "competency", isExternal: false, issuer: "PT PMLI" },
-  { id: "m3", title: "Sertifikat Lisensi K3 Lingkungan Kerja", name: "Aan Sukwinandi", nipp: "11002324", date: "15 Jan 2024 - 15 Jan 2027", status: "Diterbitkan", source: "Eksternal (Luar LMS)", type: "competency", isExternal: true, issuer: "Kementerian Ketenagakerjaan RI & BNSP" },
-  { id: "m4", title: "Certified Project Management Officer (PMO)", name: "Aan Sukwinandi", nipp: "11002324", date: "10 Agt 2023 - 10 Agt 2026", status: "Diterbitkan", source: "Eksternal (Luar LMS)", type: "competency", isExternal: true, issuer: "Project Management Institute (PMI)" },
-  { id: "m5", title: "Sertifikat Keahlian Operator Rubber Tyred Gantry (RTG)", name: "Aan Sukwinandi", nipp: "11002324", date: "20 Des 2021 - 20 Des 2025", status: "Kadaluarsa", source: "THANOS/PDS (Tenaga Alih Daya / Operator)", type: "competency", isExternal: false, issuer: "PDS Training Center" },
-  { id: "m6", title: "Sertifikat Kehadiran Webinar Maritime Safety 4.0", name: "Aan Sukwinandi", nipp: "11002324", date: "20 Desember 2026", status: "Diterbitkan", source: "ISMA (ABK / Seafarer)", type: "attendance", isExternal: false, issuer: "Pelindo Maritime Academy" }
+  {
+    id: "m1",
+    title: "Sertifikat Kehadiran Workshop Port Operations",
+    courseName: "Workshop Port Operations & Terminal Automation",
+    className: "Batch 2 - Hybrid Workshop",
+    company: "PT Pelabuhan Indonesia (Persero)",
+    name: "Aan Sukwinandi",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026",
+    status: "Diterbitkan",
+    source: "LMS Portaverse",
+    type: "attendance",
+    isExternal: false,
+    issuer: "Pelindo Corporate University"
+  },
+  {
+    id: "m2",
+    title: "Sertifikat Keahlian Supply Chain & Port Logistics",
+    courseName: "Supply Chain & Port Logistics Specialist",
+    className: "Batch 1 - Professional Logistics",
+    company: "PT Pendidikan Maritim & Logistik Indonesia (PMLI)",
+    name: "Aan Sukwinandi",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026 - 20 Desember 2030",
+    status: "Diterbitkan",
+    source: "SAP (Pegawai Organik / PKWT)",
+    type: "competency",
+    isExternal: false,
+    issuer: "PT PMLI"
+  },
+  {
+    id: "m3",
+    title: "Sertifikat Lisensi K3 Lingkungan Kerja",
+    courseName: "Lisensi K3 Lingkungan Kerja & Keselamatan Industri",
+    className: "Sertifikasi BNSP Kemnaker Angkatan 12",
+    company: "PT Pelabuhan Indonesia (Persero)",
+    name: "Aan Sukwinandi",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+    date: "15 Jan 2024 - 15 Jan 2027",
+    status: "Diterbitkan",
+    source: "Eksternal (Luar LMS)",
+    type: "competency",
+    isExternal: true,
+    issuer: "Kementerian Ketenagakerjaan RI & BNSP"
+  },
+  {
+    id: "m4",
+    title: "Certified Project Management Officer (PMO)",
+    courseName: "Certified Project Management Officer (PMO)",
+    className: "PMI Global Certification Prep 2023",
+    company: "PT Integrasi Logistik Cipta Solusi (ILCS)",
+    name: "Aan Sukwinandi",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+    date: "10 Agt 2023 - 10 Agt 2026",
+    status: "Diterbitkan",
+    source: "Eksternal (Luar LMS)",
+    type: "competency",
+    isExternal: true,
+    issuer: "Project Management Institute (PMI)"
+  },
+  {
+    id: "m5",
+    title: "Sertifikat Keahlian Operator Rubber Tyred Gantry (RTG)",
+    courseName: "Operator Rubber Tyred Gantry (RTG)",
+    className: "Reguler B - Terminal Petikemas",
+    company: "PT Pelindo Daya Sejahtera (PDS)",
+    name: "Aan Sukwinandi",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+    date: "20 Des 2021 - 20 Des 2025",
+    status: "Kadaluarsa",
+    source: "THANOS/PDS (Tenaga Alih Daya / Operator)",
+    type: "competency",
+    isExternal: false,
+    issuer: "PDS Training Center"
+  },
+  {
+    id: "m6",
+    title: "Sertifikat Kehadiran Webinar Maritime Safety 4.0",
+    courseName: "Webinar Maritime Safety 4.0 & Green Port",
+    className: "Webinar Series - Des 2026",
+    company: "PT Pelindo Marine Service",
+    name: "Aan Sukwinandi",
+    nipp: "11002324",
+    photo: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150&auto=format&fit=crop&q=80",
+    date: "20 Desember 2026",
+    status: "Diterbitkan",
+    source: "ISMA (ABK / Seafarer)",
+    type: "attendance",
+    isExternal: false,
+    issuer: "Pelindo Maritime Academy"
+  }
 ];
 
 const INITIAL_TEMPLATES: TemplateItem[] = [
@@ -413,8 +613,16 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [sourceFilter, setSourceFilter] = useState("Semua");
+  const [companyFilter, setCompanyFilter] = useState("Semua");
+  const [periodFilter, setPeriodFilter] = useState("Semua");
   const [userChannelFilter, setUserChannelFilter] = useState("Semua"); // For POV User: Semua | LMS | SAP | THANOS | ISMA | Eksternal
   const [userOriginFilter, setUserOriginFilter] = useState("Semua"); // For POV User: Semua | Internal | Eksternal
+
+  // Table Pagination States
+  const [allCertPage, setAllCertPage] = useState(1);
+  const [allCertPageSize, setAllCertPageSize] = useState(8);
+  const [myCertPage, setMyCertPage] = useState(1);
+  const [myCertPageSize, setMyCertPageSize] = useState(8);
 
   // Certificate & Template State
   const [certList, setCertList] = useState<CertItem[]>(INITIAL_CERT_CARDS);
@@ -762,26 +970,53 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
 
   // Filtered lists
   const filteredCertList = certList.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.nipp.includes(searchQuery);
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      c.title.toLowerCase().includes(q) ||
+      c.name.toLowerCase().includes(q) ||
+      c.nipp.includes(searchQuery) ||
+      (c.company && c.company.toLowerCase().includes(q)) ||
+      (c.courseName && c.courseName.toLowerCase().includes(q)) ||
+      (c.className && c.className.toLowerCase().includes(q)) ||
+      c.source.toLowerCase().includes(q);
     const matchesStatus = statusFilter === "Semua" || c.status === statusFilter;
     const matchesSource = sourceFilter === "Semua" || c.source.toLowerCase().includes(sourceFilter.toLowerCase());
-    return matchesSearch && matchesStatus && matchesSource;
+    const matchesCompany =
+      companyFilter === "Semua" ||
+      (c.company && c.company.toLowerCase().includes(companyFilter.toLowerCase()));
+    const matchesPeriod =
+      periodFilter === "Semua" ||
+      (c.date && c.date.toLowerCase().includes(periodFilter.toLowerCase()));
+    return matchesSearch && matchesStatus && matchesSource && matchesCompany && matchesPeriod;
   });
 
   const filteredMyCertList = myCertList.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.issuer && c.issuer.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      c.nipp.includes(searchQuery);
+    const q = searchQuery.toLowerCase();
+    const matchesSearch =
+      c.title.toLowerCase().includes(q) ||
+      c.name.toLowerCase().includes(q) ||
+      (c.issuer && c.issuer.toLowerCase().includes(q)) ||
+      c.nipp.includes(searchQuery) ||
+      (c.company && c.company.toLowerCase().includes(q)) ||
+      (c.courseName && c.courseName.toLowerCase().includes(q)) ||
+      (c.className && c.className.toLowerCase().includes(q)) ||
+      c.source.toLowerCase().includes(q);
     const matchesStatus = statusFilter === "Semua" || c.status === statusFilter;
-    const matchesOrigin = userOriginFilter === "Semua" ||
+    const matchesOrigin =
+      userOriginFilter === "Semua" ||
       (userOriginFilter === "Eksternal" && c.isExternal) ||
       (userOriginFilter === "Internal" && !c.isExternal);
-    const matchesChannel = userChannelFilter === "Semua" ||
+    const matchesChannel =
+      userChannelFilter === "Semua" ||
       (userChannelFilter === "Eksternal" && (c.isExternal || c.source.toLowerCase().includes("eksternal"))) ||
       c.source.toLowerCase().includes(userChannelFilter.toLowerCase());
-    return matchesSearch && matchesStatus && matchesOrigin && matchesChannel;
+    const matchesCompany =
+      companyFilter === "Semua" ||
+      (c.company && c.company.toLowerCase().includes(companyFilter.toLowerCase()));
+    const matchesPeriod =
+      periodFilter === "Semua" ||
+      (c.date && c.date.toLowerCase().includes(periodFilter.toLowerCase()));
+    return matchesSearch && matchesStatus && matchesOrigin && matchesChannel && matchesCompany && matchesPeriod;
   });
 
   // Calculate stats for POV User
@@ -974,12 +1209,15 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   />
                 </div>
 
-                <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap">
                   <div className="relative flex-1 sm:flex-none">
                     <select
                       value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      className="w-full sm:w-40 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
+                      onChange={(e) => {
+                        setStatusFilter(e.target.value);
+                        setAllCertPage(1);
+                      }}
+                      className="w-full sm:w-36 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
                     >
                       <option value="Semua">Status: Semua</option>
                       <option value="Diterbitkan">Diterbitkan</option>
@@ -992,8 +1230,11 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   <div className="relative flex-1 sm:flex-none">
                     <select
                       value={sourceFilter}
-                      onChange={(e) => setSourceFilter(e.target.value)}
-                      className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
+                      onChange={(e) => {
+                        setSourceFilter(e.target.value);
+                        setAllCertPage(1);
+                      }}
+                      className="w-full sm:w-44 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
                     >
                       <option value="Semua">Kanal: Semua Sumber</option>
                       <option value="LMS">LMS Portaverse (Internal)</option>
@@ -1003,6 +1244,67 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                     </select>
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                   </div>
+
+                  {/* Filter by Company */}
+                  <div className="relative flex-1 sm:flex-none">
+                    <select
+                      value={companyFilter}
+                      onChange={(e) => {
+                        setCompanyFilter(e.target.value);
+                        setAllCertPage(1);
+                      }}
+                      className="w-full sm:w-44 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
+                    >
+                      <option value="Semua">Perusahaan: Semua</option>
+                      <option value="Pelabuhan Indonesia">PT Pelabuhan Indonesia</option>
+                      <option value="SPTP">Subholding SPTP</option>
+                      <option value="SPJM">Subholding SPJM</option>
+                      <option value="PMLI">PT PMLI</option>
+                      <option value="ILCS">PT ILCS</option>
+                      <option value="PDS">PT Pelindo Daya Sejahtera</option>
+                      <option value="Marine Service">PT Pelindo Marine Service</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+
+                  {/* Filter by Periode Sertifikat */}
+                  <div className="relative flex-1 sm:flex-none">
+                    <select
+                      value={periodFilter}
+                      onChange={(e) => {
+                        setPeriodFilter(e.target.value);
+                        setAllCertPage(1);
+                      }}
+                      className="w-full sm:w-36 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
+                    >
+                      <option value="Semua">Periode: Semua</option>
+                      <option value="2026">Tahun 2026</option>
+                      <option value="2025">Tahun 2025</option>
+                      <option value="2024">Tahun 2024</option>
+                      <option value="2023">Tahun 2023</option>
+                      <option value="2021">Tahun 2021</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+
+                  {/* Reset Filters */}
+                  {(searchQuery || statusFilter !== "Semua" || sourceFilter !== "Semua" || companyFilter !== "Semua" || periodFilter !== "Semua") && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setStatusFilter("Semua");
+                        setSourceFilter("Semua");
+                        setCompanyFilter("Semua");
+                        setPeriodFilter("Semua");
+                        setAllCertPage(1);
+                      }}
+                      className="px-3 py-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition text-xs font-bold flex items-center gap-1 shrink-0"
+                      title="Reset Semua Filter"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset</span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => setShowSyncModal(true)}
@@ -1038,113 +1340,20 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 </button>
               </div>
 
-              {/* Certificate Cards Grid (4 Columns) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {filteredCertList.map((item) => (
-                  <div key={item.id} className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between">
-                    <div onClick={() => handleOpenCertPreview(item)} className="p-3 bg-slate-50 border-b border-slate-100 cursor-pointer relative group">
-                      <div className="w-full h-36 bg-white border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between text-center relative overflow-hidden shadow-xs">
-                        <div className="flex items-center justify-between text-[7px] font-bold text-slate-600">
-                          <span className="text-[#016DB2]">BUMN &bull; PELINDO</span>
-                          <span className="text-slate-400">PMLI</span>
-                        </div>
-                        <div>
-                          <div className="text-[10px] font-black tracking-wider text-slate-800 uppercase">CERTIFICATE</div>
-                          <div className="text-[7px] text-slate-400 font-semibold tracking-widest uppercase">OF ATTENDANCE</div>
-                        </div>
-                        <div className="my-1">
-                          <div className="text-[6px] text-slate-400">Diberikan kepada:</div>
-                          <div className="text-[8px] font-bold text-[#016DB2] truncate">{item.name}</div>
-                          <div className="text-[6px] text-slate-400">{item.nipp}</div>
-                        </div>
-                        <div className="flex justify-between items-end text-[6px] text-slate-400 border-t border-slate-100 pt-0.5">
-                          <span>AKHLAK</span>
-                          <span className="font-serif italic font-bold text-slate-700">Robert S. Ibrahim</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 space-y-3">
-                      <div>
-                        <h4 className="font-bold text-xs text-slate-900 line-clamp-1">{item.title}</h4>
-                        <div className="text-[11px] text-slate-500 mt-0.5">{item.name} • {item.nipp}</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">{item.date}</div>
-                        <div className="text-[9px] text-sky-700 font-medium mt-1 bg-sky-50 px-2 py-0.5 rounded inline-block">
-                          {item.source}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-1 relative">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${item.status === "Diterbitkan"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-red-50 text-red-700 border border-red-200"
-                          }`}>
-                          {item.status}
-                        </span>
-
-                        <div className="relative">
-                          <button
-                            onClick={() => setOpenCertMenuId(openCertMenuId === item.id ? null : item.id)}
-                            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
-                          >
-                            <MoreHorizontal className="w-4 h-4" />
-                          </button>
-
-                          {openCertMenuId === item.id && (
-                            <div className="absolute right-0 bottom-6 w-32 bg-white border border-slate-200 rounded-xl shadow-xl py-1 z-30 text-xs animate-in fade-in">
-                              <button
-                                onClick={() => handleOpenCertPreview(item)}
-                                className="w-full text-left px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700 font-medium"
-                              >
-                                <Eye className="w-3.5 h-3.5" /> Preview
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setOpenCertMenuId(null);
-                                  showToast(`Mengunduh sertifikat ${item.title} - ${item.name}.pdf...`);
-                                }}
-                                className="w-full text-left px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700 font-medium"
-                              >
-                                <Download className="w-3.5 h-3.5" /> Download
-                              </button>
-                              <button
-                                onClick={() => handleDeleteCert(item.id)}
-                                className="w-full text-left px-3 py-1.5 hover:bg-red-50 flex items-center gap-2 text-red-600 font-medium"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" /> Delete
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Pagination */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs text-slate-600">
-                <div className="flex items-center gap-2">
-                  <span>Tampilkan</span>
-                  <div className="relative">
-                    <select className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold appearance-none pr-6 focus:outline-none">
-                      <option>8</option>
-                      <option>16</option>
-                      <option>32</option>
-                    </select>
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1.5 top-2 pointer-events-none" />
-                  </div>
-                </div>
-                <div>1-{filteredCertList.length} dari 8032</div>
-                <div className="flex gap-2">
-                  <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl font-semibold text-slate-700 shadow-xs transition">
-                    Sebelumnya
-                  </button>
-                  <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl font-semibold text-slate-700 shadow-xs transition">
-                    Berikutnya
-                  </button>
-                </div>
-              </div>
+              {/* Certificate Table (Semua Sertifikat) */}
+              <CertificateTable
+                items={filteredCertList}
+                currentPage={allCertPage}
+                pageSize={allCertPageSize}
+                onPageChange={setAllCertPage}
+                onPageSizeChange={setAllCertPageSize}
+                onDetail={handleOpenCertPreview}
+                onDownload={(item) =>
+                  showToast(`Mengunduh sertifikat ${item.courseName || item.title} - ${item.name}.pdf...`)
+                }
+                onDelete={(item) => handleDeleteCert(item.id, false)}
+                isMyCert={false}
+              />
             </div>
           )}
 
@@ -1368,12 +1577,15 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   />
                 </div>
 
-                <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-2 w-full lg:w-auto flex-wrap">
                   {/* Status Filter */}
                   <div className="relative flex-1 sm:flex-none">
                     <select
                       value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
+                      onChange={(e) => {
+                        setStatusFilter(e.target.value);
+                        setMyCertPage(1);
+                      }}
                       className="w-full sm:w-36 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
                     >
                       <option value="Semua">Status: Semua</option>
@@ -1387,8 +1599,11 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   <div className="relative flex-1 sm:flex-none">
                     <select
                       value={userChannelFilter}
-                      onChange={(e) => setUserChannelFilter(e.target.value)}
-                      className="w-full sm:w-48 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
+                      onChange={(e) => {
+                        setUserChannelFilter(e.target.value);
+                        setMyCertPage(1);
+                      }}
+                      className="w-full sm:w-44 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
                     >
                       <option value="Semua">Kanal: Semua Sumber</option>
                       <option value="LMS">LMS Portaverse (Internal)</option>
@@ -1400,19 +1615,66 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                   </div>
 
-                  {/* Asal Sertifikat Filter (Internal / Eksternal) */}
-                  {/* <div className="relative flex-1 sm:flex-none">
-                    <select 
-                      value={userOriginFilter}
-                      onChange={(e) => setUserOriginFilter(e.target.value)}
+                  {/* Filter by Company */}
+                  <div className="relative flex-1 sm:flex-none">
+                    <select
+                      value={companyFilter}
+                      onChange={(e) => {
+                        setCompanyFilter(e.target.value);
+                        setMyCertPage(1);
+                      }}
                       className="w-full sm:w-44 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
                     >
-                      <option value="Semua">Asal: Semua Sumber</option>
-                      <option value="Internal">Internal LMS Portaverse</option>
-                      <option value="Eksternal">Eksternal (Luar LMS)</option>
+                      <option value="Semua">Perusahaan: Semua</option>
+                      <option value="Pelabuhan Indonesia">PT Pelabuhan Indonesia</option>
+                      <option value="SPTP">Subholding SPTP</option>
+                      <option value="SPJM">Subholding SPJM</option>
+                      <option value="PMLI">PT PMLI</option>
+                      <option value="ILCS">PT ILCS</option>
+                      <option value="PDS">PT Pelindo Daya Sejahtera</option>
+                      <option value="Marine Service">PT Pelindo Marine Service</option>
                     </select>
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
-                  </div> */}
+                  </div>
+
+                  {/* Filter by Periode Sertifikat */}
+                  <div className="relative flex-1 sm:flex-none">
+                    <select
+                      value={periodFilter}
+                      onChange={(e) => {
+                        setPeriodFilter(e.target.value);
+                        setMyCertPage(1);
+                      }}
+                      className="w-full sm:w-36 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#016DB2] appearance-none pr-8 shadow-xs"
+                    >
+                      <option value="Semua">Periode: Semua</option>
+                      <option value="2026">Tahun 2026</option>
+                      <option value="2025">Tahun 2025</option>
+                      <option value="2024">Tahun 2024</option>
+                      <option value="2023">Tahun 2023</option>
+                      <option value="2021">Tahun 2021</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+
+                  {/* Reset Filters */}
+                  {(searchQuery || statusFilter !== "Semua" || userChannelFilter !== "Semua" || companyFilter !== "Semua" || periodFilter !== "Semua") && (
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setStatusFilter("Semua");
+                        setUserChannelFilter("Semua");
+                        setCompanyFilter("Semua");
+                        setPeriodFilter("Semua");
+                        setMyCertPage(1);
+                      }}
+                      className="px-3 py-2.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition text-xs font-bold flex items-center gap-1 shrink-0"
+                      title="Reset Semua Filter"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset</span>
+                    </button>
+                  )}
 
                   {/* MANDATORY BUTTON: ASYNC / SINKRONISASI FOR USER */}
                   <button
@@ -1458,178 +1720,20 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                 </button>
               </div>
 
-              {/* Personal Certificate Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {filteredMyCertList.map((item) => (
-                  <div key={item.id} className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition overflow-hidden flex flex-col justify-between group">
-                    <div onClick={() => handleOpenCertPreview(item)} className="p-3 bg-slate-50 border-b border-slate-100 cursor-pointer relative">
-                      <div className="w-full h-36 bg-white border border-slate-200 rounded-lg p-2.5 flex flex-col justify-between text-center relative overflow-hidden shadow-xs">
-                        {/* Certificate Card Header Badge */}
-                        <div className="flex items-center justify-between text-[7px] font-bold text-slate-600">
-                          <span className="text-[#016DB2]">
-                            {item.isExternal ? "SERTIFIKAT EKSTERNAL" : "BUMN • PELINDO"}
-                          </span>
-                          <span className={item.isExternal ? "text-purple-600 font-extrabold" : "text-slate-400"}>
-                            {item.isExternal ? "NON-LMS" : item.source.includes("SAP") ? "SAP HCIS" : item.source.includes("THANOS") ? "THANOS/PDS" : item.source.includes("ISMA") ? "ISMA" : "PORTAVERSE"}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="text-[10px] font-black tracking-wider text-slate-800 uppercase">
-                            CERTIFICATE
-                          </div>
-                          <div className="text-[7px] text-slate-400 font-semibold tracking-widest uppercase truncate">
-                            {item.type === "competency" ? "OF COMPETENCE" : "OF ATTENDANCE"}
-                          </div>
-                        </div>
-                        <div className="my-1">
-                          <div className="text-[6px] text-slate-400">Diberikan kepada:</div>
-                          <div className="text-[8px] font-bold text-[#016DB2] truncate">{item.name}</div>
-                          <div className="text-[6px] text-slate-400">{item.nipp}</div>
-                        </div>
-                        <div className="flex justify-between items-end text-[6px] text-slate-400 border-t border-slate-100 pt-0.5">
-                          <span>{item.isExternal ? "VERIFIED" : "AKHLAK"}</span>
-                          <span className="font-serif italic font-bold text-slate-700 truncate max-w-[90px]">
-                            {item.issuer || "Robert S. Ibrahim"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 space-y-3">
-                      <div>
-                        {/* Channel / Source Tag */}
-                        <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
-                          {item.isExternal ? (
-                            <span className="px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
-                              <ExternalLink className="w-2.5 h-2.5" /> Luar LMS (Eksternal)
-                            </span>
-                          ) : item.source.includes("SAP") ? (
-                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                              SAP HCIS
-                            </span>
-                          ) : item.source.includes("THANOS") ? (
-                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                              THANOS/PDS
-                            </span>
-                          ) : item.source.includes("ISMA") ? (
-                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
-                              ISMA SEAFARER
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 rounded-md text-[9px] font-bold bg-sky-50 text-[#016DB2] border border-sky-200">
-                              LMS Portaverse
-                            </span>
-                          )}
-                        </div>
-
-                        <h4 className="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">{item.title}</h4>
-                        <div className="text-[10px] text-slate-500 mt-1 line-clamp-1">
-                          Penerbit: <b>{item.issuer || item.source}</b>
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-slate-400" />
-                          <span>{item.date}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-1 relative">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${item.status === "Diterbitkan"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-red-50 text-red-700 border border-red-200"
-                          }`}>
-                          {item.status}
-                        </span>
-
-                        <div className="relative">
-                          <button
-                            onClick={() => setOpenCertMenuId(openCertMenuId === item.id ? null : item.id)}
-                            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
-                          >
-                            <MoreHorizontal className="w-4 h-4" />
-                          </button>
-
-                          {openCertMenuId === item.id && (
-                            <div className="absolute right-0 bottom-6 w-32 bg-white border border-slate-200 rounded-xl shadow-xl py-1 z-30 text-xs animate-in fade-in">
-                              <button
-                                onClick={() => handleOpenCertPreview(item)}
-                                className="w-full text-left px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700 font-medium"
-                              >
-                                <Eye className="w-3.5 h-3.5" /> Preview
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setOpenCertMenuId(null);
-                                  showToast(`Mengunduh sertifikat ${item.title} - ${item.name}.pdf...`);
-                                }}
-                                className="w-full text-left px-3 py-1.5 hover:bg-slate-50 flex items-center gap-2 text-slate-700 font-medium"
-                              >
-                                <Download className="w-3.5 h-3.5" /> Download
-                              </button>
-                              {item.isExternal && (
-                                <button
-                                  onClick={() => handleDeleteCert(item.id, true)}
-                                  className="w-full text-left px-3 py-1.5 hover:bg-red-50 flex items-center gap-2 text-red-600 font-medium"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" /> Hapus
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Empty State */}
-              {filteredMyCertList.length === 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                    <FileText className="w-6 h-6" />
-                  </div>
-                  <div className="text-sm font-bold text-slate-800">Tidak ada sertifikat ditemukan</div>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Coba ubah kata kunci pencarian atau gunakan tombol Sinkronisasi / Tambah Sertifikat Baru.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setStatusFilter("Semua");
-                      setUserChannelFilter("Semua");
-                      setUserOriginFilter("Semua");
-                    }}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition"
-                  >
-                    Reset Filter
-                  </button>
-                </div>
-              )}
-
-              {/* Pagination for User */}
-              {filteredMyCertList.length > 0 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200 text-xs text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <span>Tampilkan</span>
-                    <div className="relative">
-                      <select className="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold appearance-none pr-6 focus:outline-none">
-                        <option>8</option>
-                        <option>16</option>
-                      </select>
-                      <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-1.5 top-2 pointer-events-none" />
-                    </div>
-                  </div>
-                  <div>1-{filteredMyCertList.length} dari {filteredMyCertList.length}</div>
-                  <div className="flex gap-2">
-                    <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl font-semibold text-slate-700 shadow-xs transition">
-                      Sebelumnya
-                    </button>
-                    <button className="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl font-semibold text-slate-700 shadow-xs transition">
-                      Berikutnya
-                    </button>
-                  </div>
-                </div>
-              )}
+              {/* Certificate Table (Sertifikat Saya) */}
+              <CertificateTable
+                items={filteredMyCertList}
+                currentPage={myCertPage}
+                pageSize={myCertPageSize}
+                onPageChange={setMyCertPage}
+                onPageSizeChange={setMyCertPageSize}
+                onDetail={handleOpenCertPreview}
+                onDownload={(item) =>
+                  showToast(`Mengunduh sertifikat ${item.courseName || item.title} - ${item.name}.pdf...`)
+                }
+                onDelete={(item) => handleDeleteCert(item.id, true)}
+                isMyCert={true}
+              />
 
             </div>
           )}
@@ -2454,10 +2558,45 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Preview Sertifikat</h3>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Detail &amp; Preview Sertifikat</h3>
+                <p className="text-xs text-slate-500">Informasi lengkap data sertifikat dan dokumen resmi</p>
+              </div>
               <button onClick={() => setShowCertPreviewModal(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
                 <X className="w-4 h-4" />
               </button>
+            </div>
+
+            {/* Metadata Summary Info Bar */}
+            <div className="px-6 py-3 bg-slate-50/80 border-b border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wider">Peserta</span>
+                <span className="font-bold text-slate-800 truncate block">{previewCertData?.name || "Hendra Firmawan"}</span>
+                <span className="text-slate-400 block text-[11px] font-mono">NIPP: {previewCertData?.nipp || "11002324"}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wider">Perusahaan</span>
+                <span className="font-bold text-slate-800 truncate block" title={previewCertData?.company}>
+                  {previewCertData?.company || "PT Pelabuhan Indonesia (Persero)"}
+                </span>
+                <span className="text-slate-400 block text-[11px] truncate">{previewCertData?.source || "LMS Portaverse"}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wider">Kelas Pelatihan</span>
+                <span className="font-bold text-slate-800 truncate block">{previewCertData?.className || "Batch 1 - Reguler"}</span>
+                <span className="text-slate-400 block text-[11px] truncate">{previewCertData?.category || "Kompetensi"}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 block font-semibold uppercase tracking-wider">Periode &amp; Status</span>
+                <span className="font-bold text-slate-800 block text-[11px] truncate">{previewCertData?.date || "20 Desember 2026"}</span>
+                <span className={`inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  previewCertData?.status === "Kadaluarsa"
+                    ? "bg-rose-50 text-rose-700 border border-rose-200"
+                    : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                }`}>
+                  {previewCertData?.status || "Diterbitkan"}
+                </span>
+              </div>
             </div>
             <div className="p-6 bg-slate-100 flex justify-center">
               <div className="w-full bg-white border-4 border-[#016DB2] rounded-xl p-8 text-center shadow-lg relative cert-pattern-bg">
