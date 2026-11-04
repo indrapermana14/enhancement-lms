@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Search,
   RefreshCw,
@@ -36,6 +36,18 @@ import {
   RotateCcw
 } from "lucide-react";
 import CertificateTable from "./CertificateTable";
+import CertificateCanvasEditor, {
+  CanvasDesign,
+  CanvasEl,
+  createSlotElement,
+  CertificateCanvasView,
+  createDefaultDesign,
+  Validity,
+  DEFAULT_VALIDITY,
+  addValidity,
+  formatDate,
+  validityLabel
+} from "./CertificateCanvasEditor";
 
 export interface CertItem {
   id: string;
@@ -69,6 +81,8 @@ export interface TemplateItem {
   orientation: string;
   size: string;
   margin: { top: string; right: string; left: string; bottom: string };
+  design?: CanvasDesign;
+  validity?: Validity;
 }
 
 const INITIAL_CERT_CARDS: CertItem[] = [
@@ -283,6 +297,14 @@ const INITIAL_MY_CERTS: CertItem[] = [
     isExternal: false,
     issuer: "Pelindo Maritime Academy"
   }
+];
+
+// Master data penandatangan (opsi "Pilih dari Data Penandatangan")
+const SIGNER_PRESETS = [
+  { id: "s1", name: "Robert Santoso Ibrahim", title: "Manager Trainer", heading: "PT PELABUHAN INDONESIA (PERSERO)\nDIREKTUR\nPelaksana Harian," },
+  { id: "s2", name: "Dr. Ratna Kusumawati, M.M.", title: "Direktur SDM", heading: "PT PELABUHAN INDONESIA (PERSERO)\nDIREKTUR SDM," },
+  { id: "s3", name: "Ir. Hendra Wijaya, M.T.", title: "Kepala Pelindo Corporate University", heading: "PELINDO CORPORATE UNIVERSITY\nKEPALA," },
+  { id: "s4", name: "Andi Pratama, S.T.", title: "Manager Pendidikan & Pelatihan", heading: "PT PENDIDIKAN MARITIM DAN LOGISTIK INDONESIA\nMANAGER," }
 ];
 
 const INITIAL_TEMPLATES: TemplateItem[] = [
@@ -694,7 +716,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   // Form State: Buat Sertifikat (Screenshot 2)
   const [certName, setCertName] = useState("Template Sertifikat Pelatihan Umum");
   const [certDesc, setCertDesc] = useState("Template sertifikat untuk berbagai program pelatihan dan pengembangan kompetensi peserta.");
-  const [selectedTemplateId, setSelectedTemplateId] = useState("kelulusan");
+  const [selectedTemplateId, setSelectedTemplateId] = useState("t2");
   const [certNumber, setCertNumber] = useState("PMLI/CERT/2026/0001");
   const [certValueName, setCertValueName] = useState("Pelatihan Leadership Development");
   const [issueDate, setIssueDate] = useState("2026-03-30");
@@ -722,8 +744,11 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   const [tmplMarginLeft, setTmplMarginLeft] = useState("15 cm");
   const [tmplMarginBottom, setTmplMarginBottom] = useState("15 cm");
   const [tmplSignerType, setTmplSignerType] = useState<"manual" | "preset">("manual");
+  const [tmplSignerPresetId, setTmplSignerPresetId] = useState("");
   const [tmplSignerName, setTmplSignerName] = useState("Robert Satoso Ibrahim");
   const [tmplSignerTitle, setTmplSignerTitle] = useState("Manager Trainer");
+  const [tmplValidity, setTmplValidity] = useState<Validity>(DEFAULT_VALIDITY);
+  const [tmplDesign, setTmplDesign] = useState<CanvasDesign>(() => createDefaultDesign("Landscape", "A4 (210×290 mm)", "Robert Satoso Ibrahim", "Manager Trainer"));
 
   // Safe Toast Notification (replaces window.alert for sandboxed iframes / v0)
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -767,8 +792,90 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
     setTmplMarginBottom(tmpl.margin.bottom);
     setTmplSignerName(tmpl.signerName);
     setTmplSignerTitle(tmpl.signerTitle);
+    setTmplDesign(tmpl.design ?? createDefaultDesign(tmpl.orientation, tmpl.size, tmpl.signerName, tmpl.signerTitle));
+    setTmplValidity(tmpl.validity ?? DEFAULT_VALIDITY);
+    setTmplSignerType("manual");
+    setTmplSignerPresetId("");
     setCurrentView("edit_template");
   };
+
+  /* ---------- Penandatangan <-> Kanvas (sinkron dua arah) ---------- */
+  const tmplDesignRef = useRef(tmplDesign);
+  tmplDesignRef.current = tmplDesign;
+  const signatureFileRef = useRef<HTMLInputElement>(null);
+
+  const findSlot = (slot: string) => tmplDesign.elements.find(el => el.slot === slot);
+  const signerHeading = findSlot("signer_heading")?.text ?? "";
+  const signatureSrc = findSlot("signature")?.src;
+
+  // Form -> kanvas. Komponen yang belum ada di kanvas otomatis ditambahkan bila datanya diisi.
+  const updateSigner = (p: { name?: string; title?: string; heading?: string; signatureSrc?: string | null }) => {
+    const name = p.name ?? tmplSignerName;
+    const title = p.title ?? tmplSignerTitle;
+    if (p.name !== undefined) setTmplSignerName(p.name);
+    if (p.title !== undefined) setTmplSignerTitle(p.title);
+    setTmplDesign(d => {
+      let elements = d.elements.map(el => {
+        if (el.slot === "signer") return { ...el, text: `${name}\n${title}` };
+        if (el.slot === "signature") return { ...el, text: name, ...(p.signatureSrc !== undefined ? { src: p.signatureSrc ?? undefined } : {}) };
+        if (el.slot === "signer_heading" && p.heading !== undefined) return { ...el, text: p.heading };
+        return el;
+      });
+      const missing = (slot: string) => !elements.some(el => el.slot === slot);
+      const add = (slot: string, extra: Partial<CanvasEl>) => {
+        const el = createSlotElement(slot, tmplOrientation, tmplSize, extra);
+        if (el) elements = [...elements, el];
+      };
+      if (p.heading && missing("signer_heading")) add("signer_heading", { text: p.heading });
+      if (p.signatureSrc && missing("signature")) add("signature", { text: name, src: p.signatureSrc });
+      return { ...d, elements };
+    });
+  };
+
+  const addSignerSlot = (slot: string) => {
+    const extra: Partial<CanvasEl> =
+      slot === "signer" ? { text: `${tmplSignerName}\n${tmplSignerTitle}` }
+        : slot === "signature" ? { text: tmplSignerName }
+          : { text: "PT PELABUHAN INDONESIA (PERSERO)\nDIREKTUR\nPelaksana Harian," };
+    const el = createSlotElement(slot, tmplOrientation, tmplSize, extra);
+    if (el) setTmplDesign(d => ({ ...d, elements: [...d.elements, el] }));
+  };
+
+  const showSignerSlot = (slot: string) =>
+    setTmplDesign(d => ({ ...d, elements: d.elements.map(el => el.slot === slot ? { ...el, hidden: false } : el) }));
+
+  // Kanvas -> form. Nama & jabatan dibaca dari blok "signer" (baris 1 = nama, sisanya = jabatan).
+  const handleDesignChange = useCallback((next: CanvasDesign) => {
+    const prevText = tmplDesignRef.current.elements.find(el => el.slot === "signer")?.text;
+    const nextText = next.elements.find(el => el.slot === "signer")?.text;
+    if (nextText !== undefined && nextText !== prevText) {
+      const [name = "", ...rest] = nextText.split("\n");
+      const oldName = prevText?.split("\n")[0];
+      setTmplSignerName(name);
+      setTmplSignerTitle(rest.join(" "));
+      // Tanda tangan teks mengikuti nama, selama belum diubah manual.
+      if (name !== oldName) {
+        next = { ...next, elements: next.elements.map(el => el.slot === "signature" && el.text === oldName ? { ...el, text: name } : el) };
+      }
+    }
+    setTmplDesign(next);
+  }, []);
+
+  const handleSignatureFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!["image/png", "image/jpeg"].includes(file.type)) { showToast("Format tanda tangan harus png atau jpg."); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast("Ukuran file maksimal 5Mb."); return; }
+    const reader = new FileReader();
+    reader.onload = () => updateSigner({ signatureSrc: String(reader.result) });
+    reader.readAsDataURL(file);
+  };
+
+  const scrollToSignerForm = () =>
+    document.getElementById("form-penandatangan")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const selectedValidity = templates.find(t => t.id === selectedTemplateId)?.validity ?? DEFAULT_VALIDITY;
 
   const handleDeleteTemplate = (id: string) => {
     setOpenTmplMenuId(null);
@@ -911,6 +1018,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
       name: participants[0]?.split(" (")[0] || "Yogi Muhammad Irshad",
       nipp: "11002753",
       date: issueDate,
+      expiryDateRaw: selectedValidity.lifetime ? undefined : expDate || undefined,
       status: "Diterbitkan",
       source: "SAP (Pegawai Organik / PKWT)",
       type: "attendance"
@@ -936,7 +1044,9 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
       signerTitle: tmplSignerTitle,
       orientation: tmplOrientation,
       size: tmplSize,
-      margin: { top: tmplMarginTop, right: tmplMarginRight, left: tmplMarginLeft, bottom: tmplMarginBottom }
+      margin: { top: tmplMarginTop, right: tmplMarginRight, left: tmplMarginLeft, bottom: tmplMarginBottom },
+      design: tmplDesign,
+      validity: tmplValidity
     };
     setTemplates([newTmpl, ...templates]);
     setTimeout(() => {
@@ -959,7 +1069,9 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
       size: tmplSize,
       margin: { top: tmplMarginTop, right: tmplMarginRight, left: tmplMarginLeft, bottom: tmplMarginBottom },
       signerName: tmplSignerName,
-      signerTitle: tmplSignerTitle
+      signerTitle: tmplSignerTitle,
+      design: tmplDesign,
+      validity: tmplValidity
     } : t));
     setTimeout(() => {
       setShowSaveTmplSuccessModal(false);
@@ -1390,6 +1502,10 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                       setTmplFormId("");
                       setTmplName("Template Sertifikat Pelatihan Umum");
                       setTmplDesc("Template sertifikat untuk berbagai program pelatihan dan pengembangan kompetensi peserta.");
+                      setTmplDesign(createDefaultDesign(tmplOrientation, tmplSize, tmplSignerName, tmplSignerTitle));
+                      setTmplValidity(DEFAULT_VALIDITY);
+                      setTmplSignerType("manual");
+                      setTmplSignerPresetId("");
                       setCurrentView("create_template");
                     }}
                     className="px-4 py-2.5 bg-[#016DB2] hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition shrink-0"
@@ -1810,18 +1926,15 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 overflow-x-auto pb-2">
-                {[
-                  { id: "kehadiran", title: "Sertifikat Kehadiran", desc: "Template untuk sertifikat kehadiran acara." },
-                  { id: "kelulusan", title: "Sertifikat Kelulusan", desc: "Template untuk sertifikat kelulusan pelatihan." },
-                  { id: "pelatihan", title: "Sertifikat Pelatihan", desc: "Template untuk sertifikat telah mengikuti Pelatihan" },
-                  { id: "webinar1", title: "Sertifikat Webinar", desc: "Template untuk sertifikat pealtihan Webinar" },
-                  { id: "webinar2", title: "Sertifikat Webinar", desc: "Template untuk sertifikat pealtihan Webinar" },
-                ].map((tmpl) => {
+                {templates.map((tmpl) => {
                   const isSelected = selectedTemplateId === tmpl.id;
                   return (
                     <div
                       key={tmpl.id}
-                      onClick={() => setSelectedTemplateId(tmpl.id)}
+                      onClick={() => {
+                        setSelectedTemplateId(tmpl.id);
+                        setExpDate(addValidity(issueDate, tmpl.validity ?? DEFAULT_VALIDITY) ?? "");
+                      }}
                       className={`p-2.5 rounded-xl border-2 cursor-pointer transition flex flex-col justify-between text-left ${isSelected ? "border-[#016DB2] bg-blue-50/20" : "border-slate-200 hover:border-slate-300 bg-white"}`}
                     >
                       <div className="w-full h-24 bg-white border border-slate-200 rounded-lg p-2 mb-2 flex flex-col justify-between text-center relative overflow-hidden">
@@ -1839,6 +1952,10 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                       <div>
                         <div className="font-bold text-xs text-slate-900 leading-tight">{tmpl.title}</div>
                         <div className="text-[10px] text-slate-400 mt-1 leading-snug">{tmpl.desc}</div>
+                        <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-bold text-[#016DB2] bg-sky-50 border border-sky-100 rounded-full px-2 py-0.5">
+                          <Calendar className="w-3 h-3" />
+                          Masa aktif: {validityLabel(tmpl.validity ?? DEFAULT_VALIDITY)}
+                        </div>
                       </div>
                     </div>
                   );
@@ -1873,19 +1990,31 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   <input
                     type="date"
                     value={issueDate}
-                    onChange={(e) => setIssueDate(e.target.value)}
+                    onChange={(e) => {
+                      setIssueDate(e.target.value);
+                      setExpDate(addValidity(e.target.value, selectedValidity) ?? "");
+                    }}
                     className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">Tanggal Kadaluarsa</label>
-                  <input
-                    type="date"
-                    value={expDate}
-                    onChange={(e) => setExpDate(e.target.value)}
-                    className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]"
-                  />
-                  <div className="text-[11px] text-slate-400 mt-1">Masukan Tanggal Kadaluarsa jika ada tanggal kadaluarsa</div>
+                  <label className="block font-bold text-slate-700 mb-1">Tanggal Berakhir (Kadaluarsa)</label>
+                  {selectedValidity.lifetime ? (
+                    <div className="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 font-semibold">Seumur Hidup</div>
+                  ) : (
+                    <input
+                      type="date"
+                      value={expDate}
+                      min={issueDate}
+                      onChange={(e) => setExpDate(e.target.value)}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]"
+                    />
+                  )}
+                  <div className="text-[11px] text-slate-400 mt-1">
+                    {selectedValidity.lifetime
+                      ? "Template ini berlaku seumur hidup, tidak ada tanggal berakhir."
+                      : `Otomatis: tanggal terbit + masa aktif template (${validityLabel(selectedValidity)}). Bisa diubah manual bila perlu.`}
+                  </div>
                 </div>
               </div>
 
@@ -2105,35 +2234,134 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-2">Background</label>
-                <div className="w-full p-6 border-2 border-dashed border-sky-300 rounded-2xl bg-sky-50/20 text-center space-y-3">
-                  <div className="w-28 h-16 mx-auto bg-white border border-slate-200 rounded shadow-xs flex items-center justify-center p-1">
-                    <div className="w-full h-full border border-dashed border-blue-300 flex items-center justify-center text-[8px] text-slate-400 font-bold">
-                      PELINDO TEMPLATE
+                <label className="block font-bold text-slate-700 mb-2">Masa Aktif Sertifikat<span className="text-red-500">*</span></label>
+                <div className="flex flex-wrap gap-6 mb-3">
+                  <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-700">
+                    <input type="radio" name="tmplValidity" checked={!tmplValidity.lifetime} onChange={() => setTmplValidity({ ...tmplValidity, lifetime: false })} className="accent-[#016DB2]" />
+                    <span>Berlaku dalam jangka waktu tertentu</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-700">
+                    <input type="radio" name="tmplValidity" checked={tmplValidity.lifetime} onChange={() => setTmplValidity({ ...tmplValidity, lifetime: true })} className="accent-[#016DB2]" />
+                    <span>Seumur Hidup (tanpa tanggal berakhir)</span>
+                  </label>
+                </div>
+                {!tmplValidity.lifetime && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <input
+                      type="number"
+                      min={1}
+                      max={tmplValidity.unit === "Tahun" ? 50 : 600}
+                      value={tmplValidity.value}
+                      onChange={(e) => setTmplValidity({ ...tmplValidity, value: Math.max(1, parseInt(e.target.value) || 1) })}
+                      className="w-full p-2.5 border border-slate-200 rounded-xl bg-white text-center focus:outline-none focus:border-[#016DB2]"
+                    />
+                    <div className="relative">
+                      <select
+                        value={tmplValidity.unit}
+                        onChange={(e) => setTmplValidity({ ...tmplValidity, unit: e.target.value as Validity["unit"] })}
+                        className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 focus:outline-none focus:border-[#016DB2]"
+                      >
+                        <option value="Tahun">Tahun</option>
+                        <option value="Bulan">Bulan</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                     </div>
                   </div>
-                  <button type="button" onClick={() => showToast("Memilih file background template...")} className="text-xs font-bold text-[#016DB2] hover:underline block mx-auto">
-                    Ganti Background
-                  </button>
+                )}
+                <div className="mt-2 flex items-center gap-2 text-[11px] text-slate-500 bg-sky-50/60 border border-sky-100 rounded-xl px-3 py-2">
+                  <Calendar className="w-3.5 h-3.5 text-[#016DB2] shrink-0" />
+                  <span>
+                    Contoh: terbit <b>{formatDate("2026-03-30")}</b> &rarr; berakhir{" "}
+                    <b>{addValidity("2026-03-30", tmplValidity) ? formatDate(addValidity("2026-03-30", tmplValidity)!) : "Seumur Hidup"}</b>.
+                    Tanggal berakhir dihitung otomatis dari tanggal terbit saat sertifikat dibuat.
+                  </span>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1">*Max Size: 5Mb, Format: jpg, png, pdf.</div>
               </div>
             </div>
 
+            {/* Card: Desain Sertifikat (Canvas Editor) */}
+            <div className="space-y-3 pt-4 border-t border-slate-100">
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">Desain Sertifikat</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Tambahkan komponen dari panel kiri (logo, judul, nama peserta, penandatangan, footer, social media), lalu geser, ubah ukuran, putar, dan atur gayanya langsung di kanvas. Background & company diatur di tab <b>Halaman</b>.
+                </p>
+              </div>
+              <CertificateCanvasEditor
+                design={tmplDesign}
+                onChange={handleDesignChange}
+                orientation={tmplOrientation}
+                size={tmplSize}
+                validity={tmplValidity}
+                onToast={showToast}
+                onEditSigner={scrollToSignerForm}
+              />
+            </div>
+
             {/* Card 3: Penandatangan */}
-            <div className="space-y-4 pt-4 border-t border-slate-100">
-              <h3 className="font-bold text-sm text-slate-900">Penandatangan</h3>
+            <div id="form-penandatangan" className="space-y-4 pt-4 border-t border-slate-100 scroll-mt-6">
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">Penandatangan</h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Terhubung langsung dengan kanvas di atas. Perubahan di form tampil di kanvas, dan edit di kanvas ikut mengubah form.</p>
+              </div>
+
+              {/* Status komponen penandatangan di kanvas */}
+              <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-[11px] font-bold text-slate-500 mr-1">Di kanvas:</span>
+                {([["signer_heading", "Instansi"], ["signature", "Tanda Tangan"], ["signer", "Nama & Jabatan"]] as const).map(([slot, label]) => {
+                  const el = findSlot(slot);
+                  if (!el) return (
+                    <button key={slot} type="button" onClick={() => addSignerSlot(slot)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-dashed border-slate-300 text-[11px] font-bold text-slate-500 hover:border-[#016DB2] hover:text-[#016DB2]">
+                      <Plus className="w-3 h-3" />{label}
+                    </button>
+                  );
+                  if (el.hidden) return (
+                    <button key={slot} type="button" onClick={() => showSignerSlot(slot)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-amber-200 bg-amber-50 text-[11px] font-bold text-amber-700 hover:bg-amber-100">
+                      <Eye className="w-3 h-3" />{label} (tersembunyi)
+                    </button>
+                  );
+                  return (
+                    <span key={slot} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-emerald-200 bg-emerald-50 text-[11px] font-bold text-emerald-700">
+                      <Check className="w-3 h-3" />{label}
+                    </span>
+                  );
+                })}
+              </div>
 
               <div className="flex gap-6">
                 <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
                   <input type="radio" name="signerType" checked={tmplSignerType === "manual"} onChange={() => setTmplSignerType("manual")} className="accent-[#016DB2]" />
                   <span>Input Manual</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-600">
+                <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
                   <input type="radio" name="signerType" checked={tmplSignerType === "preset"} onChange={() => setTmplSignerType("preset")} className="accent-[#016DB2]" />
                   <span>Pilih dari Data Penandatangan</span>
                 </label>
               </div>
+
+              {tmplSignerType === "preset" && (
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Data Penandatangan<span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <select
+                      value={tmplSignerPresetId}
+                      onChange={(e) => {
+                        const p = SIGNER_PRESETS.find(s => s.id === e.target.value);
+                        setTmplSignerPresetId(e.target.value);
+                        if (p) updateSigner({ name: p.name, title: p.title, heading: p.heading });
+                      }}
+                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl appearance-none pr-8 focus:outline-none focus:border-[#016DB2]"
+                    >
+                      <option value="">-- Pilih penandatangan --</option>
+                      {SIGNER_PRESETS.map(s => <option key={s.id} value={s.id}>{s.name} — {s.title}</option>)}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+                  <div className="text-[11px] text-slate-400 mt-1">Nama, jabatan, dan instansi otomatis terisi ke form & kanvas.</div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -2141,8 +2369,9 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   <input
                     type="text"
                     value={tmplSignerName}
-                    onChange={(e) => setTmplSignerName(e.target.value)}
-                    className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]"
+                    readOnly={tmplSignerType === "preset"}
+                    onChange={(e) => updateSigner({ name: e.target.value })}
+                    className={`w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2] ${tmplSignerType === "preset" ? "bg-slate-50 text-slate-500" : "bg-white"}`}
                   />
                 </div>
                 <div>
@@ -2150,23 +2379,52 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   <input
                     type="text"
                     value={tmplSignerTitle}
-                    onChange={(e) => setTmplSignerTitle(e.target.value)}
-                    className="w-full p-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2]"
+                    readOnly={tmplSignerType === "preset"}
+                    onChange={(e) => updateSigner({ title: e.target.value })}
+                    className={`w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2] ${tmplSignerType === "preset" ? "bg-slate-50 text-slate-500" : "bg-white"}`}
                   />
                 </div>
               </div>
 
               <div>
+                <label className="block font-bold text-slate-700 mb-1">Instansi / Keterangan di Atas Tanda Tangan</label>
+                <textarea
+                  rows={3}
+                  value={signerHeading}
+                  readOnly={tmplSignerType === "preset"}
+                  placeholder={"PT PELABUHAN INDONESIA (PERSERO)\nDIREKTUR\nPelaksana Harian,"}
+                  onChange={(e) => updateSigner({ heading: e.target.value })}
+                  className={`w-full p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2] resize-none ${tmplSignerType === "preset" ? "bg-slate-50 text-slate-500" : "bg-white"}`}
+                />
+                <div className="text-[11px] text-slate-400 mt-0.5">Satu baris per baris teks pada sertifikat. Kosongkan bila tidak diperlukan.</div>
+              </div>
+
+              <div>
                 <label className="block font-bold text-slate-700 mb-2">Tanda tangan</label>
-                <div className="w-full p-8 border-2 border-dashed border-sky-300 rounded-2xl bg-sky-50/20 text-center space-y-3">
-                  <div className="font-serif italic text-3xl font-bold text-slate-800 tracking-wide">
-                    {tmplSignerName}
+                <input ref={signatureFileRef} type="file" accept="image/png,image/jpeg" className="hidden" onChange={handleSignatureFile} />
+                <div className="w-full p-6 border-2 border-dashed border-sky-300 rounded-2xl bg-sky-50/20 text-center space-y-3">
+                  {signatureSrc ? (
+                    <img src={signatureSrc} alt="Tanda tangan" className="h-20 mx-auto object-contain" />
+                  ) : (
+                    <div className="text-4xl text-slate-800" style={{ fontFamily: "'Brush Script MT', 'Segoe Script', cursive" }}>
+                      {tmplSignerName || "Nama Penandatangan"}
+                    </div>
+                  )}
+                  <div className="text-[11px] text-slate-400">
+                    {signatureSrc ? "Gambar tanda tangan aktif di kanvas." : "Belum ada gambar — sertifikat menampilkan nama dengan huruf script."}
                   </div>
-                  <button type="button" onClick={() => showToast("Memilih tanda tangan digital...")} className="text-xs font-bold text-[#016DB2] hover:underline block mx-auto">
-                    Ganti Tanda tangan
-                  </button>
+                  <div className="flex items-center justify-center gap-4">
+                    <button type="button" onClick={() => signatureFileRef.current?.click()} className="text-xs font-bold text-[#016DB2] hover:underline">
+                      {signatureSrc ? "Ganti Tanda tangan" : "Unggah Tanda tangan"}
+                    </button>
+                    {signatureSrc && (
+                      <button type="button" onClick={() => updateSigner({ signatureSrc: null })} className="text-xs font-bold text-rose-600 hover:underline">
+                        Hapus Gambar
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="text-[11px] text-slate-400 mt-1">*Max Size: 5Mb, Format: jpg, png.</div>
+                <div className="text-[11px] text-slate-400 mt-1">*Max Size: 5Mb, Format: jpg, png. Gunakan PNG berlatar transparan agar menyatu dengan background.</div>
               </div>
             </div>
 
@@ -2665,14 +2923,28 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
       {/* MODAL: PREVIEW TEMPLATE */}
       {showTmplPreviewModal && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/75 backdrop-blur-xs p-4 animate-in fade-in">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-200">
+          <div className={`bg-white rounded-2xl shadow-2xl w-full overflow-hidden border border-slate-200 ${currentView === "create_template" || currentView === "edit_template" ? "max-w-5xl" : "max-w-2xl"}`}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Preview Template</h3>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Preview Template</h3>
+                {(currentView === "create_template" || currentView === "edit_template") && (
+                  <p className="text-[11px] text-slate-500">Data dinamis ditampilkan dengan contoh peserta.</p>
+                )}
+              </div>
               <button onClick={() => setShowTmplPreviewModal(false)} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="p-6 bg-slate-100 flex justify-center">
+            <div className="p-6 bg-slate-100 flex justify-center overflow-auto max-h-[75vh]">
+              {currentView === "create_template" || currentView === "edit_template" ? (
+                <CertificateCanvasView
+                  design={tmplDesign}
+                  orientation={tmplOrientation}
+                  size={tmplSize}
+                  validity={tmplValidity}
+                  width={tmplOrientation === "Portrait" ? 520 : 900}
+                />
+              ) : (
               <div className="w-full bg-white border-4 border-[#016DB2] rounded-xl p-8 text-center shadow-lg relative cert-pattern-bg">
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-left text-[10px] font-black tracking-widest text-[#016DB2]">BUMN &bull; PELINDO</div>
@@ -2698,6 +2970,7 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   </div>
                 </div>
               </div>
+              )}
             </div>
             <div className="flex justify-end px-6 py-3 border-t border-slate-100 bg-slate-50">
               <button onClick={() => setShowTmplPreviewModal(false)} className="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition">
