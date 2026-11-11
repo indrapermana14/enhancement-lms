@@ -4,6 +4,11 @@ const nextConfig = {
   images: {
     domains: ["images.unsplash.com"],
   },
+  // Konva (editor sertifikat) memakai paket "canvas" hanya di Node; di browser tidak diperlukan.
+  webpack: (config) => {
+    config.externals = [...(config.externals || []), { canvas: "canvas" }];
+    return config;
+  },
 };
 
 module.exports = nextConfig;

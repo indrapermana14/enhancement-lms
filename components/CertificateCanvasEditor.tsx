@@ -157,13 +157,13 @@ export const DEFAULT_VALIDITY: Validity = { lifetime: false, value: 4, unit: "Ta
 
 export type DateFormat = "id_long" | "id_short" | "en_long";
 
-const DATE_FORMATS: [DateFormat, string][] = [
+export const DATE_FORMATS: [DateFormat, string][] = [
   ["id_long", "30 Maret 2026"],
   ["id_short", "30/03/2026"],
   ["en_long", "March 30, 2026"],
 ];
 
-const DATE_TOKENS = /\{\{\s*(tanggal_terbit|tanggal_berakhir|masa_berlaku)\s*\}\}/;
+export const DATE_TOKENS = /\{\{\s*(tanggal_terbit|tanggal_berakhir|masa_berlaku)\s*\}\}/;
 
 /** Tanggal berakhir = tanggal terbit + masa aktif. null bila seumur hidup. Input & output ISO (yyyy-mm-dd). */
 export function addValidity(issueIso: string, v: Validity): string | null {
@@ -207,7 +207,7 @@ export interface VarContext {
   validity: Validity;
 }
 
-const VARIABLES: { key: string; label: string }[] = [
+export const VARIABLES: { key: string; label: string }[] = [
   { key: "nama_peserta", label: "Nama Peserta" },
   { key: "nipp", label: "NIPP" },
   { key: "judul_pelatihan", label: "Judul Pelatihan" },
@@ -222,16 +222,16 @@ const VARIABLES: { key: string; label: string }[] = [
   { key: "nilai", label: "Nilai" },
 ];
 
-const FONTS: { label: string; value: string }[] = [
+export const FONTS: { label: string; value: string }[] = [
   { label: "Sans Serif", value: "Inter, ui-sans-serif, system-ui, sans-serif" },
   { label: "Serif", value: "Georgia, 'Times New Roman', serif" },
   { label: "Monospace", value: "ui-monospace, Menlo, monospace" },
   { label: "Script", value: "'Brush Script MT', 'Segoe Script', cursive" },
 ];
 
-const uid = () => `el_${Math.random().toString(36).slice(2, 9)}`;
+export const uid = () => `el_${Math.random().toString(36).slice(2, 9)}`;
 
-const fillVars = (text: string, ctx: VarContext, fmt: DateFormat = "id_long") =>
+export const fillVars = (text: string, ctx: VarContext, fmt: DateFormat = "id_long") =>
   text.replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k: string) => {
     if (k === "tanggal_terbit") return formatDate(ctx.issueDate, fmt);
     if (k === "tanggal_berakhir") {
@@ -242,14 +242,14 @@ const fillVars = (text: string, ctx: VarContext, fmt: DateFormat = "id_long") =>
     return ctx.data[k] ?? m;
   });
 
-const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
+export const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
 const rotatePt = (x: number, y: number, deg: number) => {
   const r = (deg * Math.PI) / 180;
   return { x: x * Math.cos(r) - y * Math.sin(r), y: x * Math.sin(r) + y * Math.cos(r) };
 };
 
-type PaletteItem = { label: string; icon: React.ReactNode; make: (pw: number, ph: number) => Partial<CanvasEl> };
+export type PaletteItem = { label: string; icon: React.ReactNode; make: (pw: number, ph: number) => Partial<CanvasEl> };
 
 const logoSlot = (slot: string, name: string, pos: (pw: number, ph: number) => { x: number; y: number }) =>
   (pw: number, ph: number): Partial<CanvasEl> => ({
@@ -328,7 +328,7 @@ export const PALETTE: { group: string; items: PaletteItem[] }[] = [
   },
 ];
 
-const newEl = (partial: Partial<CanvasEl>): CanvasEl => ({
+export const newEl = (partial: Partial<CanvasEl>): CanvasEl => ({
   id: uid(), type: "text", name: "Elemen", x: 0, y: 0, w: 100, h: 50, rotation: 0, opacity: 1, ...partial,
 });
 
@@ -409,7 +409,7 @@ export function createDefaultDesign(orientation: string, size: string, signerNam
    ELEMENT RENDERER (dipakai editor & preview)
    ========================================================================== */
 
-const SOCIAL_META: { key: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> }[] = [
+export const SOCIAL_META: { key: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> }[] = [
   { key: "instagram", icon: Instagram }, { key: "twitter", icon: Twitter }, { key: "youtube", icon: Youtube },
   { key: "facebook", icon: Facebook }, { key: "website", icon: Globe },
 ];
@@ -523,7 +523,7 @@ export function CertificateCanvasView({ design, orientation, size, width, validi
    EDITOR
    ========================================================================== */
 
-interface EditorProps {
+export interface EditorProps {
   design: CanvasDesign;
   onChange: (d: CanvasDesign) => void;
   orientation: string;
@@ -571,7 +571,6 @@ export default function CertificateCanvasEditor({ design, onChange, orientation,
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const uploadTarget = useRef<{ id: string } | { bg: true } | null>(null);
-  const presetThumbs = useMemo(() => BG_PRESETS.map((p) => ({ ...p, src: makeBgPreset(p.id, pw, ph) })), [pw, ph]);
   const lastPatch = useRef<{ key: string; t: number }>({ key: "", t: 0 });
   const prevDims = useRef({ pw, ph });
 
@@ -706,8 +705,6 @@ export default function CertificateCanvasEditor({ design, onChange, orientation,
   const applyBgPreset = (id: BgPresetId | null) =>
     commit({ ...designRef.current, bgPreset: id ?? undefined, bgImage: id ? makeBgPreset(id, pw, ph) : undefined });
 
-  const [bgDragOver, setBgDragOver] = useState(false);
-
   /* ---------- pointer interactions ---------- */
   const pagePoint = (e: { clientX: number; clientY: number }) => {
     const r = pageRef.current!.getBoundingClientRect();
@@ -818,10 +815,6 @@ export default function CertificateCanvasEditor({ design, onChange, orientation,
     if (mv[e.key] && !selected.locked) { e.preventDefault(); patch(selected.id, mv[e.key], "nudge"); }
   };
 
-  /* ---------- align helpers ---------- */
-  const alignTo = (el: CanvasEl, how: "h" | "v") =>
-    patch(el.id, how === "h" ? { x: (pw - el.w) / 2 } : { y: (ph - el.h) / 2 });
-
   const resetDesign = () => {
     if (!window.confirm("Kembalikan susunan kanvas ke default? Perubahan desain saat ini akan hilang.")) return;
     const signer = design.elements.find((e) => e.type === "signer")?.text?.split("\n") ?? ["Nama Penandatangan", "Jabatan"];
@@ -830,39 +823,13 @@ export default function CertificateCanvasEditor({ design, onChange, orientation,
     setSelectedId(null);
   };
 
-  const bgDropzone = (
-    <div
-      onClick={() => requestUpload({ bg: true })}
-      onDragOver={(e) => { e.preventDefault(); setBgDragOver(true); }}
-      onDragLeave={() => setBgDragOver(false)}
-      onDrop={(e) => { e.preventDefault(); setBgDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) readImage(f, { bg: true }); }}
-      className={`cursor-pointer rounded-xl border-2 border-dashed p-3 text-center transition ${bgDragOver ? "border-[#016DB2] bg-sky-100" : "border-sky-300 bg-sky-50/50 hover:bg-sky-50"}`}>
-      <UploadCloud className="w-5 h-5 mx-auto text-[#016DB2]" />
-      <div className="text-[11px] font-bold text-slate-700 mt-1">Unggah Background</div>
-      <div className="text-[10px] text-slate-400">Klik / seret file ke sini</div>
-      <div className="text-[10px] text-slate-400">png, jpg, jpeg • maks 5Mb</div>
-    </div>
-  );
-
-  const bgPresetGrid = (
-    <div className="grid grid-cols-2 gap-1.5">
-      <button type="button" onClick={() => applyBgPreset(null)} title="Polos"
-        className={`rounded-lg border-2 overflow-hidden text-left ${!design.bgImage ? "border-[#016DB2]" : "border-slate-200 hover:border-slate-300"}`}>
-        <div className="w-full flex items-center justify-center text-[9px] text-slate-400" style={{ aspectRatio: `${pw} / ${ph}`, background: design.bgColor }}>Polos</div>
-        <div className="px-1.5 py-1 text-[10px] font-semibold text-slate-600 truncate">Polos</div>
-      </button>
-      {presetThumbs.map((p) => (
-        <button key={p.id} type="button" onClick={() => applyBgPreset(p.id)} title={p.label}
-          className={`rounded-lg border-2 overflow-hidden text-left ${design.bgPreset === p.id ? "border-[#016DB2]" : "border-slate-200 hover:border-slate-300"}`}>
-          <img src={p.src} alt={p.label} className="w-full block" style={{ aspectRatio: `${pw} / ${ph}` }} />
-          <div className="px-1.5 py-1 text-[10px] font-semibold text-slate-600 truncate">{p.label}</div>
-        </button>
-      ))}
-    </div>
-  );
-
-  const isTextual = selected && ["text", "signer", "social"].includes(selected.type);
-  const hasImage = selected && ["logo", "image"].includes(selected.type);
+  const api: EditorPanelApi = {
+    design, pw, ph, orientation, size, validity, ctx, selected,
+    selectedIds: selectedId ? [selectedId] : [],
+    select: setSelectedId,
+    tab, setTab, patch, commit, addElement, removeEl, duplicateEl, reorder,
+    requestUpload, readImage, applyBgPreset, onEditSigner,
+  };
 
   /* ============================== UI ===================================== */
   return (
@@ -894,39 +861,7 @@ export default function CertificateCanvasEditor({ design, onChange, orientation,
 
       <div className="flex" style={{ height: 680 }}>
         {/* Palette */}
-        <aside className="w-52 shrink-0 border-r border-slate-200 overflow-y-auto p-3 space-y-4 bg-white">
-          <div>
-            <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Background</div>
-            <div className="space-y-2">
-              {bgDropzone}
-              {design.bgImage && !design.bgPreset && (
-                <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-[10px] font-semibold text-emerald-700">
-                  <span className="flex-1">✓ Background unggahan aktif</span>
-                  <button type="button" onClick={() => applyBgPreset(null)} className="text-rose-600 hover:underline">Hapus</button>
-                </div>
-              )}
-              <div className="text-[10px] font-semibold text-slate-500">atau pilih preset:</div>
-              {bgPresetGrid}
-            </div>
-          </div>
-          {PALETTE.map((g) => (
-            <div key={g.group}>
-              <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">{g.group}</div>
-              <div className="space-y-1">
-                {g.items.map((it) => {
-                  const used = !!it.make(pw, ph).slot && design.elements.some((e) => e.slot === it.make(pw, ph).slot);
-                  return (
-                    <button key={it.label} type="button" onClick={() => addElement(it)}
-                      className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left text-[11px] font-semibold transition ${used ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-700 hover:border-[#016DB2] hover:bg-sky-50"}`}>
-                      {it.icon}<span className="flex-1">{it.label}</span>
-                      {used ? <span className="text-[9px] font-bold">✓</span> : <span className="text-slate-300">+</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </aside>
+        <EditorPalette api={api} />
 
         {/* Stage */}
         <div ref={scrollRef} className="flex-1 min-w-0 overflow-auto bg-slate-200/70 p-6" onPointerDown={() => { setSelectedId(null); setEditingId(null); }}>
@@ -992,251 +927,381 @@ export default function CertificateCanvasEditor({ design, onChange, orientation,
         </div>
 
         {/* Right panel */}
-        <aside className="w-72 shrink-0 border-l border-slate-200 bg-white flex flex-col">
-          <div className="flex border-b border-slate-200 text-[11px] font-bold">
-            {([["props", "Properti", SlidersHorizontal], ["layers", "Layer", Layers], ["page", "Halaman", Building2]] as const).map(([k, label, Icon]) => (
-              <button key={k} type="button" onClick={() => setTab(k)}
-                className={`flex-1 flex items-center justify-center gap-1 py-2.5 border-b-2 transition ${tab === k ? "border-[#016DB2] text-[#016DB2]" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
-                <Icon className="w-3.5 h-3.5" />{label}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-3 text-xs space-y-4">
-            {/* ---- PROPERTI ---- */}
-            {tab === "props" && !selected && (
-              <div className="text-center text-slate-400 py-10 space-y-2">
-                <SlidersHorizontal className="w-6 h-6 mx-auto" />
-                <p className="font-semibold">Pilih elemen di kanvas</p>
-                <p className="text-[11px]">atau tambahkan komponen dari panel kiri.</p>
-              </div>
-            )}
-
-            {tab === "props" && selected && (
-              <>
-                <div>
-                  <input value={selected.name} onChange={(e) => patch(selected.id, { name: e.target.value }, "name")}
-                    className="w-full font-bold text-slate-900 text-sm border border-transparent hover:border-slate-200 focus:border-[#016DB2] rounded-lg px-1.5 py-1 outline-none" />
-                  <div className="flex gap-1 mt-1.5">
-                    <TB title="Duplikat (Ctrl+D)" onClick={() => duplicateEl(selected.id)}><Copy className="w-3.5 h-3.5" /></TB>
-                    <TB title={selected.locked ? "Buka kunci" : "Kunci"} active={!!selected.locked} onClick={() => patch(selected.id, { locked: !selected.locked })}>{selected.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}</TB>
-                    <TB title={selected.hidden ? "Tampilkan" : "Sembunyikan"} onClick={() => patch(selected.id, { hidden: !selected.hidden })}>{selected.hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</TB>
-                    <TB title="Ke paling depan" onClick={() => reorder(selected.id, "front")}><ChevronsUp className="w-3.5 h-3.5" /></TB>
-                    <TB title="Maju satu layer" onClick={() => reorder(selected.id, "up")}><ArrowUp className="w-3.5 h-3.5" /></TB>
-                    <TB title="Mundur satu layer" onClick={() => reorder(selected.id, "down")}><ArrowDown className="w-3.5 h-3.5" /></TB>
-                    <TB title="Ke paling belakang" onClick={() => reorder(selected.id, "back")}><ChevronsDown className="w-3.5 h-3.5" /></TB>
-                    <TB title="Hapus (Del)" danger onClick={() => removeEl(selected.id)}><Trash2 className="w-3.5 h-3.5" /></TB>
-                  </div>
-                </div>
-
-                <Section title="Posisi & Ukuran">
-                  <div className="grid grid-cols-2 gap-2">
-                    <Num label="X" value={selected.x} onChange={(v) => patch(selected.id, { x: v }, "x")} />
-                    <Num label="Y" value={selected.y} onChange={(v) => patch(selected.id, { y: v }, "y")} />
-                    <Num label="Lebar" value={selected.w} min={8} onChange={(v) => patch(selected.id, { w: v }, "w")} />
-                    <Num label="Tinggi" value={selected.h} min={2} onChange={(v) => patch(selected.id, { h: v }, "h")} />
-                    <Num label="Rotasi °" value={selected.rotation} onChange={(v) => patch(selected.id, { rotation: ((v % 360) + 360) % 360 }, "rot")} />
-                    <Num label="Opacity %" value={Math.round(selected.opacity * 100)} min={0} max={100} onChange={(v) => patch(selected.id, { opacity: clamp(v, 0, 100) / 100 }, "op")} />
-                  </div>
-                  <div className="flex gap-2 mt-2">
-                    <button type="button" onClick={() => alignTo(selected, "h")} className="flex-1 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Tengah Horizontal</button>
-                    <button type="button" onClick={() => alignTo(selected, "v")} className="flex-1 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Tengah Vertikal</button>
-                  </div>
-                </Section>
-
-                {hasImage && (
-                  <Section title={selected.type === "logo" ? "File Logo" : "Gambar"}>
-                    <div className="flex items-center gap-2 border border-slate-200 rounded-xl p-1.5 pl-3">
-                      <span className="flex-1 truncate text-slate-600">{selected.src ? "File terpilih" : "Belum ada file"}</span>
-                      <button type="button" onClick={() => requestUpload({ id: selected.id })} className="px-3 py-1.5 bg-[#016DB2] hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><UploadCloud className="w-3.5 h-3.5" />Choose File</button>
-                    </div>
-                    <div className="text-[11px] text-slate-400">*Max Size: 5Mb, Format: png, jpg, dan jpeg.</div>
-                    <div className="flex gap-2 items-center">
-                      <Select label="Mode" value={selected.fit ?? "contain"} onChange={(v) => patch(selected.id, { fit: v as "contain" | "cover" })} options={[["contain", "Muat (contain)"], ["cover", "Penuh (cover)"]]} />
-                      {selected.src && <button type="button" onClick={() => patch(selected.id, { src: undefined })} className="self-end px-2.5 py-2 text-rose-600 border border-rose-200 rounded-lg font-semibold hover:bg-rose-50">Hapus</button>}
-                    </div>
-                  </Section>
-                )}
-
-                {isTextual && selected.type !== "social" && (
-                  <Section title="Isi Teks">
-                    <textarea rows={selected.type === "signer" ? 3 : 4} value={selected.text ?? ""} onChange={(e) => patch(selected.id, { text: e.target.value }, "text")}
-                      className="w-full p-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2] resize-y" />
-                    {selected.type === "signer" && <div className="text-[11px] text-slate-400">Baris pertama = nama (tebal), baris berikutnya = jabatan.</div>}
-                    <div className="text-[11px] text-slate-500 font-semibold mt-1">Sisipkan data dinamis:</div>
-                    <div className="flex flex-wrap gap-1">
-                      {VARIABLES.map((v) => (
-                        <button key={v.key} type="button" onClick={() => patch(selected.id, { text: `${selected.text ?? ""}{{${v.key}}}` })}
-                          className="px-2 py-1 rounded-full bg-sky-50 text-[#016DB2] border border-sky-200 text-[10px] font-bold hover:bg-sky-100">{v.label}</button>
-                      ))}
-                    </div>
-                  </Section>
-                )}
-
-                {selected.slot && (SIGNER_SLOTS as readonly string[]).includes(selected.slot) && onEditSigner && (
-                  <div className="rounded-xl bg-amber-50 border border-amber-200 p-2.5 text-[11px] text-amber-800 space-y-1.5">
-                    <div><b>Terhubung dengan form Penandatangan.</b> Perubahan di sini ikut mengubah form, dan sebaliknya.</div>
-                    <button type="button" onClick={onEditSigner} className="font-bold text-[#016DB2] hover:underline">Edit di form Penandatangan ↓</button>
-                  </div>
-                )}
-
-                {selected.slot === "signature" && !selected.src && (
-                  <Section title="Tanda Tangan (Teks)">
-                    <input value={selected.text ?? ""} onChange={(e) => patch(selected.id, { text: e.target.value }, "sig")}
-                      className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#016DB2]" />
-                    <div className="text-[11px] text-slate-400">Ditampilkan dengan huruf script selama gambar tanda tangan belum diunggah.</div>
-                  </Section>
-                )}
-
-                {selected.type === "text" && (
-                  <Section title="Latar Teks">
-                    <div className="grid grid-cols-2 gap-2">
-                      <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna latar</span>
-                        <input type="color" value={selected.fill && selected.fill !== "transparent" ? selected.fill : "#ffffff"} onChange={(e) => patch(selected.id, { fill: e.target.value }, "tfill")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
-                      </label>
-                      <Num label="Padding" value={selected.padding ?? 0} min={0} onChange={(v) => patch(selected.id, { padding: v }, "pad")} />
-                    </div>
-                    {selected.fill && selected.fill !== "transparent" && (
-                      <button type="button" onClick={() => patch(selected.id, { fill: undefined })} className="px-2.5 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Hapus latar</button>
-                    )}
-                  </Section>
-                )}
-
-                {isTextual && DATE_TOKENS.test(selected.text ?? "") && (
-                  <Section title="Tanggal & Masa Aktif">
-                    <Select label="Format tanggal" value={selected.dateFormat ?? "id_long"} onChange={(v) => patch(selected.id, { dateFormat: v as DateFormat })} options={DATE_FORMATS} />
-                    <div className="rounded-xl bg-sky-50 border border-sky-200 p-2.5 space-y-1 text-[11px] text-slate-600">
-                      <div className="flex justify-between"><span>Masa aktif template</span><b className="text-[#016DB2]">{validityLabel(validity)}</b></div>
-                      <div className="flex justify-between"><span>Contoh terbit</span><b>{formatDate(SAMPLE_ISSUE_DATE, selected.dateFormat)}</b></div>
-                      <div className="flex justify-between"><span>Contoh berakhir</span><b>{(() => { const exp = addValidity(SAMPLE_ISSUE_DATE, validity); return exp ? formatDate(exp, selected.dateFormat) : "Seumur Hidup"; })()}</b></div>
-                      <div className="pt-1 border-t border-sky-200 text-slate-500">Hasil: <span className="text-slate-800 font-semibold">{fillVars(selected.text ?? "", ctx, selected.dateFormat)}</span></div>
-                    </div>
-                    <div className="text-[11px] text-slate-400">Tanggal berakhir = tanggal terbit + masa aktif. Ubah masa aktif di <b>Pengaturan Template</b>.</div>
-                  </Section>
-                )}
-
-                {selected.type === "social" && (
-                  <Section title="Social Media Links">
-                    {SOCIAL_META.map(({ key, icon: Icon }) => (
-                      <label key={key} className="flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-slate-500 shrink-0" />
-                        <input value={selected.links?.[key] ?? ""} placeholder={key === "website" ? "kursusonline.com" : `${key}.com/kursus`}
-                          onChange={(e) => patch(selected.id, { links: { ...selected.links, [key]: e.target.value } }, `l${key}`)}
-                          className="flex-1 p-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#016DB2]" />
-                      </label>
-                    ))}
-                  </Section>
-                )}
-
-                {isTextual && (
-                  <Section title="Tipografi">
-                    <Select label="Font" value={selected.fontFamily ?? FONTS[0].value} onChange={(v) => patch(selected.id, { fontFamily: v })} options={FONTS.map((f) => [f.value, f.label])} />
-                    <div className="grid grid-cols-2 gap-2">
-                      <Num label="Ukuran" value={selected.fontSize ?? 16} min={6} max={200} onChange={(v) => patch(selected.id, { fontSize: v }, "fs")} />
-                      <Num label="Spasi huruf" value={selected.letterSpacing ?? 0} step={0.5} onChange={(v) => patch(selected.id, { letterSpacing: v }, "ls")} />
-                      <Num label="Tinggi baris" value={selected.lineHeight ?? 1.3} step={0.1} min={0.8} max={3} onChange={(v) => patch(selected.id, { lineHeight: v }, "lh")} />
-                      <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna</span>
-                        <input type="color" value={selected.color ?? "#000000"} onChange={(e) => patch(selected.id, { color: e.target.value }, "color")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
-                      </label>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      <TB title="Tebal" active={!!selected.bold} onClick={() => patch(selected.id, { bold: !selected.bold })}><Bold className="w-3.5 h-3.5" /></TB>
-                      <TB title="Miring" active={!!selected.italic} onClick={() => patch(selected.id, { italic: !selected.italic })}><Italic className="w-3.5 h-3.5" /></TB>
-                      <TB title="Garis bawah" active={!!selected.underline} onClick={() => patch(selected.id, { underline: !selected.underline })}><Underline className="w-3.5 h-3.5" /></TB>
-                      <TB title="HURUF BESAR" active={!!selected.uppercase} onClick={() => patch(selected.id, { uppercase: !selected.uppercase })}><span className="text-[10px] font-black">Aa</span></TB>
-                      <Sep />
-                      <TB title="Rata kiri" active={selected.align === "left"} onClick={() => patch(selected.id, { align: "left" })}><AlignLeft className="w-3.5 h-3.5" /></TB>
-                      <TB title="Rata tengah" active={selected.align === "center"} onClick={() => patch(selected.id, { align: "center" })}><AlignCenter className="w-3.5 h-3.5" /></TB>
-                      <TB title="Rata kanan" active={selected.align === "right"} onClick={() => patch(selected.id, { align: "right" })}><AlignRight className="w-3.5 h-3.5" /></TB>
-                    </div>
-                    {selected.type !== "social" && (
-                      <Select label="Posisi vertikal" value={selected.valign ?? "middle"} onChange={(v) => patch(selected.id, { valign: v as CanvasEl["valign"] })} options={[["top", "Atas"], ["middle", "Tengah"], ["bottom", "Bawah"]]} />
-                    )}
-                  </Section>
-                )}
-
-                {(selected.type === "shape" || selected.type === "line") && (
-                  <Section title="Warna & Garis Tepi">
-                    <div className="grid grid-cols-2 gap-2">
-                      <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Isi</span>
-                        <input type="color" value={selected.fill && selected.fill !== "transparent" ? selected.fill : "#ffffff"} onChange={(e) => patch(selected.id, { fill: e.target.value }, "fill")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
-                      </label>
-                      {selected.type === "shape" && (
-                        <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna tepi</span>
-                          <input type="color" value={selected.stroke ?? "#016DB2"} onChange={(e) => patch(selected.id, { stroke: e.target.value }, "stroke")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
-                        </label>
-                      )}
-                      {selected.type === "shape" && <Num label="Tebal tepi" value={selected.strokeWidth ?? 0} min={0} onChange={(v) => patch(selected.id, { strokeWidth: v }, "sw")} />}
-                      {selected.type === "shape" && selected.shape === "rect" && <Num label="Sudut" value={selected.radius ?? 0} min={0} onChange={(v) => patch(selected.id, { radius: v }, "rad")} />}
-                    </div>
-                    <button type="button" onClick={() => patch(selected.id, { fill: "transparent" })} className="px-2.5 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Isi transparan</button>
-                  </Section>
-                )}
-              </>
-            )}
-
-            {/* ---- LAYER ---- */}
-            {tab === "layers" && (
-              <div className="space-y-1">
-                {[...design.elements].reverse().map((el) => (
-                  <div key={el.id} onClick={() => { setSelectedId(el.id); }}
-                    className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg border cursor-pointer ${el.id === selectedId ? "border-[#016DB2] bg-sky-50" : "border-slate-200 hover:bg-slate-50"} ${el.hidden ? "opacity-50" : ""}`}>
-                    <span className="flex-1 truncate font-semibold text-slate-700">{el.name}</span>
-                    <button type="button" title="Sembunyikan" onClick={(e) => { e.stopPropagation(); patch(el.id, { hidden: !el.hidden }); }} className="text-slate-400 hover:text-slate-700">{el.hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button>
-                    <button type="button" title="Kunci" onClick={(e) => { e.stopPropagation(); patch(el.id, { locked: !el.locked }); }} className="text-slate-400 hover:text-slate-700">{el.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}</button>
-                    <button type="button" title="Naik" onClick={(e) => { e.stopPropagation(); reorder(el.id, "up"); }} className="text-slate-400 hover:text-slate-700"><ArrowUp className="w-3.5 h-3.5" /></button>
-                    <button type="button" title="Turun" onClick={(e) => { e.stopPropagation(); reorder(el.id, "down"); }} className="text-slate-400 hover:text-slate-700"><ArrowDown className="w-3.5 h-3.5" /></button>
-                  </div>
-                ))}
-                {!design.elements.length && <div className="text-center text-slate-400 py-8">Kanvas masih kosong.</div>}
-              </div>
-            )}
-
-            {/* ---- HALAMAN ---- */}
-            {tab === "page" && (
-              <>
-                <Section title="Company">
-                  <Select label="" value={design.company} onChange={(v) => commit({ ...design, company: v })} options={COMPANIES.map((c) => [c, c])} />
-                </Section>
-                <Section title="Background Halaman">
-                  {bgDropzone}
-                  <div className="text-[11px] text-slate-400">
-                    Disarankan ukuran {pw * 2} × {ph * 2} px ({orientation}) agar tajam saat dicetak. Background boleh sudah berisi ornamen/pola; teks & logo diletakkan di atasnya.
-                  </div>
-                  <div className="text-[10px] font-semibold text-slate-500 pt-1">Preset siap pakai</div>
-                  {bgPresetGrid}
-                  {design.bgImage && (
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      <Num label="Opacity %" value={Math.round((design.bgOpacity ?? 1) * 100)} min={0} max={100}
-                        onChange={(v) => commit({ ...designRef.current, bgOpacity: clamp(v, 0, 100) / 100 }, false)} />
-                      {!design.bgPreset && (
-                        <Select label="Mode" value={design.bgFit ?? "cover"} onChange={(v) => commit({ ...design, bgFit: v as CanvasDesign["bgFit"] })}
-                          options={[["cover", "Penuh (crop)"], ["contain", "Muat utuh"], ["fill", "Regangkan"]]} />
-                      )}
-                    </div>
-                  )}
-                  <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna dasar</span>
-                    <input type="color" value={design.bgColor} onChange={(e) => commit({ ...designRef.current, bgColor: e.target.value }, false)} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
-                  </label>
-                  {design.bgImage && <button type="button" onClick={() => applyBgPreset(null)} className="px-2.5 py-1.5 text-rose-600 border border-rose-200 rounded-lg font-semibold hover:bg-rose-50">Hapus background</button>}
-                </Section>
-                <Section title="Ukuran Kanvas">
-                  <div className="text-slate-500">{orientation} • {size}<br />{pw} × {ph} px. Ubah di bagian <b>Pengaturan Template</b> di atas; posisi elemen otomatis menyesuaikan.</div>
-                </Section>
-              </>
-            )}
-          </div>
-        </aside>
+        <EditorSidePanel api={api} />
       </div>
     </div>
   );
 }
 
 /* ============================================================================
+   PANEL BERSAMA (dipakai editor DOM ini dan editor versi Konva)
+   ========================================================================== */
+
+export type PanelTab = "props" | "layers" | "page";
+export type UploadTarget = { id: string } | { bg: true } | { at: { x: number; y: number } };
+
+export interface EditorPanelApi {
+  design: CanvasDesign;
+  pw: number;
+  ph: number;
+  orientation: string;
+  size: string;
+  validity: Validity;
+  ctx: VarContext;
+  selected: CanvasEl | null;
+  selectedIds: string[];
+  select: (id: string | null) => void;
+  tab: PanelTab;
+  setTab: (t: PanelTab) => void;
+  patch: (id: string, partial: Partial<CanvasEl>, coalesceKey?: string) => void;
+  commit: (next: CanvasDesign, record?: boolean) => void;
+  addElement: (item: PaletteItem) => void;
+  removeEl: (id: string) => void;
+  duplicateEl: (id: string) => void;
+  reorder: (id: string, mode: "front" | "back" | "up" | "down") => void;
+  requestUpload: (target: { id: string } | { bg: true }) => void;
+  readImage: (file: File, target: UploadTarget) => void;
+  applyBgPreset: (id: BgPresetId | null) => void;
+  onEditSigner?: () => void;
+  /** Isi tab Properti saat lebih dari satu elemen dipilih (hanya editor Konva). */
+  multiPanel?: React.ReactNode;
+}
+
+function BgDropzone({ api }: { api: EditorPanelApi }) {
+  const [over, setOver] = useState(false);
+  return (
+    <div
+      onClick={() => api.requestUpload({ bg: true })}
+      onDragOver={(e) => { e.preventDefault(); setOver(true); }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => { e.preventDefault(); setOver(false); const f = e.dataTransfer.files?.[0]; if (f) api.readImage(f, { bg: true }); }}
+      className={`cursor-pointer rounded-xl border-2 border-dashed p-3 text-center transition ${over ? "border-[#016DB2] bg-sky-100" : "border-sky-300 bg-sky-50/50 hover:bg-sky-50"}`}>
+      <UploadCloud className="w-5 h-5 mx-auto text-[#016DB2]" />
+      <div className="text-[11px] font-bold text-slate-700 mt-1">Unggah Background</div>
+      <div className="text-[10px] text-slate-400">Klik / seret file ke sini</div>
+      <div className="text-[10px] text-slate-400">png, jpg, jpeg • maks 5Mb</div>
+    </div>
+  );
+}
+
+function BgPresetGrid({ api }: { api: EditorPanelApi }) {
+  const { design, pw, ph, applyBgPreset } = api;
+  const presetThumbs = useMemo(() => BG_PRESETS.map((p) => ({ ...p, src: makeBgPreset(p.id, pw, ph) })), [pw, ph]);
+  return (
+    <div className="grid grid-cols-2 gap-1.5">
+      <button type="button" onClick={() => applyBgPreset(null)} title="Polos"
+        className={`rounded-lg border-2 overflow-hidden text-left ${!design.bgImage ? "border-[#016DB2]" : "border-slate-200 hover:border-slate-300"}`}>
+        <div className="w-full flex items-center justify-center text-[9px] text-slate-400" style={{ aspectRatio: `${pw} / ${ph}`, background: design.bgColor }}>Polos</div>
+        <div className="px-1.5 py-1 text-[10px] font-semibold text-slate-600 truncate">Polos</div>
+      </button>
+      {presetThumbs.map((p) => (
+        <button key={p.id} type="button" onClick={() => applyBgPreset(p.id)} title={p.label}
+          className={`rounded-lg border-2 overflow-hidden text-left ${design.bgPreset === p.id ? "border-[#016DB2]" : "border-slate-200 hover:border-slate-300"}`}>
+          <img src={p.src} alt={p.label} className="w-full block" style={{ aspectRatio: `${pw} / ${ph}` }} />
+          <div className="px-1.5 py-1 text-[10px] font-semibold text-slate-600 truncate">{p.label}</div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Panel kiri: background + daftar komponen siap pakai. */
+export function EditorPalette({ api }: { api: EditorPanelApi }) {
+  const { design, pw, ph, addElement, applyBgPreset } = api;
+  return (
+    <aside className="w-52 shrink-0 border-r border-slate-200 overflow-y-auto p-3 space-y-4 bg-white">
+      <div>
+        <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Background</div>
+        <div className="space-y-2">
+          <BgDropzone api={api} />
+          {design.bgImage && !design.bgPreset && (
+            <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1.5 text-[10px] font-semibold text-emerald-700">
+              <span className="flex-1">✓ Background unggahan aktif</span>
+              <button type="button" onClick={() => applyBgPreset(null)} className="text-rose-600 hover:underline">Hapus</button>
+            </div>
+          )}
+          <div className="text-[10px] font-semibold text-slate-500">atau pilih preset:</div>
+          <BgPresetGrid api={api} />
+        </div>
+      </div>
+      {PALETTE.map((g) => (
+        <div key={g.group}>
+          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">{g.group}</div>
+          <div className="space-y-1">
+            {g.items.map((it) => {
+              const used = !!it.make(pw, ph).slot && design.elements.some((e) => e.slot === it.make(pw, ph).slot);
+              return (
+                <button key={it.label} type="button" onClick={() => addElement(it)}
+                  className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left text-[11px] font-semibold transition ${used ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 text-slate-700 hover:border-[#016DB2] hover:bg-sky-50"}`}>
+                  {it.icon}<span className="flex-1">{it.label}</span>
+                  {used ? <span className="text-[9px] font-bold">✓</span> : <span className="text-slate-300">+</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </aside>
+  );
+}
+
+/** Panel kanan: tab Properti, Layer, dan Halaman. */
+export function EditorSidePanel({ api }: { api: EditorPanelApi }) {
+  const {
+    design, pw, ph, orientation, size, validity, ctx, selected, selectedIds, select, tab, setTab,
+    patch, commit, removeEl, duplicateEl, reorder, requestUpload, applyBgPreset, onEditSigner, multiPanel,
+  } = api;
+  const alignTo = (el: CanvasEl, how: "h" | "v") =>
+    patch(el.id, how === "h" ? { x: (pw - el.w) / 2 } : { y: (ph - el.h) / 2 });
+  const isTextual = selected && ["text", "signer", "social"].includes(selected.type);
+  const hasImage = selected && ["logo", "image"].includes(selected.type);
+  return (
+    <aside className="w-72 shrink-0 border-l border-slate-200 bg-white flex flex-col">
+      <div className="flex border-b border-slate-200 text-[11px] font-bold">
+        {([["props", "Properti", SlidersHorizontal], ["layers", "Layer", Layers], ["page", "Halaman", Building2]] as const).map(([k, label, Icon]) => (
+          <button key={k} type="button" onClick={() => setTab(k)}
+            className={`flex-1 flex items-center justify-center gap-1 py-2.5 border-b-2 transition ${tab === k ? "border-[#016DB2] text-[#016DB2]" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
+            <Icon className="w-3.5 h-3.5" />{label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-3 text-xs space-y-4">
+        {/* ---- PROPERTI ---- */}
+        {tab === "props" && multiPanel}
+
+        {tab === "props" && !multiPanel && !selected && (
+          <div className="text-center text-slate-400 py-10 space-y-2">
+            <SlidersHorizontal className="w-6 h-6 mx-auto" />
+            <p className="font-semibold">Pilih elemen di kanvas</p>
+            <p className="text-[11px]">atau tambahkan komponen dari panel kiri.</p>
+          </div>
+        )}
+
+        {tab === "props" && !multiPanel && selected && (
+          <>
+            <div>
+              <input value={selected.name} onChange={(e) => patch(selected.id, { name: e.target.value }, "name")}
+                className="w-full font-bold text-slate-900 text-sm border border-transparent hover:border-slate-200 focus:border-[#016DB2] rounded-lg px-1.5 py-1 outline-none" />
+              <div className="flex gap-1 mt-1.5">
+                <TB title="Duplikat (Ctrl+D)" onClick={() => duplicateEl(selected.id)}><Copy className="w-3.5 h-3.5" /></TB>
+                <TB title={selected.locked ? "Buka kunci" : "Kunci"} active={!!selected.locked} onClick={() => patch(selected.id, { locked: !selected.locked })}>{selected.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}</TB>
+                <TB title={selected.hidden ? "Tampilkan" : "Sembunyikan"} onClick={() => patch(selected.id, { hidden: !selected.hidden })}>{selected.hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</TB>
+                <TB title="Ke paling depan" onClick={() => reorder(selected.id, "front")}><ChevronsUp className="w-3.5 h-3.5" /></TB>
+                <TB title="Maju satu layer" onClick={() => reorder(selected.id, "up")}><ArrowUp className="w-3.5 h-3.5" /></TB>
+                <TB title="Mundur satu layer" onClick={() => reorder(selected.id, "down")}><ArrowDown className="w-3.5 h-3.5" /></TB>
+                <TB title="Ke paling belakang" onClick={() => reorder(selected.id, "back")}><ChevronsDown className="w-3.5 h-3.5" /></TB>
+                <TB title="Hapus (Del)" danger onClick={() => removeEl(selected.id)}><Trash2 className="w-3.5 h-3.5" /></TB>
+              </div>
+            </div>
+
+            <Section title="Posisi & Ukuran">
+              <div className="grid grid-cols-2 gap-2">
+                <Num label="X" value={selected.x} onChange={(v) => patch(selected.id, { x: v }, "x")} />
+                <Num label="Y" value={selected.y} onChange={(v) => patch(selected.id, { y: v }, "y")} />
+                <Num label="Lebar" value={selected.w} min={8} onChange={(v) => patch(selected.id, { w: v }, "w")} />
+                <Num label="Tinggi" value={selected.h} min={2} onChange={(v) => patch(selected.id, { h: v }, "h")} />
+                <Num label="Rotasi °" value={selected.rotation} onChange={(v) => patch(selected.id, { rotation: ((v % 360) + 360) % 360 }, "rot")} />
+                <Num label="Opacity %" value={Math.round(selected.opacity * 100)} min={0} max={100} onChange={(v) => patch(selected.id, { opacity: clamp(v, 0, 100) / 100 }, "op")} />
+              </div>
+              <div className="flex gap-2 mt-2">
+                <button type="button" onClick={() => alignTo(selected, "h")} className="flex-1 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Tengah Horizontal</button>
+                <button type="button" onClick={() => alignTo(selected, "v")} className="flex-1 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Tengah Vertikal</button>
+              </div>
+            </Section>
+
+            {hasImage && (
+              <Section title={selected.type === "logo" ? "File Logo" : "Gambar"}>
+                <div className="flex items-center gap-2 border border-slate-200 rounded-xl p-1.5 pl-3">
+                  <span className="flex-1 truncate text-slate-600">{selected.src ? "File terpilih" : "Belum ada file"}</span>
+                  <button type="button" onClick={() => requestUpload({ id: selected.id })} className="px-3 py-1.5 bg-[#016DB2] hover:bg-blue-700 text-white rounded-lg font-bold flex items-center gap-1"><UploadCloud className="w-3.5 h-3.5" />Choose File</button>
+                </div>
+                <div className="text-[11px] text-slate-400">*Max Size: 5Mb, Format: png, jpg, dan jpeg.</div>
+                <div className="flex gap-2 items-center">
+                  <Select label="Mode" value={selected.fit ?? "contain"} onChange={(v) => patch(selected.id, { fit: v as "contain" | "cover" })} options={[["contain", "Muat (contain)"], ["cover", "Penuh (cover)"]]} />
+                  {selected.src && <button type="button" onClick={() => patch(selected.id, { src: undefined })} className="self-end px-2.5 py-2 text-rose-600 border border-rose-200 rounded-lg font-semibold hover:bg-rose-50">Hapus</button>}
+                </div>
+              </Section>
+            )}
+
+            {isTextual && selected.type !== "social" && (
+              <Section title="Isi Teks">
+                <textarea rows={selected.type === "signer" ? 3 : 4} value={selected.text ?? ""} onChange={(e) => patch(selected.id, { text: e.target.value }, "text")}
+                  className="w-full p-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#016DB2] resize-y" />
+                {selected.type === "signer" && <div className="text-[11px] text-slate-400">Baris pertama = nama (tebal), baris berikutnya = jabatan.</div>}
+                <div className="text-[11px] text-slate-500 font-semibold mt-1">Sisipkan data dinamis:</div>
+                <div className="flex flex-wrap gap-1">
+                  {VARIABLES.map((v) => (
+                    <button key={v.key} type="button" onClick={() => patch(selected.id, { text: `${selected.text ?? ""}{{${v.key}}}` })}
+                      className="px-2 py-1 rounded-full bg-sky-50 text-[#016DB2] border border-sky-200 text-[10px] font-bold hover:bg-sky-100">{v.label}</button>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {selected.slot && (SIGNER_SLOTS as readonly string[]).includes(selected.slot) && onEditSigner && (
+              <div className="rounded-xl bg-amber-50 border border-amber-200 p-2.5 text-[11px] text-amber-800 space-y-1.5">
+                <div><b>Terhubung dengan form Penandatangan.</b> Perubahan di sini ikut mengubah form, dan sebaliknya.</div>
+                <button type="button" onClick={onEditSigner} className="font-bold text-[#016DB2] hover:underline">Edit di form Penandatangan ↓</button>
+              </div>
+            )}
+
+            {selected.slot === "signature" && !selected.src && (
+              <Section title="Tanda Tangan (Teks)">
+                <input value={selected.text ?? ""} onChange={(e) => patch(selected.id, { text: e.target.value }, "sig")}
+                  className="w-full p-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#016DB2]" />
+                <div className="text-[11px] text-slate-400">Ditampilkan dengan huruf script selama gambar tanda tangan belum diunggah.</div>
+              </Section>
+            )}
+
+            {selected.type === "text" && (
+              <Section title="Latar Teks">
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna latar</span>
+                    <input type="color" value={selected.fill && selected.fill !== "transparent" ? selected.fill : "#ffffff"} onChange={(e) => patch(selected.id, { fill: e.target.value }, "tfill")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
+                  </label>
+                  <Num label="Padding" value={selected.padding ?? 0} min={0} onChange={(v) => patch(selected.id, { padding: v }, "pad")} />
+                </div>
+                {selected.fill && selected.fill !== "transparent" && (
+                  <button type="button" onClick={() => patch(selected.id, { fill: undefined })} className="px-2.5 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Hapus latar</button>
+                )}
+              </Section>
+            )}
+
+            {isTextual && DATE_TOKENS.test(selected.text ?? "") && (
+              <Section title="Tanggal & Masa Aktif">
+                <Select label="Format tanggal" value={selected.dateFormat ?? "id_long"} onChange={(v) => patch(selected.id, { dateFormat: v as DateFormat })} options={DATE_FORMATS} />
+                <div className="rounded-xl bg-sky-50 border border-sky-200 p-2.5 space-y-1 text-[11px] text-slate-600">
+                  <div className="flex justify-between"><span>Masa aktif template</span><b className="text-[#016DB2]">{validityLabel(validity)}</b></div>
+                  <div className="flex justify-between"><span>Contoh terbit</span><b>{formatDate(SAMPLE_ISSUE_DATE, selected.dateFormat)}</b></div>
+                  <div className="flex justify-between"><span>Contoh berakhir</span><b>{(() => { const exp = addValidity(SAMPLE_ISSUE_DATE, validity); return exp ? formatDate(exp, selected.dateFormat) : "Seumur Hidup"; })()}</b></div>
+                  <div className="pt-1 border-t border-sky-200 text-slate-500">Hasil: <span className="text-slate-800 font-semibold">{fillVars(selected.text ?? "", ctx, selected.dateFormat)}</span></div>
+                </div>
+                <div className="text-[11px] text-slate-400">Tanggal berakhir = tanggal terbit + masa aktif. Ubah masa aktif di <b>Pengaturan Template</b>.</div>
+              </Section>
+            )}
+
+            {selected.type === "social" && (
+              <Section title="Social Media Links">
+                {SOCIAL_META.map(({ key, icon: Icon }) => (
+                  <label key={key} className="flex items-center gap-2">
+                    <Icon className="w-4 h-4 text-slate-500 shrink-0" />
+                    <input value={selected.links?.[key] ?? ""} placeholder={key === "website" ? "kursusonline.com" : `${key}.com/kursus`}
+                      onChange={(e) => patch(selected.id, { links: { ...selected.links, [key]: e.target.value } }, `l${key}`)}
+                      className="flex-1 p-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#016DB2]" />
+                  </label>
+                ))}
+              </Section>
+            )}
+
+            {isTextual && (
+              <Section title="Tipografi">
+                <Select label="Font" value={selected.fontFamily ?? FONTS[0].value} onChange={(v) => patch(selected.id, { fontFamily: v })} options={FONTS.map((f) => [f.value, f.label])} />
+                <div className="grid grid-cols-2 gap-2">
+                  <Num label="Ukuran" value={selected.fontSize ?? 16} min={6} max={200} onChange={(v) => patch(selected.id, { fontSize: v }, "fs")} />
+                  <Num label="Spasi huruf" value={selected.letterSpacing ?? 0} step={0.5} onChange={(v) => patch(selected.id, { letterSpacing: v }, "ls")} />
+                  <Num label="Tinggi baris" value={selected.lineHeight ?? 1.3} step={0.1} min={0.8} max={3} onChange={(v) => patch(selected.id, { lineHeight: v }, "lh")} />
+                  <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna</span>
+                    <input type="color" value={selected.color ?? "#000000"} onChange={(e) => patch(selected.id, { color: e.target.value }, "color")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
+                  </label>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  <TB title="Tebal" active={!!selected.bold} onClick={() => patch(selected.id, { bold: !selected.bold })}><Bold className="w-3.5 h-3.5" /></TB>
+                  <TB title="Miring" active={!!selected.italic} onClick={() => patch(selected.id, { italic: !selected.italic })}><Italic className="w-3.5 h-3.5" /></TB>
+                  <TB title="Garis bawah" active={!!selected.underline} onClick={() => patch(selected.id, { underline: !selected.underline })}><Underline className="w-3.5 h-3.5" /></TB>
+                  <TB title="HURUF BESAR" active={!!selected.uppercase} onClick={() => patch(selected.id, { uppercase: !selected.uppercase })}><span className="text-[10px] font-black">Aa</span></TB>
+                  <Sep />
+                  <TB title="Rata kiri" active={selected.align === "left"} onClick={() => patch(selected.id, { align: "left" })}><AlignLeft className="w-3.5 h-3.5" /></TB>
+                  <TB title="Rata tengah" active={selected.align === "center"} onClick={() => patch(selected.id, { align: "center" })}><AlignCenter className="w-3.5 h-3.5" /></TB>
+                  <TB title="Rata kanan" active={selected.align === "right"} onClick={() => patch(selected.id, { align: "right" })}><AlignRight className="w-3.5 h-3.5" /></TB>
+                </div>
+                {selected.type !== "social" && (
+                  <Select label="Posisi vertikal" value={selected.valign ?? "middle"} onChange={(v) => patch(selected.id, { valign: v as CanvasEl["valign"] })} options={[["top", "Atas"], ["middle", "Tengah"], ["bottom", "Bawah"]]} />
+                )}
+              </Section>
+            )}
+
+            {(selected.type === "shape" || selected.type === "line") && (
+              <Section title="Warna & Garis Tepi">
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Isi</span>
+                    <input type="color" value={selected.fill && selected.fill !== "transparent" ? selected.fill : "#ffffff"} onChange={(e) => patch(selected.id, { fill: e.target.value }, "fill")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
+                  </label>
+                  {selected.type === "shape" && (
+                    <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna tepi</span>
+                      <input type="color" value={selected.stroke ?? "#016DB2"} onChange={(e) => patch(selected.id, { stroke: e.target.value }, "stroke")} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
+                    </label>
+                  )}
+                  {selected.type === "shape" && <Num label="Tebal tepi" value={selected.strokeWidth ?? 0} min={0} onChange={(v) => patch(selected.id, { strokeWidth: v }, "sw")} />}
+                  {selected.type === "shape" && selected.shape === "rect" && <Num label="Sudut" value={selected.radius ?? 0} min={0} onChange={(v) => patch(selected.id, { radius: v }, "rad")} />}
+                </div>
+                <button type="button" onClick={() => patch(selected.id, { fill: "transparent" })} className="px-2.5 py-1.5 border border-slate-200 rounded-lg font-semibold hover:bg-slate-50">Isi transparan</button>
+              </Section>
+            )}
+          </>
+        )}
+
+        {/* ---- LAYER ---- */}
+        {tab === "layers" && (
+          <div className="space-y-1">
+            {[...design.elements].reverse().map((el) => (
+              <div key={el.id} onClick={() => select(el.id)}
+                className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg border cursor-pointer ${selectedIds.includes(el.id) ? "border-[#016DB2] bg-sky-50" : "border-slate-200 hover:bg-slate-50"} ${el.hidden ? "opacity-50" : ""}`}>
+                <span className="flex-1 truncate font-semibold text-slate-700">{el.name}</span>
+                <button type="button" title="Sembunyikan" onClick={(e) => { e.stopPropagation(); patch(el.id, { hidden: !el.hidden }); }} className="text-slate-400 hover:text-slate-700">{el.hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button>
+                <button type="button" title="Kunci" onClick={(e) => { e.stopPropagation(); patch(el.id, { locked: !el.locked }); }} className="text-slate-400 hover:text-slate-700">{el.locked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}</button>
+                <button type="button" title="Naik" onClick={(e) => { e.stopPropagation(); reorder(el.id, "up"); }} className="text-slate-400 hover:text-slate-700"><ArrowUp className="w-3.5 h-3.5" /></button>
+                <button type="button" title="Turun" onClick={(e) => { e.stopPropagation(); reorder(el.id, "down"); }} className="text-slate-400 hover:text-slate-700"><ArrowDown className="w-3.5 h-3.5" /></button>
+              </div>
+            ))}
+            {!design.elements.length && <div className="text-center text-slate-400 py-8">Kanvas masih kosong.</div>}
+          </div>
+        )}
+
+        {/* ---- HALAMAN ---- */}
+        {tab === "page" && (
+          <>
+            <Section title="Company">
+              <Select label="" value={design.company} onChange={(v) => commit({ ...design, company: v })} options={COMPANIES.map((c) => [c, c])} />
+            </Section>
+            <Section title="Background Halaman">
+              <BgDropzone api={api} />
+              <div className="text-[11px] text-slate-400">
+                Disarankan ukuran {pw * 2} × {ph * 2} px ({orientation}) agar tajam saat dicetak. Background boleh sudah berisi ornamen/pola; teks & logo diletakkan di atasnya.
+              </div>
+              <div className="text-[10px] font-semibold text-slate-500 pt-1">Preset siap pakai</div>
+              <BgPresetGrid api={api} />
+              {design.bgImage && (
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <Num label="Opacity %" value={Math.round((design.bgOpacity ?? 1) * 100)} min={0} max={100}
+                    onChange={(v) => commit({ ...design, bgOpacity: clamp(v, 0, 100) / 100 }, false)} />
+                  {!design.bgPreset && (
+                    <Select label="Mode" value={design.bgFit ?? "cover"} onChange={(v) => commit({ ...design, bgFit: v as CanvasDesign["bgFit"] })}
+                      options={[["cover", "Penuh (crop)"], ["contain", "Muat utuh"], ["fill", "Regangkan"]]} />
+                  )}
+                </div>
+              )}
+              <label className="block"><span className="text-[11px] text-slate-500 font-semibold">Warna dasar</span>
+                <input type="color" value={design.bgColor} onChange={(e) => commit({ ...design, bgColor: e.target.value }, false)} className="w-full h-8 border border-slate-200 rounded-lg p-0.5 bg-white" />
+              </label>
+              {design.bgImage && <button type="button" onClick={() => applyBgPreset(null)} className="px-2.5 py-1.5 text-rose-600 border border-rose-200 rounded-lg font-semibold hover:bg-rose-50">Hapus background</button>}
+            </Section>
+            <Section title="Ukuran Kanvas">
+              <div className="text-slate-500">{orientation} • {size}<br />{pw} × {ph} px. Ubah di bagian <b>Pengaturan Template</b> di atas; posisi elemen otomatis menyesuaikan.</div>
+            </Section>
+          </>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+
+/* ============================================================================
    SMALL UI PIECES
    ========================================================================== */
 
-function TB({ children, onClick, title, active, disabled, danger }: { children: React.ReactNode; onClick?: () => void; title?: string; active?: boolean; disabled?: boolean; danger?: boolean }) {
+export function TB({ children, onClick, title, active, disabled, danger }: { children: React.ReactNode; onClick?: () => void; title?: string; active?: boolean; disabled?: boolean; danger?: boolean }) {
   return (
     <button type="button" title={title} disabled={disabled} onClick={onClick}
       className={`min-w-7 h-7 px-1.5 inline-flex items-center justify-center rounded-lg border transition disabled:opacity-30 disabled:cursor-not-allowed ${active ? "bg-[#E0F2FE] border-[#016DB2] text-[#016DB2]" : danger ? "border-slate-200 bg-white text-rose-600 hover:bg-rose-50" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100"}`}>
@@ -1245,9 +1310,9 @@ function TB({ children, onClick, title, active, disabled, danger }: { children: 
   );
 }
 
-const Sep = () => <span className="w-px h-5 bg-slate-200 mx-0.5" />;
+export const Sep = () => <span className="w-px h-5 bg-slate-200 mx-0.5" />;
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+export function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2 pt-3 border-t border-slate-100 first:border-0 first:pt-0">
       <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">{title}</div>
@@ -1256,7 +1321,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Num({ label, value, onChange, min, max, step = 1 }: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number }) {
+export function Num({ label, value, onChange, min, max, step = 1 }: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number }) {
   return (
     <label className="block">
       <span className="text-[11px] text-slate-500 font-semibold">{label}</span>
@@ -1267,7 +1332,7 @@ function Num({ label, value, onChange, min, max, step = 1 }: { label: string; va
   );
 }
 
-function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
+export function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
   return (
     <label className="block flex-1">
       {label && <span className="text-[11px] text-slate-500 font-semibold">{label}</span>}

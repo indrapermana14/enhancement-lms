@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST="{\"components/CertificateModule.tsx -> ./CertificateKonvaEditor\":{\"id\":\"components/CertificateModule.tsx -> ./CertificateKonvaEditor\",\"files\":[\"static/chunks/_app-pages-browser_components_CertificateKonvaEditor_tsx.js\"]}}"

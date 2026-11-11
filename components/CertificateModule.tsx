@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
 import {
   Search,
   RefreshCw,
@@ -48,6 +49,30 @@ import CertificateCanvasEditor, {
   formatDate,
   validityLabel
 } from "./CertificateCanvasEditor";
+
+// Editor versi Konva.js menggambar di <canvas>, jadi hanya dimuat di browser.
+const CertificateKonvaEditor = dynamic(() => import("./CertificateKonvaEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[725px] border border-slate-200 rounded-2xl bg-slate-50 flex items-center justify-center text-xs font-semibold text-slate-400">
+      Memuat editor Konva.js…
+    </div>
+  ),
+});
+
+const EDITOR_ENGINES = [
+  {
+    id: "konva",
+    label: "Konva.js",
+    note: "Digambar di <canvas> dengan library konva + react-konva. Bisa pilih banyak elemen (Shift+klik atau seret area kosong), ratakan antar elemen, dan unduh PNG.",
+  },
+  {
+    id: "dom",
+    label: "Buatan Sendiri (HTML/CSS)",
+    note: "Elemen HTML biasa tanpa library tambahan. Teks dirender browser sehingga paling tajam; belum ada pilih banyak elemen dan ekspor gambar.",
+  },
+] as const;
+type EditorEngine = (typeof EDITOR_ENGINES)[number]["id"];
 
 export interface CertItem {
   id: string;
@@ -748,6 +773,8 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
   const [tmplSignerName, setTmplSignerName] = useState("Robert Satoso Ibrahim");
   const [tmplSignerTitle, setTmplSignerTitle] = useState("Manager Trainer");
   const [tmplValidity, setTmplValidity] = useState<Validity>(DEFAULT_VALIDITY);
+  // Mesin editor desain; keduanya memakai data desain yang sama sehingga bisa ditukar kapan saja.
+  const [editorEngine, setEditorEngine] = useState<EditorEngine>("konva");
   const [tmplDesign, setTmplDesign] = useState<CanvasDesign>(() => createDefaultDesign("Landscape", "A4 (210×290 mm)", "Robert Satoso Ibrahim", "Manager Trainer"));
 
   // Safe Toast Notification (replaces window.alert for sandboxed iframes / v0)
@@ -2287,15 +2314,46 @@ export default function CertificateModule({ currentRole = "Admin HO (Corpu)", on
                   Tambahkan komponen dari panel kiri (logo, judul, nama peserta, penandatangan, footer, social media), lalu geser, ubah ukuran, putar, dan atur gayanya langsung di kanvas. Background & company diatur di tab <b>Halaman</b>.
                 </p>
               </div>
-              <CertificateCanvasEditor
-                design={tmplDesign}
-                onChange={handleDesignChange}
-                orientation={tmplOrientation}
-                size={tmplSize}
-                validity={tmplValidity}
-                onToast={showToast}
-                onEditSigner={scrollToSignerForm}
-              />
+              {/* Pilihan mesin editor (untuk membandingkan keduanya) */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-[11px] font-bold text-slate-500">Mesin editor:</span>
+                <div className="inline-flex rounded-lg border border-slate-200 bg-white p-0.5">
+                  {EDITOR_ENGINES.map((eng) => (
+                    <button
+                      key={eng.id}
+                      type="button"
+                      onClick={() => setEditorEngine(eng.id)}
+                      className={`px-3 py-1.5 rounded-md text-[11px] font-bold transition ${editorEngine === eng.id ? "bg-[#016DB2] text-white" : "text-slate-600 hover:bg-slate-100"}`}
+                    >
+                      {eng.label}
+                    </button>
+                  ))}
+                </div>
+                <span className="flex-1 min-w-[240px] text-[11px] text-slate-500">
+                  {EDITOR_ENGINES.find((eng) => eng.id === editorEngine)?.note} Desain yang sama tampil di keduanya.
+                </span>
+              </div>
+              {editorEngine === "konva" ? (
+                <CertificateKonvaEditor
+                  design={tmplDesign}
+                  onChange={handleDesignChange}
+                  orientation={tmplOrientation}
+                  size={tmplSize}
+                  validity={tmplValidity}
+                  onToast={showToast}
+                  onEditSigner={scrollToSignerForm}
+                />
+              ) : (
+                <CertificateCanvasEditor
+                  design={tmplDesign}
+                  onChange={handleDesignChange}
+                  orientation={tmplOrientation}
+                  size={tmplSize}
+                  validity={tmplValidity}
+                  onToast={showToast}
+                  onEditSigner={scrollToSignerForm}
+                />
+              )}
             </div>
 
             {/* Card 3: Penandatangan */}
